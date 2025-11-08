@@ -130,6 +130,53 @@ app.get('/api/server-info', (req, res) => {
   });
 });
 
+// Todo 相关 API
+const TODOS_FILE = path.join(__dirname, 'todos.json');
+
+// 获取所有待办事项
+app.get('/api/todos', async (req, res) => {
+  try {
+    const fileData = await fs.readFile(TODOS_FILE, 'utf-8');
+    const todos = JSON.parse(fileData);
+    res.json({
+      success: true,
+      todos
+    });
+  } catch (error) {
+    // 文件不存在时返回空数组
+    if (error.code === 'ENOENT') {
+      res.json({
+        success: true,
+        todos: []
+      });
+    } else {
+      console.error('读取 todos 失败:', error);
+      res.status(500).json({
+        success: false,
+        message: '读取数据失败'
+      });
+    }
+  }
+});
+
+// 保存待办事项
+app.post('/api/todos', async (req, res) => {
+  try {
+    const { todos } = req.body;
+    await fs.writeFile(TODOS_FILE, JSON.stringify(todos, null, 2), 'utf-8');
+    res.json({
+      success: true,
+      message: '待办事项已保存'
+    });
+  } catch (error) {
+    console.error('保存 todos 失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '保存数据失败'
+    });
+  }
+});
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);
