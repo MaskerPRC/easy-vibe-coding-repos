@@ -1,246 +1,285 @@
 <template>
   <div class="app">
-    <header class="header">
-      <h1>应用项目</h1>
-      <p>这是一个基础的 Vue + Vite 应用（前后端分离）</p>
-    </header>
-    <main class="main">
-      <div class="card">
-        <h2>欢迎使用</h2>
-        <p>您可以通过控制平台的对话框提交需求，系统会自动修改这里的代码。</p>
-        
-        <div class="status">
-          <p>后端状态: <span :class="backendStatus">{{ backendStatusText }}</span></p>
-        </div>
+    <!-- 苹果风格导航栏 -->
+    <AppleNav />
 
-        <div class="counter">
-          <button @click="decrement">-</button>
-          <span>{{ count }}</span>
-          <button @click="increment">+</button>
-        </div>
+    <!-- Hero 区域 - Pixel 9 Pro -->
+    <PixelHero />
 
-        <div class="actions">
-          <button @click="fetchData" class="action-btn">获取后端数据</button>
-          <button @click="updateData" class="action-btn">更新后端数据</button>
-        </div>
+    <!-- 产品展示区 -->
+    <ProductShowcase />
 
-        <div v-if="apiMessage" class="api-message">
-          {{ apiMessage }}
+    <!-- 特性展示区 -->
+    <section class="features">
+      <div class="features-content">
+        <h2 class="section-title">为什么选择 Google Pixel</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3 class="feature-title">Google AI</h3>
+            <p class="feature-desc">强大的 AI 功能，让你的手机更智能</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📸</div>
+            <h3 class="feature-title">顶级相机</h3>
+            <p class="feature-desc">AI 驱动的摄影技术，随手拍大片</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3 class="feature-title">安全可靠</h3>
+            <p class="feature-desc">Titan M2 芯片，多层安全保护</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3 class="feature-title">持久续航</h3>
+            <p class="feature-desc">自适应电池，续航超过 24 小时</p>
+          </div>
         </div>
       </div>
-    </main>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4>购物与了解</h4>
+            <ul>
+              <li><a href="#store">Google Store</a></li>
+              <li><a href="#pixel">Pixel 手机</a></li>
+              <li><a href="#watch">Pixel Watch</a></li>
+              <li><a href="#buds">Pixel Buds</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4>服务</h4>
+            <ul>
+              <li><a href="#support">支持服务</a></li>
+              <li><a href="#warranty">保修服务</a></li>
+              <li><a href="#trade-in">以旧换新</a></li>
+              <li><a href="#financing">分期付款</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4>关于 Google</h4>
+            <ul>
+              <li><a href="#about">公司简介</a></li>
+              <li><a href="#news">新闻中心</a></li>
+              <li><a href="#careers">招贤纳士</a></li>
+              <li><a href="#responsibility">社会责任</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p class="footer-copyright">© 2024 Google LLC. 保留所有权利。</p>
+          <div class="footer-legal">
+            <a href="#privacy">隐私政策</a>
+            <a href="#terms">使用条款</a>
+            <a href="#cookies">Cookie 设置</a>
+          </div>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-
-const count = ref(0);
-const backendStatus = ref('checking');
-const backendStatusText = ref('检查中...');
-const apiMessage = ref('');
-
-const increment = () => {
-  count.value++;
-  updateData();
-};
-
-const decrement = () => {
-  count.value--;
-  updateData();
-};
-
-// 检查后端状态
-const checkBackend = async () => {
-  try {
-    const response = await fetch('/api/health');
-    const data = await response.json();
-    if (data.status === 'ok') {
-      backendStatus.value = 'online';
-      backendStatusText.value = '在线';
-    }
-  } catch (error) {
-    backendStatus.value = 'offline';
-    backendStatusText.value = '离线';
-    console.error('后端连接失败:', error);
-  }
-};
-
-// 获取后端数据
-const fetchData = async () => {
-  try {
-    const response = await fetch('/api/data');
-    const data = await response.json();
-    apiMessage.value = `后端返回: ${data.message}`;
-    if (data.data && data.data.count !== undefined) {
-      count.value = data.data.count;
-    }
-  } catch (error) {
-    apiMessage.value = '获取数据失败: ' + error.message;
-    console.error('获取数据失败:', error);
-  }
-};
-
-// 更新后端数据
-const updateData = async () => {
-  try {
-    const response = await fetch('/api/data', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ count: count.value })
-    });
-    const data = await response.json();
-    apiMessage.value = data.message || '数据已更新';
-  } catch (error) {
-    apiMessage.value = '更新数据失败: ' + error.message;
-    console.error('更新数据失败:', error);
-  }
-};
-
-onMounted(async () => {
-  checkBackend();
-  // 每 5 秒检查一次后端状态
-  setInterval(checkBackend, 5000);
-  // 页面加载时从后端获取数据，实现数据持久化
-  await fetchData();
-});
+import AppleNav from './components/AppleNav.vue';
+import PixelHero from './components/PixelHero.vue';
+import ProductShowcase from './components/ProductShowcase.vue';
 </script>
 
 <style scoped>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .app {
   min-height: 100vh;
-  background: black;
-  padding: 20px;
-  color: white;
+  background: #ffffff;
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 40px;
+/* 特性展示区 */
+.features {
+  padding: 100px 20px;
+  background: #f5f5f7;
 }
 
-.header h1 {
-  font-size: 48px;
-  margin-bottom: 10px;
-}
-
-.header p {
-  font-size: 18px;
-  opacity: 0.9;
-}
-
-.main {
-  max-width: 800px;
+.features-content {
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+.section-title {
+  font-size: 48px;
+  font-weight: 600;
+  color: #1d1d1f;
+  text-align: center;
+  margin: 0 0 80px;
+  letter-spacing: -0.02em;
 }
 
-.card h2 {
-  color: red;
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 40px 20px;
+  background: #ffffff;
+  border-radius: 18px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+}
+
+.feature-icon {
+  font-size: 56px;
   margin-bottom: 20px;
 }
 
-.card p {
-  color: red;
-  line-height: 1.6;
-  margin-bottom: 30px;
-}
-
-.counter {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 30px;
-}
-
-.counter button {
-  width: 50px;
-  height: 50px;
+.feature-title {
   font-size: 24px;
-  border: 2px solid #667eea;
-  background: white;
-  color: red;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0 0 12px;
 }
 
-.counter button:hover {
-  background: #667eea;
-  color: red;
+.feature-desc {
+  font-size: 17px;
+  font-weight: 400;
+  color: #6e6e73;
+  margin: 0;
+  line-height: 1.47;
 }
 
-.counter span {
-  font-size: 32px;
-  font-weight: bold;
-  color: red;
-  min-width: 60px;
-  text-align: center;
+/* Footer */
+.footer {
+  background: #f5f5f7;
+  border-top: 1px solid #d2d2d7;
+  padding: 60px 20px 20px;
 }
 
-.status {
-  margin: 20px 0;
-  padding: 10px;
-  background: #f5f5f5;
-  border-radius: 6px;
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.status span {
-  font-weight: bold;
-  color: red;
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin-bottom: 40px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid #d2d2d7;
 }
 
-.status span.checking {
-  color: red;
+.footer-column h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0 0 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.status span.online {
-  color: red;
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.status span.offline {
-  color: red;
+.footer-column li {
+  margin-bottom: 12px;
 }
 
-.actions {
-  margin-top: 30px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.action-btn {
-  padding: 10px 20px;
-  background: #667eea;
-  color: red;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+.footer-column a {
+  color: #6e6e73;
+  text-decoration: none;
   font-size: 14px;
-  transition: background 0.2s;
+  transition: color 0.3s;
 }
 
-.action-btn:hover {
-  background: #5568d3;
-  color: red;
+.footer-column a:hover {
+  color: #1d1d1f;
 }
 
-.api-message {
-  margin-top: 20px;
-  padding: 10px;
-  background: #e7f3ff;
-  border-left: 4px solid #667eea;
-  border-radius: 4px;
-  color: red;
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-copyright {
+  font-size: 12px;
+  color: #6e6e73;
+  margin: 0;
+}
+
+.footer-legal {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-legal a {
+  font-size: 12px;
+  color: #6e6e73;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-legal a:hover {
+  color: #1d1d1f;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 32px;
+    margin: 0 0 40px;
+  }
+
+  .features {
+    padding: 60px 20px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .feature-card {
+    padding: 30px 20px;
+  }
+
+  .feature-icon {
+    font-size: 48px;
+  }
+
+  .feature-title {
+    font-size: 21px;
+  }
+
+  .footer-links {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .footer-legal {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 </style>
-
