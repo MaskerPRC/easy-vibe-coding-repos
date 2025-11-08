@@ -106,7 +106,7 @@ onMounted(async () => {
 .home {
   width: 100%;
   min-height: calc(100vh - 200px);
-  background: black;
+  background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 100%);
   padding: 40px 20px;
   display: flex;
   align-items: center;
@@ -123,12 +123,12 @@ onMounted(async () => {
 }
 
 .card h2 {
-  color: red;
+  color: #ff69b4;
   margin-bottom: 20px;
 }
 
 .card p {
-  color: red;
+  color: #ff1493;
   line-height: 1.6;
   margin-bottom: 30px;
 }
@@ -145,23 +145,23 @@ onMounted(async () => {
   width: 50px;
   height: 50px;
   font-size: 24px;
-  border: 2px solid #667eea;
+  border: 2px solid #ff69b4;
   background: white;
-  color: red;
+  color: #ff1493;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .counter button:hover {
-  background: #667eea;
-  color: red;
+  background: #ff69b4;
+  color: white;
 }
 
 .counter span {
   font-size: 32px;
   font-weight: bold;
-  color: red;
+  color: #ff1493;
   min-width: 60px;
   text-align: center;
 }
@@ -175,19 +175,19 @@ onMounted(async () => {
 
 .status span {
   font-weight: bold;
-  color: red;
+  color: #ff69b4;
 }
 
 .status span.checking {
-  color: red;
+  color: #ff69b4;
 }
 
 .status span.online {
-  color: red;
+  color: #ff1493;
 }
 
 .status span.offline {
-  color: red;
+  color: #ffb6c1;
 }
 
 .actions {
@@ -199,8 +199,8 @@ onMounted(async () => {
 
 .action-btn {
   padding: 10px 20px;
-  background: #667eea;
-  color: red;
+  background: #ff69b4;
+  color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -209,16 +209,16 @@ onMounted(async () => {
 }
 
 .action-btn:hover {
-  background: #5568d3;
-  color: red;
+  background: #ff1493;
+  color: white;
 }
 
 .api-message {
   margin-top: 20px;
   padding: 10px;
-  background: #e7f3ff;
-  border-left: 4px solid #667eea;
+  background: #ffe5ec;
+  border-left: 4px solid #ff69b4;
   border-radius: 4px;
-  color: red;
+  color: #ff1493;
 }
 </style>

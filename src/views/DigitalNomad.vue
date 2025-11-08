@@ -200,12 +200,12 @@ import { ref } from 'vue';
 <style scoped>
 .digital-nomad {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
   padding: 0;
 }
 
 .hero {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+  background: linear-gradient(135deg, rgba(255, 154, 158, 0.9) 0%, rgba(250, 208, 196, 0.9) 100%);
   color: white;
   padding: 80px 20px;
   text-align: center;
@@ -241,10 +241,10 @@ import { ref } from 'vue';
 }
 
 .section h2 {
-  color: #667eea;
+  color: #ff69b4;
   font-size: 32px;
   margin-bottom: 24px;
-  border-bottom: 3px solid #667eea;
+  border-bottom: 3px solid #ff69b4;
   padding-bottom: 12px;
 }
 
@@ -272,7 +272,7 @@ import { ref } from 'vue';
 
 .lifestyle-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 8px 20px rgba(255, 105, 180, 0.3);
 }
 
 .icon {
@@ -281,7 +281,7 @@ import { ref } from 'vue';
 }
 
 .lifestyle-card h3 {
-  color: #667eea;
+  color: #ff69b4;
   font-size: 20px;
   margin-bottom: 12px;
 }
@@ -307,7 +307,7 @@ import { ref } from 'vue';
   padding: 20px;
   background: #f8f9fa;
   border-radius: 10px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #ff69b4;
   transition: background 0.3s;
 }
 
@@ -320,7 +320,7 @@ import { ref } from 'vue';
 }
 
 .job-item h4 {
-  color: #667eea;
+  color: #ff69b4;
   margin-bottom: 6px;
   font-size: 18px;
 }
@@ -350,7 +350,7 @@ import { ref } from 'vue';
 }
 
 .destination-card h3 {
-  color: #d63031;
+  color: #ff1493;
   font-size: 20px;
   margin-bottom: 12px;
 }
@@ -371,8 +371,8 @@ import { ref } from 'vue';
 .benefits-list li {
   padding: 16px;
   margin-bottom: 12px;
-  background: #f0f4ff;
-  border-left: 4px solid #667eea;
+  background: #ffe5ec;
+  border-left: 4px solid #ff69b4;
   border-radius: 6px;
   color: #333;
   font-size: 16px;
@@ -380,7 +380,7 @@ import { ref } from 'vue';
 }
 
 .benefits-list strong {
-  color: #667eea;
+  color: #ff69b4;
 }
 
 .challenges {
@@ -391,14 +391,14 @@ import { ref } from 'vue';
 }
 
 .challenge-item {
-  background: #fff3cd;
+  background: #ffe5ec;
   padding: 20px;
   border-radius: 10px;
-  border: 2px solid #ffc107;
+  border: 2px solid #ffb6c1;
 }
 
 .challenge-item h4 {
-  color: #856404;
+  color: #ff1493;
   margin-bottom: 10px;
   font-size: 18px;
 }
@@ -432,7 +432,7 @@ import { ref } from 'vue';
   flex-shrink: 0;
   width: 50px;
   height: 50px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -443,7 +443,7 @@ import { ref } from 'vue';
 }
 
 .step-content h4 {
-  color: #667eea;
+  color: #ff69b4;
   margin-bottom: 8px;
   font-size: 18px;
 }
@@ -456,7 +456,7 @@ import { ref } from 'vue';
 }
 
 .cta-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
   color: white;
   text-align: center;
 }
