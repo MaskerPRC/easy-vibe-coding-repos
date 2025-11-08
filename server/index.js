@@ -103,6 +103,33 @@ app.get('/api/config', (req, res) => {
   });
 });
 
+// 获取服务器配置信息
+app.get('/api/server-info', (req, res) => {
+  const os = require('os');
+
+  res.json({
+    server: {
+      platform: os.platform(),
+      architecture: os.arch(),
+      cpuCount: os.cpus().length,
+      cpuModel: os.cpus()[0]?.model || 'Unknown',
+      totalMemory: `${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
+      freeMemory: `${(os.freemem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
+      uptime: `${(os.uptime() / 3600).toFixed(2)} hours`,
+      hostname: os.hostname(),
+      nodeVersion: process.version
+    },
+    application: {
+      name: '应用项目',
+      version: '1.0.0',
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+      features: ['Vue 3 前端', 'Express 后端', 'RESTful API', '路由系统']
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);
