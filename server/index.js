@@ -17,152 +17,79 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
-// 读取数据文件的辅助函数
-async function readData() {
-  try {
-    const fileData = await fs.readFile(DATA_FILE, 'utf-8');
-    return JSON.parse(fileData);
-  } catch (error) {
-    console.error('读取数据失败:', error);
-    return {
-      destinations: [],
-      jobTypes: [],
-      messages: []
-    };
-  }
-}
-
-// 写入数据文件的辅助函数
-async function writeData(data) {
-  try {
-    await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
-    return true;
-  } catch (error) {
-    console.error('写入数据失败:', error);
-    return false;
-  }
-}
-
 // API 路由
 
 // 健康检查
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
+  res.json({ 
+    status: 'ok', 
     port: PORT,
     timestamp: new Date().toISOString()
   });
 });
 
-// 获取所有数字游民数据
+// 获取数据示例
 app.get('/api/data', async (req, res) => {
   try {
-    const data = await readData();
+    const fileData = await fs.readFile(DATA_FILE, 'utf-8');
+    const parsedData = JSON.parse(fileData);
     res.json({
-      success: true,
-      data: data
+      message: '这是来自后端的数据',
+      data: parsedData
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: '获取数据失败: ' + error.message
+    console.error('读取数据失败:', error);
+    // 如果文件不存在或读取失败，返回默认数据
+    res.json({
+      message: '这是来自后端的数据',
+      data: {
+        count: 0,
+        items: []
+      }
     });
   }
 });
 
-// 获取所有目的地
-app.get('/api/destinations', async (req, res) => {
+// 更新数据示例
+app.post('/api/data', async (req, res) => {
   try {
-    const data = await readData();
-    res.json({
-      success: true,
-      data: data.destinations || []
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: '获取目的地失败: ' + error.message
-    });
-  }
-});
+    const { count } = req.body;
+    console.log('收到更新请求，count =', count);
+    console.log('数据文件路径:', DATA_FILE);
 
-// 获取所有工作类型
-app.get('/api/job-types', async (req, res) => {
-  try {
-    const data = await readData();
-    res.json({
-      success: true,
-      data: data.jobTypes || []
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: '获取工作类型失败: ' + error.message
-    });
-  }
-});
-
-// 获取所有留言
-app.get('/api/messages', async (req, res) => {
-  try {
-    const data = await readData();
-    res.json({
-      success: true,
-      data: data.messages || []
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: '获取留言失败: ' + error.message
-    });
-  }
-});
-
-// 添加新留言
-app.post('/api/messages', async (req, res) => {
-  try {
-    const { username, content } = req.body;
-
-    if (!username || !content) {
-      return res.status(400).json({
-        success: false,
-        message: '用户名和内容不能为空'
-      });
+    // 读取现有数据
+    let currentData = { count: 0, items: [] };
+    try {
+      const fileData = await fs.readFile(DATA_FILE, 'utf-8');
+      currentData = JSON.parse(fileData);
+      console.log('读取到现有数据:', currentData);
+    } catch (error) {
+      // 文件不存在或读取失败，使用默认数据
+      console.log('使用默认数据, 错误:', error.message);
     }
 
-    const data = await readData();
-    const newMessage = {
-      id: (data.messages.length > 0 ? Math.max(...data.messages.map(m => m.id)) + 1 : 1),
-      username: username,
-      content: content,
-      timestamp: new Date().toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    };
+    // 更新 count 值
+    currentData.count = count;
+    console.log('准备保存的数据:', currentData);
 
-    data.messages.push(newMessage);
-    const saved = await writeData(data);
+    // 保存到文件
+    await fs.writeFile(DATA_FILE, JSON.stringify(currentData, null, 2), 'utf-8');
+    console.log('数据已写入文件');
 
-    if (saved) {
-      res.json({
-        success: true,
-        message: '留言添加成功',
-        data: newMessage
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        message: '保存留言失败'
-      });
-    }
+    // 验证写入
+    const savedData = await fs.readFile(DATA_FILE, 'utf-8');
+    console.log('验证写入后的文件内容:', savedData);
+
+    res.json({
+      success: true,
+      message: '数据已更新并保存',
+      data: currentData
+    });
   } catch (error) {
+    console.error('保存数据失败:', error);
     res.status(500).json({
       success: false,
-      message: '添加留言失败: ' + error.message
+      message: '保存数据失败: ' + error.message
     });
   }
 });
@@ -170,9 +97,9 @@ app.post('/api/messages', async (req, res) => {
 // 获取配置
 app.get('/api/config', (req, res) => {
   res.json({
-    appName: '数字游民生活指南',
+    appName: '应用项目',
     version: '1.0.0',
-    features: ['目的地推荐', '工作类型', '社区留言']
+    features: ['前端', '后端', 'API']
   });
 });
 
@@ -194,7 +121,9 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`数字游民生活指南后端运行在端口 ${PORT}`);
+  console.log(`应用项目后端运行在端口 ${PORT}`);
   console.log(`健康检查: http://localhost:${PORT}/api/health`);
   console.log(`数据文件路径: ${DATA_FILE}`);
+  console.log(`__dirname: ${__dirname}`);
 });
+
