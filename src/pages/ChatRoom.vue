@@ -144,6 +144,14 @@ export default {
         });
 
         const data = await response.json();
+
+        // 检查 HTTP 状态码
+        if (!response.ok) {
+          // HTTP 错误（400, 500 等）
+          alert('提交失败：HTTP 错误: ' + response.status + '\n' + (data.message || '未知错误'));
+          return;
+        }
+
         if (data.success) {
           inputMessage.value = '';
           await loadMessages();

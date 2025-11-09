@@ -126,14 +126,14 @@ app.post('/api/chat/send', (req, res) => {
   const { userId, username, content } = req.body;
 
   if (!content || !content.trim()) {
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: '消息内容不能为空'
     });
   }
 
   if (content.length > 500) {
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: '消息长度不能超过500字符'
     });
