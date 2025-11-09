@@ -108,6 +108,74 @@ app.get('/api/search', (req, res) => {
   });
 });
 
+// 聊天室功能 - 内存存储
+const chatMessages = [];
+const MAX_MESSAGES = 100; // 最多保存100条消息
+let onlineUsers = new Set();
+
+// 获取聊天消息
+app.get('/api/chat/messages', (req, res) => {
+  res.json({
+    success: true,
+    messages: chatMessages
+  });
+});
+
+// 发送消息
+app.post('/api/chat/send', (req, res) => {
+  const { userId, username, content } = req.body;
+
+  if (!content || !content.trim()) {
+    return res.json({
+      success: false,
+      message: '消息内容不能为空'
+    });
+  }
+
+  if (content.length > 500) {
+    return res.json({
+      success: false,
+      message: '消息长度不能超过500字符'
+    });
+  }
+
+  const message = {
+    userId: userId || 'anonymous',
+    username: username || '匿名用户',
+    content: content.trim(),
+    timestamp: new Date().toISOString()
+  };
+
+  chatMessages.push(message);
+
+  // 只保留最新的消息
+  if (chatMessages.length > MAX_MESSAGES) {
+    chatMessages.shift();
+  }
+
+  // 更新在线用户
+  if (userId) {
+    onlineUsers.add(userId);
+  }
+
+  res.json({
+    success: true,
+    message: '发送成功',
+    data: message
+  });
+});
+
+// 获取在线人数
+app.get('/api/chat/online', (req, res) => {
+  // 清理30分钟未活动的用户
+  const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
+
+  res.json({
+    success: true,
+    count: Math.max(1, onlineUsers.size)
+  });
+});
+
 // WPS Bridge 健康检查
 app.get('/api/wps/bridge/health', async (req, res) => {
   try {

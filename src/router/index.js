@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../pages/Home.vue';
-import Game from '../pages/Game.vue';
+import ChatRoom from '../pages/ChatRoom.vue';
 
 const routes = [
   {
@@ -9,9 +9,9 @@ const routes = [
     component: Home
   },
   {
-    path: '/game',
-    name: 'Game',
-    component: Game
+    path: '/chat',
+    name: 'ChatRoom',
+    component: ChatRoom
   }
 ];
 

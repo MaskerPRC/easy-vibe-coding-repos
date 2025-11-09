@@ -2,11 +2,11 @@
   <div class="matrix-container" ref="containerRef">
     <canvas ref="canvasRef"></canvas>
 
-    <!-- 游戏入口按钮 -->
+    <!-- 聊天室入口按钮 -->
     <div class="game-entrance">
-      <h1 class="game-title">英雄联盟</h1>
-      <p class="game-subtitle">网页版MOBA游戏</p>
-      <button class="play-btn" @click="goToGame">开始游戏</button>
+      <h1 class="game-title">聊天室</h1>
+      <p class="game-subtitle">在线实时聊天</p>
+      <button class="play-btn" @click="goToChat">进入聊天室</button>
     </div>
 
     <!-- FAB按钮组 - 右下角 -->
@@ -249,13 +249,13 @@
     <!-- 帮助对话框 -->
     <div v-if="isHelpVisible" class="modal-overlay" @click="isHelpVisible = false">
       <div class="modal-content" @click.stop>
-        <h2>游戏帮助</h2>
+        <h2>使用帮助</h2>
         <ul>
-          <li>点击"开始游戏"进入游戏</li>
-          <li>使用鼠标点击移动英雄</li>
-          <li>使用技能键（Q、W、E、R）释放技能</li>
-          <li>击败敌人获得经验和金币</li>
-          <li>摧毁敌方基地获得胜利</li>
+          <li>点击"进入聊天室"进入聊天</li>
+          <li>在输入框中输入消息</li>
+          <li>按Enter键或点击发送按钮发送消息</li>
+          <li>消息会实时同步到所有在线用户</li>
+          <li>你的消息会显示在右侧</li>
         </ul>
         <button class="close-btn" @click="isHelpVisible = false">关闭</button>
       </div>
@@ -399,8 +399,8 @@ const modalContent = computed(() => {
   return currentModal.value ? modalContents[currentModal.value] : { title: '', content: '' };
 });
 
-const goToGame = () => {
-  router.push('/game');
+const goToChat = () => {
+  router.push('/chat');
 };
 
 // 显示模态框
