@@ -4,10 +4,16 @@ import DigitalNomad from '../views/DigitalNomad.vue';
 import TodoList from '../views/TodoList.vue';
 import MedicineReminder from '../views/MedicineReminder.vue';
 import Timer from '../views/Timer.vue';
+import RetroNav from '../views/RetroNav.vue';
 
 const routes = [
   {
     path: '/',
+    name: 'RetroNav',
+    component: RetroNav
+  },
+  {
+    path: '/digital-nomad',
     name: 'DigitalNomad',
     component: DigitalNomad
   },

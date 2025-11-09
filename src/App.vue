@@ -1,16 +1,24 @@
 <template>
   <div class="app">
     <nav class="navbar">
-      <div class="nav-container">
-        <router-link to="/" class="nav-brand">应用项目</router-link>
-        <div class="nav-links">
-          <router-link to="/" class="nav-link">首页</router-link>
-          <router-link to="/home" class="nav-link">Home</router-link>
-          <router-link to="/todo" class="nav-link">待办事项</router-link>
-          <router-link to="/medicine" class="nav-link">吃药提醒</router-link>
-          <router-link to="/timer" class="nav-link">计时器</router-link>
-        </div>
-      </div>
+      <center>
+        <table width="100%" border="0" cellpadding="5" cellspacing="0" bgcolor="#808080">
+          <tr>
+            <td align="center">
+              <font color="#FFFF00" size="+1"><b>[ 网络导航中心 ]</b></font>
+              <br>
+              <font size="-1">
+                <a href="/">首页</a> |
+                <a href="/home">Home</a> |
+                <a href="/todo">待办事项</a> |
+                <a href="/medicine">吃药提醒</a> |
+                <a href="/timer">计时器</a> |
+                <a href="/digital-nomad">数字游民</a>
+              </font>
+            </td>
+          </tr>
+        </table>
+      </center>
     </nav>
     <div class="content">
       <router-view />
@@ -29,92 +37,59 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Times New Roman', Times, serif;
+  background-color: #C0C0C0;
 }
 
 .app {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: #C0C0C0;
 }
 
 .navbar {
-  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: #808080;
+  border-bottom: 3px solid #000000;
   position: sticky;
   top: 0;
   z-index: 1000;
+  box-shadow: 0 3px 5px #666666;
 }
 
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 70px;
+.navbar a {
+  color: #0000EE;
+  text-decoration: underline;
+  font-weight: bold;
+  padding: 2px 5px;
 }
 
-.nav-brand {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  text-decoration: none;
-  transition: opacity 0.3s;
+.navbar a:visited {
+  color: #551A8B;
 }
 
-.nav-brand:hover {
-  opacity: 0.8;
-}
-
-.nav-links {
-  display: flex;
-  gap: 30px;
-  align-items: center;
-}
-
-.nav-link {
-  color: white;
-  text-decoration: none;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 8px;
-  transition: background 0.3s, transform 0.2s;
-}
-
-.nav-link:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-}
-
-.nav-link.router-link-active {
-  background: rgba(255, 255, 255, 0.3);
-  font-weight: 600;
+.navbar a:hover {
+  color: #FF0000;
+  background-color: #FFFF00;
 }
 
 .content {
-  min-height: calc(100vh - 70px);
+  min-height: calc(100vh - 60px);
+  background-color: #C0C0C0;
+}
+
+/* 支持center标签 */
+center {
+  display: block;
+  text-align: center;
+}
+
+/* 1997年风格的表格 */
+table {
+  font-family: 'Times New Roman', Times, serif;
 }
 
 @media (max-width: 768px) {
-  .nav-container {
-    flex-direction: column;
-    height: auto;
-    padding: 15px 20px;
-  }
-
-  .nav-brand {
-    margin-bottom: 15px;
-  }
-
-  .nav-links {
-    gap: 15px;
-  }
-
-  .nav-link {
-    font-size: 0.9rem;
-    padding: 6px 12px;
+  .navbar font {
+    font-size: 0.9rem !important;
   }
 }
 </style>
