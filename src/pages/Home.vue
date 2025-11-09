@@ -567,6 +567,7 @@ canvas {
   display: block;
   width: 100%;
   height: 100%;
+  pointer-events: none;
 }
 
 /* FAB按钮容器 */
