@@ -1,5 +1,5 @@
 <template>
-  <div class="google-page">
+  <div class="baidu-page">
     <header class="header">
       <div class="header-links">
         <a href="https://www.baidu.com" target="_blank">关于</a>
@@ -15,12 +15,8 @@
 
     <main class="main-content">
       <div class="logo">
-        <span class="logo-g">G</span>
-        <span class="logo-o1">o</span>
-        <span class="logo-o2">o</span>
-        <span class="logo-g2">g</span>
-        <span class="logo-l">l</span>
-        <span class="logo-e">e</span>
+        <span class="logo-bai">百</span>
+        <span class="logo-du">度</span>
       </div>
 
       <div class="search-container">
@@ -44,13 +40,13 @@
         </div>
 
         <div class="search-buttons">
-          <button @click="handleSearch" class="search-btn">Google 搜索</button>
+          <button @click="handleSearch" class="search-btn">百度搜索</button>
           <button @click="handleLucky" class="search-btn">手气不错</button>
         </div>
       </div>
 
       <div class="language-offer">
-        Google 提供: <a href="#">English</a>
+        百度提供: <a href="#">English</a>
       </div>
     </main>
 
@@ -62,7 +58,7 @@
         <div class="footer-left">
           <a href="https://www.baidu.com" target="_blank">广告</a>
           <a href="https://www.baidu.com" target="_blank">商务</a>
-          <a href="https://www.baidu.com" target="_blank">Google 的运作方式</a>
+          <a href="https://www.baidu.com" target="_blank">百度的运作方式</a>
         </div>
         <div class="footer-right">
           <a href="https://www.baidu.com" target="_blank">隐私权</a>
@@ -99,7 +95,7 @@ const handleLucky = () => {
   box-sizing: border-box;
 }
 
-.google-page {
+.baidu-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -203,28 +199,12 @@ const handleLucky = () => {
   filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
 }
 
-.logo-g {
-  color: #4285f4;
+.logo-bai {
+  color: #2932E1;
 }
 
-.logo-o1 {
-  color: #ea4335;
-}
-
-.logo-o2 {
-  color: #fbbc05;
-}
-
-.logo-g2 {
-  color: #4285f4;
-}
-
-.logo-l {
-  color: #34a853;
-}
-
-.logo-e {
-  color: #ea4335;
+.logo-du {
+  color: #DE0F17;
 }
 
 /* Search Container */
