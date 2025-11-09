@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Landing from '../views/Landing.vue';
 import V2exHot from '../views/V2exHot.vue';
 import Fortune from '../views/Fortune.vue';
+import Products from '../views/Products.vue';
+import Blog from '../views/Blog.vue';
+import Login from '../views/Login.vue';
 
 const routes = [
   {
@@ -18,6 +21,21 @@ const routes = [
     path: '/fortune',
     name: 'Fortune',
     component: Fortune
+  },
+  {
+    path: '/products',
+    name: 'Products',
+    component: Products
+  },
+  {
+    path: '/blog',
+    name: 'Blog',
+    component: Blog
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
   }
 ];
 
