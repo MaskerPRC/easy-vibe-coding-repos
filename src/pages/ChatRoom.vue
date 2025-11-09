@@ -49,19 +49,15 @@
       </button>
     </div>
 
-    <!-- 返回主页按钮 -->
-    <button class="back-btn" @click="goHome">返回主页</button>
   </div>
 </template>
 
 <script>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
 
 export default {
   name: 'ChatRoom',
   setup() {
-    const router = useRouter();
     const messages = ref([]);
     const inputMessage = ref('');
     const currentUserId = ref('');
@@ -189,11 +185,6 @@ export default {
       }
     };
 
-    // 返回主页
-    const goHome = () => {
-      router.push('/');
-    };
-
     // 定期轮询消息
     const startPolling = () => {
       pollInterval = setInterval(() => {
@@ -222,8 +213,7 @@ export default {
       onlineCount,
       messagesContainer,
       formatTime,
-      sendMessage,
-      goHome
+      sendMessage
     };
   }
 };
@@ -416,29 +406,6 @@ export default {
 .send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.back-btn {
-  position: fixed;
-  bottom: 100px;
-  right: 30px;
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #667eea;
-  border: 2px solid #667eea;
-  border-radius: 25px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.back-btn:hover {
-  background: #667eea;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 /* 滚动条样式 */
