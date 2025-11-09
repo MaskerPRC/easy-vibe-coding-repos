@@ -9,6 +9,7 @@ import SearchEngine from '../views/SearchEngine.vue';
 import AdminDashboard from '../views/AdminDashboard.vue';
 import About from '../views/About.vue';
 import ClockOutReminder from '../views/ClockOutReminder.vue';
+import WHVMaterials from '../views/WHVMaterials.vue';
 
 const routes = [
   {
@@ -60,6 +61,11 @@ const routes = [
     path: '/clock-out',
     name: 'ClockOutReminder',
     component: ClockOutReminder
+  },
+  {
+    path: '/whv',
+    name: 'WHVMaterials',
+    component: WHVMaterials
   }
 ];
 
