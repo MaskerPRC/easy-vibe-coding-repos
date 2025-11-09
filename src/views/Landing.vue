@@ -85,15 +85,15 @@ const inputFocused = ref(false);
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    // 跳转到百度搜索
-    window.location.href = `https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`;
+    // 搜索功能已禁用
+    alert('搜索功能暂不可用');
   }
 };
 
 const handleLuckySearch = () => {
   if (searchQuery.value.trim()) {
-    // "手气不错"也跳转到百度
-    window.location.href = `https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`;
+    // 搜索功能已禁用
+    alert('搜索功能暂不可用');
   }
 };
 

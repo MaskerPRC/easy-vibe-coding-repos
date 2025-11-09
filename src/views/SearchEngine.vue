@@ -78,7 +78,6 @@ const searchHistory = ref([]);
 
 const engines = [
   { label: 'Google', value: 'google' },
-  { label: '百度', value: 'baidu' },
   { label: 'Bing', value: 'bing' },
   { label: '搜狗', value: 'sogou' },
   { label: '360', value: '360' }
@@ -91,7 +90,6 @@ const performSearch = () => {
 
   const searchEngines = {
     google: `https://www.google.com/search?q=${encodeURIComponent(searchQuery.value)}`,
-    baidu: `https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`,
     bing: `https://www.bing.com/search?q=${encodeURIComponent(searchQuery.value)}`,
     sogou: `https://www.sogou.com/web?query=${encodeURIComponent(searchQuery.value)}`,
     360: `https://www.so.com/s?q=${encodeURIComponent(searchQuery.value)}`
@@ -170,7 +168,6 @@ const searchAgain = (item) => {
 const getEngineName = (engine) => {
   const names = {
     google: 'Google',
-    baidu: '百度',
     bing: 'Bing',
     sogou: '搜狗',
     360: '360'

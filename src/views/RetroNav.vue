@@ -78,8 +78,8 @@ const searchQuery = ref('')
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    const baiduSearchUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value.trim())}`
-    window.open(baiduSearchUrl, '_blank')
+    // 搜索功能已禁用
+    alert('搜索功能暂不可用')
   }
 }
 </script>
