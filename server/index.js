@@ -1,290 +1,129 @@
 import express from 'express';
 import cors from 'cors';
-import { spawn } from 'child_process';
+import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import fs from 'fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const DATA_FILE = path.join(__dirname, 'data.json');
 
 const app = express();
-const PORT = process.env.PORT || 3002;
-const WPS_BRIDGE_PORT = 23334;
-
-// WPS Bridge 子进程管理
-let wpsBridgeProcess = null;
-let isShuttingDown = false;
-let restartAttempts = 0;
-const MAX_RESTART_ATTEMPTS = 5;
-
-// 启动 WPS Bridge 服务
-function startWPSBridge() {
-  if (wpsBridgeProcess) {
-    console.log('[WPS Bridge] 进程已在运行中');
-    return;
-  }
-
-  console.log('[WPS Bridge] 正在启动 Python 服务...');
-
-  const scriptPath = path.join(__dirname, '../packages/wps-bridge/app.py');
-
-  wpsBridgeProcess = spawn('python', [scriptPath], {
-    stdio: ['pipe', 'pipe', 'pipe'],
-    windowsHide: true,
-    env: {
-      ...process.env,
-      PYTHONIOENCODING: 'utf-8',
-      PYTHONUTF8: '1'
-    }
-  });
-
-  // 输出日志
-  wpsBridgeProcess.stdout.on('data', (data) => {
-    console.log(`[WPS Bridge] ${data.toString().trim()}`);
-  });
-
-  wpsBridgeProcess.stderr.on('data', (data) => {
-    console.error(`[WPS Bridge Error] ${data.toString().trim()}`);
-  });
-
-  // 进程退出处理
-  wpsBridgeProcess.on('exit', (code, signal) => {
-    console.log(`[WPS Bridge] 进程退出 - 代码: ${code}, 信号: ${signal}`);
-    wpsBridgeProcess = null;
-
-    if (!isShuttingDown && restartAttempts < MAX_RESTART_ATTEMPTS) {
-      restartAttempts++;
-      console.log(`[WPS Bridge] 5秒后自动重启 (尝试 ${restartAttempts}/${MAX_RESTART_ATTEMPTS})...`);
-      setTimeout(startWPSBridge, 5000);
-    } else if (restartAttempts >= MAX_RESTART_ATTEMPTS) {
-      console.error(`[WPS Bridge] 已达到最大重启次数，请检查配置`);
-    }
-  });
-
-  wpsBridgeProcess.on('error', (error) => {
-    console.error(`[WPS Bridge] 启动失败:`, error.message);
-    wpsBridgeProcess = null;
-  });
-
-  // 重置重启计数（如果成功运行一段时间）
-  setTimeout(() => {
-    if (wpsBridgeProcess) {
-      restartAttempts = 0;
-    }
-  }, 30000); // 30秒后重置
-}
-
-// 停止 WPS Bridge 服务
-function stopWPSBridge() {
-  if (wpsBridgeProcess) {
-    isShuttingDown = true;
-    console.log('[WPS Bridge] 正在停止服务...');
-    wpsBridgeProcess.kill('SIGTERM');
-    wpsBridgeProcess = null;
-  }
-}
+const PORT = process.env.PORT || 3002; // 后端端口 3002，前端 5173
 
 // 中间件
 app.use(cors());
+app.use(bodyParser.json());
 app.use(express.json());
 
-// 健康检查接口
+// API 路由
+
+// 健康检查
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: '服务正常运行',
+  res.json({ 
+    status: 'ok', 
+    port: PORT,
     timestamp: new Date().toISOString()
   });
 });
 
-// 搜索接口（示例）
-app.get('/api/search', (req, res) => {
-  const keyword = req.query.keyword || '';
-  res.json({
-    success: true,
-    keyword: keyword,
-    message: '这是一个演示接口，实际搜索功能需要接入真实的搜索服务'
-  });
-});
-
-// 聊天室功能 - 内存存储
-const chatMessages = [];
-const MAX_MESSAGES = 100; // 最多保存100条消息
-let onlineUsers = new Set();
-
-// 提示词存储
-let currentPrompt = {
-  id: 1,
-  title: '默认提示词',
-  content: '你是一个智能助手，请帮助用户解答问题，提供有用的信息和建议。',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-};
-
-// 获取聊天消息
-app.get('/api/chat/messages', (req, res) => {
-  res.json({
-    success: true,
-    messages: chatMessages
-  });
-});
-
-// 发送消息
-app.post('/api/chat/send', (req, res) => {
-  const { userId, username, content } = req.body;
-
-  if (!content || !content.trim()) {
-    return res.status(400).json({
-      success: false,
-      message: '消息内容不能为空'
-    });
-  }
-
-  if (content.length > 500) {
-    return res.status(400).json({
-      success: false,
-      message: '消息长度不能超过500字符'
-    });
-  }
-
-  const message = {
-    userId: userId || 'anonymous',
-    username: username || '匿名用户',
-    content: content.trim(),
-    timestamp: new Date().toISOString()
-  };
-
-  chatMessages.push(message);
-
-  // 只保留最新的消息
-  if (chatMessages.length > MAX_MESSAGES) {
-    chatMessages.shift();
-  }
-
-  // 更新在线用户
-  if (userId) {
-    onlineUsers.add(userId);
-  }
-
-  res.json({
-    success: true,
-    message: '发送成功',
-    data: message
-  });
-});
-
-// 获取在线人数
-app.get('/api/chat/online', (req, res) => {
-  // 清理30分钟未活动的用户
-  const thirtyMinutesAgo = Date.now() - 30 * 60 * 1000;
-
-  res.json({
-    success: true,
-    count: Math.max(1, onlineUsers.size)
-  });
-});
-
-// 提示词管理接口
-// 获取当前提示词
-app.get('/api/prompt', (req, res) => {
-  res.json({
-    success: true,
-    data: currentPrompt
-  });
-});
-
-// 更新提示词
-app.post('/api/prompt', (req, res) => {
-  const { title, content } = req.body;
-
-  if (!content || !content.trim()) {
-    return res.status(400).json({
-      success: false,
-      message: '提示词内容不能为空'
-    });
-  }
-
-  currentPrompt = {
-    ...currentPrompt,
-    title: title || currentPrompt.title,
-    content: content.trim(),
-    updatedAt: new Date().toISOString()
-  };
-
-  res.json({
-    success: true,
-    message: '提示词已更新',
-    data: currentPrompt
-  });
-});
-
-// WPS Bridge 健康检查
-app.get('/api/wps/bridge/health', async (req, res) => {
+// 获取数据示例
+app.get('/api/data', async (req, res) => {
   try {
-    const response = await fetch(`http://localhost:${WPS_BRIDGE_PORT}/health`);
-    const data = await response.json();
+    const fileData = await fs.readFile(DATA_FILE, 'utf-8');
+    const parsedData = JSON.parse(fileData);
     res.json({
-      success: true,
-      bridgeStatus: data
+      message: '这是来自后端的数据',
+      data: parsedData
     });
   } catch (error) {
-    res.status(503).json({
-      success: false,
-      error: 'WPS Bridge 服务未运行',
-      message: error.message
+    console.error('读取数据失败:', error);
+    // 如果文件不存在或读取失败，返回默认数据
+    res.json({
+      message: '这是来自后端的数据',
+      data: {
+        count: 0,
+        items: []
+      }
     });
   }
 });
 
-// WPS Bridge 重启
-app.post('/api/wps/bridge/restart', (req, res) => {
-  console.log('[WPS Bridge] 收到重启请求');
-  stopWPSBridge();
-  setTimeout(() => {
-    restartAttempts = 0;
-    startWPSBridge();
+// 更新数据示例
+app.post('/api/data', async (req, res) => {
+  try {
+    const { count } = req.body;
+    console.log('收到更新请求，count =', count);
+    console.log('数据文件路径:', DATA_FILE);
+
+    // 读取现有数据
+    let currentData = { count: 0, items: [] };
+    try {
+      const fileData = await fs.readFile(DATA_FILE, 'utf-8');
+      currentData = JSON.parse(fileData);
+      console.log('读取到现有数据:', currentData);
+    } catch (error) {
+      // 文件不存在或读取失败，使用默认数据
+      console.log('使用默认数据, 错误:', error.message);
+    }
+
+    // 更新 count 值
+    currentData.count = count;
+    console.log('准备保存的数据:', currentData);
+
+    // 保存到文件
+    await fs.writeFile(DATA_FILE, JSON.stringify(currentData, null, 2), 'utf-8');
+    console.log('数据已写入文件');
+
+    // 验证写入
+    const savedData = await fs.readFile(DATA_FILE, 'utf-8');
+    console.log('验证写入后的文件内容:', savedData);
+
     res.json({
       success: true,
-      message: 'WPS Bridge 正在重启'
+      message: '数据已更新并保存',
+      data: currentData
     });
-  }, 1000);
-});
-
-// 代理 WPS Bridge 所有 API 请求
-app.use('/api/wps', createProxyMiddleware({
-  target: `http://localhost:${WPS_BRIDGE_PORT}`,
-  changeOrigin: true,
-  pathRewrite: {
-    '^/api/wps': '/api/wps'
-  },
-  onError: (err, req, res) => {
-    console.error('[Proxy Error]', err.message);
-    res.status(503).json({
+  } catch (error) {
+    console.error('保存数据失败:', error);
+    res.status(500).json({
       success: false,
-      error: 'WPS Bridge 服务不可用',
-      message: '请确保 Python 环境已安装且 WPS Office 已运行'
+      message: '保存数据失败: ' + error.message
     });
   }
-}));
+});
+
+// 获取配置
+app.get('/api/config', (req, res) => {
+  res.json({
+    appName: '应用项目',
+    version: '1.0.0',
+    features: ['前端', '后端', 'API']
+  });
+});
+
+// 错误处理
+app.use((err, req, res, next) => {
+  console.error('错误:', err);
+  res.status(500).json({
+    error: '服务器内部错误',
+    message: err.message
+  });
+});
+
+// 404 处理
+app.use((req, res) => {
+  res.status(404).json({
+    error: '未找到资源',
+    path: req.path
+  });
+});
 
 app.listen(PORT, () => {
-  console.log(`后端服务运行在端口 ${PORT}`);
-  console.log(`访问地址: http://localhost:${PORT}/api/health`);
-
-  // 启动 WPS Bridge 服务
-  startWPSBridge();
+  console.log(`应用项目后端运行在端口 ${PORT}`);
+  console.log(`健康检查: http://localhost:${PORT}/api/health`);
+  console.log(`数据文件路径: ${DATA_FILE}`);
+  console.log(`__dirname: ${__dirname}`);
 });
 
-// 优雅关闭
-process.on('SIGINT', () => {
-  console.log('\n正在关闭服务...');
-  stopWPSBridge();
-  process.exit(0);
-});
-
-process.on('SIGTERM', () => {
-  console.log('\n正在关闭服务...');
-  stopWPSBridge();
-  process.exit(0);
-});

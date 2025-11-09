@@ -1,32 +1,469 @@
 <template>
-  <div id="app">
-    <router-view />
+  <div class="app">
+    <!-- 头部区域 -->
+    <header class="header">
+      <div class="logo-section">
+        <div class="logo">🌍</div>
+        <h1 class="title">World App</h1>
+        <p class="subtitle">自动代码修改系统</p>
+      </div>
+      <div class="tagline">用自然语言，实时改造你的网站</div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="main">
+      <!-- 简介卡片 -->
+      <section class="intro-card card">
+        <h2>什么是 World App？</h2>
+        <p class="intro-text">
+          这是一个创新的系统，允许用户通过网页界面提交需求，系统会自动使用 <strong>Claude Code</strong> 修改应用项目的代码。
+        </p>
+        <p class="intro-text">
+          打开网站，右下角用自然语言"提需求"，整个站点会按你的描述被实时"改造"，不仅仅支持前端，<strong>后端也是支持的</strong>。
+        </p>
+      </section>
+
+      <!-- 特性列表 -->
+      <section class="features-card card">
+        <h2>核心特性</h2>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-icon">💬</div>
+            <h3>自然语言交互</h3>
+            <p>用自然语言描述你的需求，AI 自动理解并实现</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">⚡</div>
+            <h3>实时代码修改</h3>
+            <p>提交需求后，代码会被自动修改并实时生效</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🎨</div>
+            <h3>公共画布</h3>
+            <p>后来的需求会覆盖前面的作品，人人都能参与创作</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🔄</div>
+            <h3>版本保存</h3>
+            <p>代码会保存到 GitHub 仓库，以 tag 名称区分</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🌐</div>
+            <h3>全栈支持</h3>
+            <p>不仅支持前端，后端代码也可以修改</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🚀</div>
+            <h3>即时预览</h3>
+            <p>修改完成后立即看到效果，无需手动部署</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 使用说明 -->
+      <section class="usage-card card">
+        <h2>如何使用</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>找到对话框</h3>
+              <p>在页面右下角找到对话框入口（通常是一个聊天图标）</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>描述你的需求</h3>
+              <p>用自然语言描述你想要的功能或修改，例如："把背景改成蓝色"、"添加一个计时器"等</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>等待AI处理</h3>
+              <p>系统会自动使用 Claude Code 分析需求并修改代码</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3>查看效果</h3>
+              <p>修改完成后，页面会自动更新，你可以立即看到效果</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 网友案例 -->
+      <section class="examples-card card">
+        <h2>网友贡献案例</h2>
+        <p class="examples-intro">
+          已经被网友玩成各种有趣的版本：
+        </p>
+        <div class="examples-list">
+          <div class="example-tag">🔮 算命</div>
+          <div class="example-tag">📸 写真馆</div>
+          <div class="example-tag">🍜 吃了么点菜</div>
+          <div class="example-tag">🎮 小游戏</div>
+          <div class="example-tag">🔄 重启网站</div>
+          <div class="example-tag">💼 个人简历</div>
+          <div class="example-tag">📝 待办事项</div>
+          <div class="example-tag">🎨 在线画板</div>
+        </div>
+      </section>
+
+      <!-- GitHub仓库信息 -->
+      <section class="repo-card card">
+        <h2>代码仓库</h2>
+        <p>用户的 vibe coding 代码会保存到这个仓库，并以 tag 名称来区分：</p>
+        <a href="https://github.com/MaskerPRC/easy-vibe-coding-repos" target="_blank" class="repo-link">
+          <span class="repo-icon">📦</span>
+          https://github.com/MaskerPRC/easy-vibe-coding-repos
+        </a>
+      </section>
+
+      <!-- 未来计划 -->
+      <section class="roadmap-card card">
+        <h2>未来计划</h2>
+        <ul class="roadmap-list">
+          <li>✅ 开源项目代码</li>
+          <li>✅ 补充自建脚本</li>
+          <li>✅ 添加沙箱/回滚能力</li>
+          <li>✅ 画廊形式查看所有历史页面</li>
+          <li>✅ 更多功能等待社区贡献</li>
+        </ul>
+      </section>
+
+      <!-- 致谢 -->
+      <section class="footer-card card">
+        <p class="footer-text">
+          这是一个有趣的人机共创小实验，欢迎体验并提出改进建议！
+        </p>
+        <p class="footer-text">
+          感谢 <strong>Claude Code</strong> 提供的强大 AI 能力
+        </p>
+      </section>
+    </main>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'App'
-}
+<script setup>
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  // 页面加载时的初始化逻辑
+  console.log('World App - 自动代码修改系统已加载');
+});
 </script>
 
-<style>
+<style scoped>
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
-}
-
-#app {
-  height: 100%;
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
+
+/* 头部样式 */
+.header {
+  text-align: center;
+  margin-bottom: 60px;
+  padding: 40px 20px;
+}
+
+.logo-section {
+  margin-bottom: 20px;
+}
+
+.logo {
+  font-size: 80px;
+  margin-bottom: 10px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.title {
+  font-size: 56px;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 10px 0 0 0;
+  font-weight: 500;
+}
+
+.tagline {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 20px;
+  font-weight: 300;
+  letter-spacing: 1px;
+}
+
+/* 主内容区域 */
+.main {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* 卡片通用样式 */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+}
+
+.card h2 {
+  color: #667eea;
+  margin: 0 0 20px 0;
+  font-size: 28px;
+  font-weight: 700;
+  border-bottom: 3px solid #667eea;
+  padding-bottom: 10px;
+}
+
+/* 简介卡片 */
+.intro-text {
+  color: #333;
+  line-height: 1.8;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.intro-text strong {
+  color: #667eea;
+  font-weight: 600;
+}
+
+/* 特性网格 */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.feature-item {
+  text-align: center;
+  padding: 25px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: scale(1.05);
+}
+
+.feature-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.feature-item h3 {
+  color: #667eea;
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.feature-item p {
+  color: #555;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* 使用步骤 */
+.steps {
+  margin-top: 30px;
+}
+
+.step {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  align-items: flex-start;
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.step-content h3 {
+  color: #667eea;
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.step-content p {
+  color: #555;
+  margin: 0;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+/* 案例展示 */
+.examples-intro {
+  color: #555;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.examples-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.example-tag {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: transform 0.2s ease;
+}
+
+.example-tag:hover {
+  transform: scale(1.1);
+}
+
+/* GitHub仓库 */
+.repo-card p {
+  color: #555;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.repo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #24292e;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+.repo-link:hover {
+  background: #667eea;
+}
+
+.repo-icon {
+  font-size: 24px;
+}
+
+/* 路线图 */
+.roadmap-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0 0;
+}
+
+.roadmap-list li {
+  color: #555;
+  font-size: 16px;
+  line-height: 2;
+  padding-left: 10px;
+}
+
+/* 底部 */
+.footer-card {
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.footer-card h2 {
+  color: white;
+  border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+.footer-text {
+  color: white;
+  margin: 15px 0;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.footer-text strong {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .title {
+    font-size: 40px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+  }
+
+  .tagline {
+    font-size: 16px;
+  }
+
+  .card {
+    padding: 25px;
+  }
+
+  .card h2 {
+    font-size: 24px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .step {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
 </style>
+
