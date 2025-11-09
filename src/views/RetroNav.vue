@@ -49,6 +49,7 @@
           </td>
           <td bgcolor="#E0E0E0">
             <ul>
+              <li><router-link to="/search"><b>🔍 复古搜索引擎</b></router-link> - 🌟 全新搜索工具（内置）</li>
               <li><a href="https://www.google.com" target="_blank">Google</a> - 最流行的搜索引擎</li>
               <li><a href="https://www.bing.com" target="_blank">Bing</a> - 微软搜索引擎</li>
               <li><a href="https://www.baidu.com" target="_blank">百度</a> - 中文搜索引擎</li>

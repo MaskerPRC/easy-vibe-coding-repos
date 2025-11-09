@@ -5,6 +5,7 @@ import TodoList from '../views/TodoList.vue';
 import MedicineReminder from '../views/MedicineReminder.vue';
 import Timer from '../views/Timer.vue';
 import RetroNav from '../views/RetroNav.vue';
+import SearchEngine from '../views/SearchEngine.vue';
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/timer',
     name: 'Timer',
     component: Timer
+  },
+  {
+    path: '/search',
+    name: 'SearchEngine',
+    component: SearchEngine
   }
 ];
 

@@ -133,6 +133,9 @@ app.get('/api/server-info', (req, res) => {
 // Todo 相关 API
 const TODOS_FILE = path.join(__dirname, 'todos.json');
 
+// 搜索历史相关 API
+const SEARCH_HISTORY_FILE = path.join(__dirname, 'search-history.json');
+
 // 获取所有待办事项
 app.get('/api/todos', async (req, res) => {
   try {
@@ -170,6 +173,44 @@ app.post('/api/todos', async (req, res) => {
     });
   } catch (error) {
     console.error('保存 todos 失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '保存数据失败'
+    });
+  }
+});
+
+// 获取搜索历史
+app.get('/api/search-history', async (req, res) => {
+  try {
+    const fileData = await fs.readFile(SEARCH_HISTORY_FILE, 'utf-8');
+    const history = JSON.parse(fileData);
+    res.json(history);
+  } catch (error) {
+    // 文件不存在时返回空数组
+    if (error.code === 'ENOENT') {
+      res.json([]);
+    } else {
+      console.error('读取搜索历史失败:', error);
+      res.status(500).json({
+        success: false,
+        message: '读取数据失败'
+      });
+    }
+  }
+});
+
+// 保存搜索历史
+app.post('/api/search-history', async (req, res) => {
+  try {
+    const history = req.body;
+    await fs.writeFile(SEARCH_HISTORY_FILE, JSON.stringify(history, null, 2), 'utf-8');
+    res.json({
+      success: true,
+      message: '搜索历史已保存'
+    });
+  } catch (error) {
+    console.error('保存搜索历史失败:', error);
     res.status(500).json({
       success: false,
       message: '保存数据失败'
