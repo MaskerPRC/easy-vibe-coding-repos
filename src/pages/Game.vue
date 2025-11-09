@@ -1725,4 +1725,638 @@ export default {
 .menu-btn:active {
   transform: translateY(0);
 }
+
+/* ==================== 移动端响应式优化 ==================== */
+
+/* 平板和小屏设备 (≤768px) */
+@media screen and (max-width: 768px) {
+  /* 玩家信息面板优化 */
+  .player-stats {
+    bottom: 90px;
+    left: 10px;
+    padding: 10px;
+    min-width: 200px;
+    border-radius: 8px;
+  }
+
+  .hero-name {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .stat-bar {
+    height: 18px;
+    margin-bottom: 6px;
+  }
+
+  .bar-text {
+    font-size: 11px;
+  }
+
+  /* 技能栏优化 - 增大触摸区域 */
+  .skill-bar {
+    bottom: 15px;
+    gap: 10px;
+  }
+
+  .skill-btn {
+    width: 52px;
+    height: 52px;
+  }
+
+  .skill-icon {
+    font-size: 28px;
+    line-height: 40px;
+  }
+
+  .skill-key {
+    font-size: 11px;
+  }
+
+  .cooldown-text {
+    font-size: 18px;
+  }
+
+  /* 击杀信息优化 */
+  .kill-feed {
+    top: 15px;
+    right: 15px;
+    max-width: 250px;
+  }
+
+  .kill-message {
+    padding: 8px 12px;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  /* 游戏状态面板优化 */
+  .game-status {
+    top: 15px;
+    left: 15px;
+    padding: 10px;
+    font-size: 14px;
+    min-width: 180px;
+    border-radius: 8px;
+  }
+
+  .game-status div {
+    margin-bottom: 6px;
+  }
+
+  .exp-bar {
+    height: 18px;
+    margin-bottom: 6px;
+  }
+
+  .exp-text {
+    font-size: 11px;
+  }
+
+  .auto-battle-toggle button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  /* 开始界面优化 */
+  .start-screen h1 {
+    font-size: clamp(36px, 10vw, 72px);
+    margin-bottom: 30px;
+  }
+
+  .hero-selection {
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+  }
+
+  .hero-selection h2 {
+    font-size: clamp(18px, 5vw, 24px);
+    margin-bottom: 15px;
+  }
+
+  .hero-list {
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero-card {
+    width: 130px;
+    padding: 15px;
+  }
+
+  .hero-icon {
+    font-size: 50px;
+    margin-bottom: 8px;
+  }
+
+  .hero-card .hero-name {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .hero-role {
+    font-size: 13px;
+  }
+
+  .start-btn {
+    padding: 12px 50px;
+    font-size: clamp(18px, 5vw, 24px);
+  }
+
+  /* 游戏结束界面优化 */
+  .game-over h1 {
+    font-size: clamp(40px, 12vw, 80px);
+    margin-bottom: 20px;
+  }
+
+  .stats {
+    font-size: 18px;
+    margin-bottom: 30px;
+  }
+
+  .restart-btn {
+    padding: 12px 40px;
+    font-size: 18px;
+  }
+
+  /* FAB按钮优化 */
+  .fab-container {
+    bottom: 15px;
+    right: 15px;
+    gap: 10px;
+  }
+
+  .fab-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  /* 暂停菜单优化 */
+  .pause-menu {
+    padding: 35px 25px;
+    border-radius: 15px;
+    max-width: 90%;
+    margin: 0 20px;
+  }
+
+  .pause-menu h2 {
+    font-size: clamp(24px, 7vw, 36px);
+    margin-bottom: 20px;
+  }
+
+  .menu-btn {
+    padding: 12px 30px;
+    margin: 12px 0;
+    font-size: 16px;
+  }
+}
+
+/* 手机小屏设备 (≤480px) */
+@media screen and (max-width: 480px) {
+  /* 玩家信息面板进一步优化 */
+  .player-stats {
+    bottom: 80px;
+    left: 8px;
+    padding: 8px;
+    min-width: 160px;
+  }
+
+  .hero-name {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .stat-bar {
+    height: 16px;
+    margin-bottom: 5px;
+  }
+
+  .bar-text {
+    font-size: 10px;
+  }
+
+  /* 技能栏进一步优化 */
+  .skill-bar {
+    bottom: 12px;
+    gap: 8px;
+  }
+
+  .skill-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .skill-icon {
+    font-size: 24px;
+    line-height: 36px;
+  }
+
+  .skill-key {
+    font-size: 10px;
+    bottom: 1px;
+    right: 3px;
+  }
+
+  .cooldown-text {
+    font-size: 16px;
+  }
+
+  /* 击杀信息进一步优化 */
+  .kill-feed {
+    top: 10px;
+    right: 10px;
+    max-width: 200px;
+  }
+
+  .kill-message {
+    padding: 6px 10px;
+    font-size: 12px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+  }
+
+  /* 游戏状态面板进一步优化 */
+  .game-status {
+    top: 10px;
+    left: 10px;
+    padding: 8px;
+    font-size: 13px;
+    min-width: 150px;
+  }
+
+  .game-status div {
+    margin-bottom: 5px;
+  }
+
+  .exp-bar {
+    height: 16px;
+    margin-bottom: 5px;
+  }
+
+  .exp-text {
+    font-size: 10px;
+  }
+
+  .auto-battle-toggle {
+    margin-top: 8px;
+  }
+
+  .auto-battle-toggle button {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  /* 开始界面进一步优化 */
+  .start-screen h1 {
+    font-size: clamp(32px, 9vw, 60px);
+    margin-bottom: 25px;
+  }
+
+  .hero-selection {
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+  }
+
+  .hero-selection h2 {
+    font-size: clamp(16px, 4.5vw, 20px);
+    margin-bottom: 12px;
+  }
+
+  .hero-list {
+    gap: 12px;
+  }
+
+  .hero-card {
+    width: 110px;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .hero-icon {
+    font-size: 44px;
+    margin-bottom: 6px;
+  }
+
+  .hero-card .hero-name {
+    font-size: 14px;
+    margin-bottom: 3px;
+  }
+
+  .hero-role {
+    font-size: 12px;
+  }
+
+  .start-btn {
+    padding: 10px 40px;
+    font-size: clamp(16px, 4.5vw, 20px);
+    border-radius: 40px;
+  }
+
+  /* 游戏结束界面进一步优化 */
+  .game-over h1 {
+    font-size: clamp(36px, 10vw, 70px);
+    margin-bottom: 18px;
+  }
+
+  .stats {
+    font-size: 16px;
+    margin-bottom: 25px;
+  }
+
+  .stats p {
+    margin: 8px 0;
+  }
+
+  .restart-btn {
+    padding: 10px 35px;
+    font-size: 16px;
+    border-radius: 40px;
+  }
+
+  /* FAB按钮进一步优化 */
+  .fab-container {
+    bottom: 12px;
+    right: 12px;
+    gap: 8px;
+  }
+
+  .fab-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .fab-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* 暂停菜单进一步优化 */
+  .pause-menu {
+    padding: 30px 20px;
+    border-radius: 12px;
+    max-width: 95%;
+    margin: 0 10px;
+  }
+
+  .pause-menu h2 {
+    font-size: clamp(22px, 6vw, 32px);
+    margin-bottom: 18px;
+  }
+
+  .menu-btn {
+    padding: 10px 25px;
+    margin: 10px 0;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+}
+
+/* 横屏优化 (高度较小的设备) */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  /* 玩家信息面板横屏优化 */
+  .player-stats {
+    bottom: 60px;
+    left: 8px;
+    padding: 6px 10px;
+    min-width: 140px;
+  }
+
+  .hero-name {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .stat-bar {
+    height: 14px;
+    margin-bottom: 4px;
+  }
+
+  .bar-text {
+    font-size: 9px;
+  }
+
+  /* 技能栏横屏优化 */
+  .skill-bar {
+    bottom: 10px;
+    gap: 6px;
+  }
+
+  .skill-btn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .skill-icon {
+    font-size: 22px;
+    line-height: 32px;
+  }
+
+  .skill-key {
+    font-size: 9px;
+  }
+
+  .cooldown-text {
+    font-size: 14px;
+  }
+
+  /* 游戏状态面板横屏优化 */
+  .game-status {
+    top: 8px;
+    left: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: 130px;
+  }
+
+  .game-status div {
+    margin-bottom: 4px;
+  }
+
+  .exp-bar {
+    height: 14px;
+    margin-bottom: 4px;
+  }
+
+  .exp-text {
+    font-size: 9px;
+  }
+
+  .auto-battle-toggle {
+    margin-top: 6px;
+  }
+
+  .auto-battle-toggle button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  /* 击杀信息横屏优化 */
+  .kill-feed {
+    top: 8px;
+    right: 8px;
+    max-width: 180px;
+  }
+
+  .kill-message {
+    padding: 5px 8px;
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  /* FAB按钮横屏优化 */
+  .fab-container {
+    bottom: 10px;
+    right: 10px;
+    gap: 6px;
+  }
+
+  .fab-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .fab-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* 开始界面横屏优化 */
+  .start-screen h1 {
+    font-size: clamp(28px, 7vh, 50px);
+    margin-bottom: 15px;
+  }
+
+  .hero-selection {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .hero-selection h2 {
+    font-size: clamp(14px, 3.5vh, 18px);
+    margin-bottom: 10px;
+  }
+
+  .hero-list {
+    gap: 10px;
+  }
+
+  .hero-card {
+    width: 100px;
+    padding: 10px;
+  }
+
+  .hero-icon {
+    font-size: 36px;
+    margin-bottom: 5px;
+  }
+
+  .hero-card .hero-name {
+    font-size: 13px;
+  }
+
+  .hero-role {
+    font-size: 11px;
+  }
+
+  .start-btn {
+    padding: 8px 30px;
+    font-size: clamp(14px, 3.5vh, 18px);
+  }
+
+  /* 暂停菜单横屏优化 */
+  .pause-menu {
+    padding: 20px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .pause-menu h2 {
+    font-size: clamp(20px, 5vh, 28px);
+    margin-bottom: 15px;
+  }
+
+  .menu-btn {
+    padding: 8px 20px;
+    margin: 8px 0;
+    font-size: 14px;
+  }
+}
+
+/* 触摸设备优化 - 增大点击区域 */
+@media (hover: none) and (pointer: coarse) {
+  .skill-btn {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .fab-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .start-btn {
+    min-height: 44px;
+  }
+
+  .restart-btn {
+    min-height: 44px;
+  }
+
+  .menu-btn {
+    min-height: 44px;
+  }
+
+  .auto-battle-toggle button {
+    min-height: 40px;
+  }
+
+  .hero-card {
+    min-width: 100px;
+    min-height: 120px;
+  }
+}
+
+/* 超小屏设备特殊优化 (≤360px) */
+@media screen and (max-width: 360px) {
+  .player-stats {
+    min-width: 140px;
+    padding: 6px;
+  }
+
+  .game-status {
+    min-width: 130px;
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .skill-bar {
+    gap: 6px;
+  }
+
+  .skill-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .skill-icon {
+    font-size: 22px;
+    line-height: 34px;
+  }
+
+  .hero-card {
+    width: 100px;
+    padding: 10px;
+  }
+
+  .hero-icon {
+    font-size: 40px;
+  }
+
+  .start-screen h1 {
+    font-size: clamp(28px, 8vw, 50px);
+  }
+}
 </style>

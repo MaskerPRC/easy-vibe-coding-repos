@@ -1226,4 +1226,309 @@ canvas {
 .play-btn:active {
   transform: scale(1.05);
 }
+
+/* ==================== 移动端响应式优化 ==================== */
+
+/* 平板和小屏设备 (≤768px) */
+@media screen and (max-width: 768px) {
+  /* 游戏入口优化 */
+  .game-title {
+    font-size: clamp(32px, 10vw, 72px);
+    letter-spacing: 5px;
+    margin-bottom: 15px;
+  }
+
+  .game-subtitle {
+    font-size: clamp(16px, 4vw, 24px);
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+  }
+
+  .play-btn {
+    padding: 15px 40px;
+    font-size: clamp(20px, 5vw, 28px);
+    letter-spacing: 2px;
+  }
+
+  /* FAB按钮容器位置调整 */
+  .fab-left-top,
+  .fab-right-top,
+  .fab-left-bottom,
+  .fab-left-middle,
+  .fab-right-middle {
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+  }
+
+  .fab-right-bottom {
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .fab-top-center {
+    top: 15px;
+  }
+
+  .fab-bottom-center {
+    bottom: 15px;
+  }
+
+  .fab-left-middle,
+  .fab-right-middle {
+    gap: 10px;
+  }
+
+  /* FAB按钮大小优化 - 增大触摸区域 */
+  .fab-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .fab-small {
+    width: 44px;
+    height: 44px;
+  }
+
+  .fab-medium {
+    width: 48px;
+    height: 48px;
+  }
+
+  .fab-large {
+    width: 52px;
+    height: 52px;
+  }
+
+  .fab-container {
+    gap: 10px;
+  }
+
+  /* 模态框优化 */
+  .modal-content {
+    padding: 25px 20px;
+    max-width: 90%;
+    width: 90%;
+    margin: 0 20px;
+  }
+
+  .modal-content h2 {
+    font-size: clamp(20px, 6vw, 28px);
+    margin-bottom: 15px;
+  }
+
+  .modal-content ul,
+  .modal-body {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .close-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .settings-item {
+    margin-bottom: 15px;
+  }
+
+  .settings-item label {
+    font-size: 14px;
+  }
+}
+
+/* 手机小屏设备 (≤480px) */
+@media screen and (max-width: 480px) {
+  /* 进一步缩小标题 */
+  .game-title {
+    font-size: clamp(28px, 8vw, 48px);
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+  }
+
+  .game-subtitle {
+    font-size: clamp(14px, 3.5vw, 18px);
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+
+  .play-btn {
+    padding: 12px 30px;
+    font-size: clamp(18px, 4.5vw, 22px);
+    letter-spacing: 1px;
+  }
+
+  /* FAB按钮进一步优化 */
+  .fab-container {
+    gap: 8px;
+  }
+
+  .fab-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .fab-small {
+    width: 40px;
+    height: 40px;
+  }
+
+  .fab-medium {
+    width: 44px;
+    height: 44px;
+  }
+
+  .fab-large {
+    width: 48px;
+    height: 48px;
+  }
+
+  .fab-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .fab-small svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .fab-large svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* FAB容器边距优化 */
+  .fab-left-top {
+    top: 10px;
+    left: 10px;
+  }
+
+  .fab-right-top {
+    top: 10px;
+    right: 10px;
+  }
+
+  .fab-left-bottom {
+    bottom: 10px;
+    left: 10px;
+  }
+
+  .fab-right-bottom {
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .fab-top-center {
+    top: 10px;
+  }
+
+  .fab-bottom-center {
+    bottom: 10px;
+  }
+
+  .fab-left-middle {
+    left: 10px;
+  }
+
+  .fab-right-middle {
+    right: 10px;
+  }
+
+  /* 模态框进一步优化 */
+  .modal-content {
+    padding: 20px 15px;
+    max-width: 95%;
+    width: 95%;
+    margin: 0 10px;
+    border-radius: 15px;
+  }
+
+  .modal-content h2 {
+    font-size: clamp(18px, 5vw, 24px);
+    margin-bottom: 12px;
+  }
+
+  .modal-content ul,
+  .modal-body {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+  }
+
+  .modal-content li {
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+
+  .close-btn {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .settings-item {
+    margin-bottom: 12px;
+  }
+
+  .settings-item label {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .settings-item select {
+    padding: 6px;
+    font-size: 13px;
+  }
+}
+
+/* 横屏优化 (高度较小的设备) */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .game-title {
+    font-size: clamp(24px, 6vh, 40px);
+    margin-bottom: 8px;
+  }
+
+  .game-subtitle {
+    font-size: clamp(12px, 3vh, 16px);
+    margin-bottom: 15px;
+  }
+
+  .play-btn {
+    padding: 10px 25px;
+    font-size: clamp(16px, 4vh, 20px);
+  }
+
+  .fab-container {
+    gap: 6px;
+  }
+
+  .fab-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .modal-content {
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 15px;
+  }
+}
+
+/* 触摸设备优化 - 增大点击区域 */
+@media (hover: none) and (pointer: coarse) {
+  .fab-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .play-btn {
+    min-height: 44px;
+  }
+
+  .close-btn {
+    min-height: 44px;
+  }
+}
 </style>
