@@ -64,10 +64,11 @@
           <p class="section-subtitle">为您提供全方位的优质服务体验</p>
         </div>
         <div class="features-grid">
-          <div v-for="feature in features" :key="feature.id" class="feature-card">
+          <div v-for="feature in features" :key="feature.id" class="feature-card" :class="{ clickable: feature.link }" @click="handleFeatureClick(feature)">
             <div class="feature-icon">{{ feature.icon }}</div>
             <h3 class="feature-title">{{ feature.title }}</h3>
             <p class="feature-description">{{ feature.description }}</p>
+            <div v-if="feature.link" class="feature-badge">点击体验</div>
           </div>
         </div>
       </div>
@@ -200,6 +201,9 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const features = ref([
   {
@@ -228,17 +232,30 @@ const features = ref([
   },
   {
     id: 5,
+    icon: '💰',
+    title: '恭喜发财',
+    description: '点击抽奖转盘，开启您的财富之旅，招财进宝，财运亨通！',
+    link: '/fortune'
+  },
+  {
+    id: 6,
     icon: '🚀',
     title: '持续更新',
     description: '不断优化和迭代，定期推出新功能，始终保持产品竞争力。'
   },
   {
-    id: 6,
+    id: 7,
     icon: '💬',
     title: '专业支持',
     description: '7×24小时在线客服，专业团队随时为您解决各种问题。'
   }
 ]);
+
+const handleFeatureClick = (feature) => {
+  if (feature.link) {
+    router.push(feature.link);
+  }
+};
 
 const form = ref({
   name: '',
@@ -502,11 +519,46 @@ const handleSubmit = () => {
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
 }
 
 .feature-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card.clickable {
+  cursor: pointer;
+  background: linear-gradient(135deg, #fff9e6 0%, #ffe6cc 100%);
+  border: 2px solid #ffd700;
+}
+
+.feature-card.clickable:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(255, 215, 0, 0.3);
+}
+
+.feature-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ffd700 100%);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .feature-icon {
