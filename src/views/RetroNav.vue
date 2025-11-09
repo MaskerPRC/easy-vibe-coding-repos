@@ -53,6 +53,17 @@
         <a href="javascript:void(0)" class="quick-link">百度文库</a>
         <a href="javascript:void(0)" class="quick-link">百度百科</a>
       </div>
+
+      <!-- Canva 设计编辑器入口 -->
+      <div class="canva-entry">
+        <router-link to="/canva" class="canva-button">
+          <span class="canva-icon">🎨</span>
+          <div class="canva-text">
+            <span class="canva-title">Design Studio</span>
+            <span class="canva-subtitle">专业设计工具 · 在线创作</span>
+          </div>
+        </router-link>
+      </div>
     </main>
 
     <!-- 页脚 -->
@@ -257,6 +268,84 @@ const handleSearch = () => {
 
 .quick-link:hover {
   color: #3385ff;
+}
+
+/* Canva 设计编辑器入口 */
+.canva-entry {
+  margin-top: 50px;
+  width: 100%;
+  max-width: 640px;
+}
+
+.canva-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.canva-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.canva-button:hover::before {
+  left: 100%;
+}
+
+.canva-button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+}
+
+.canva-icon {
+  font-size: 48px;
+  line-height: 1;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.canva-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.canva-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 1px;
+}
+
+.canva-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+  letter-spacing: 0.5px;
 }
 
 /* 页脚 */

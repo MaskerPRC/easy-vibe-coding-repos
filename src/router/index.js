@@ -10,6 +10,7 @@ import OpsCoffee from '../views/OpsCoffee.vue';
 import SearchEngine from '../views/SearchEngine.vue';
 import RandomSite from '../views/RandomSite.vue';
 import FluidArt from '../views/FluidArt.vue';
+import CanvaEditor from '../views/CanvaEditor.vue';
 
 const routes = [
   {
@@ -66,6 +67,11 @@ const routes = [
     path: '/fluid-art',
     name: 'FluidArt',
     component: FluidArt
+  },
+  {
+    path: '/canva',
+    name: 'CanvaEditor',
+    component: CanvaEditor
   }
 ];
 

@@ -385,6 +385,132 @@ function generateContent(theme, features) {
   return contentTemplates;
 }
 
+// Canva 设计项目存储 (内存存储，实际应用中应使用数据库)
+const canvaProjects = new Map();
+
+// 保存 Canva 设计
+app.post('/api/canva/save', async (req, res) => {
+  try {
+    const { canvasWidth, canvasHeight, canvasBackground, elements } = req.body;
+
+    if (!elements || !Array.isArray(elements)) {
+      return res.status(400).json({
+        success: false,
+        message: '无效的设计数据'
+      });
+    }
+
+    const projectId = 'project_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+    const project = {
+      id: projectId,
+      canvasWidth: canvasWidth || 1200,
+      canvasHeight: canvasHeight || 800,
+      canvasBackground: canvasBackground || '#ffffff',
+      elements,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    canvaProjects.set(projectId, project);
+
+    res.json({
+      success: true,
+      message: '设计已保存',
+      id: projectId,
+      data: project
+    });
+  } catch (error) {
+    console.error('保存设计失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '保存设计失败',
+      error: error.message
+    });
+  }
+});
+
+// 加载 Canva 设计
+app.get('/api/canva/load/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!canvaProjects.has(id)) {
+      return res.status(404).json({
+        success: false,
+        message: '未找到该设计项目'
+      });
+    }
+
+    const project = canvaProjects.get(id);
+
+    res.json({
+      success: true,
+      data: project
+    });
+  } catch (error) {
+    console.error('加载设计失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '加载设计失败',
+      error: error.message
+    });
+  }
+});
+
+// 获取所有 Canva 设计列表
+app.get('/api/canva/projects', async (req, res) => {
+  try {
+    const projects = Array.from(canvaProjects.values()).map(p => ({
+      id: p.id,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+      elementCount: p.elements.length
+    }));
+
+    res.json({
+      success: true,
+      data: projects,
+      total: projects.length
+    });
+  } catch (error) {
+    console.error('获取设计列表失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取设计列表失败',
+      error: error.message
+    });
+  }
+});
+
+// 删除 Canva 设计
+app.delete('/api/canva/delete/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!canvaProjects.has(id)) {
+      return res.status(404).json({
+        success: false,
+        message: '未找到该设计项目'
+      });
+    }
+
+    canvaProjects.delete(id);
+
+    res.json({
+      success: true,
+      message: '设计已删除'
+    });
+  } catch (error) {
+    console.error('删除设计失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '删除设计失败',
+      error: error.message
+    });
+  }
+});
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);
