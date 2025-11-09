@@ -34,14 +34,6 @@
       </div>
 
       <div class="toolbar-right">
-        <button @click="showTemplates = true" class="btn-primary">
-          <span class="material-icons">dashboard</span>
-          模板库
-        </button>
-        <button @click="exportDesign" class="btn-primary">
-          <span class="material-icons">download</span>
-          导出
-        </button>
         <button @click="toggleDarkMode" class="btn-icon">
           <span class="material-icons">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
         </button>
@@ -424,66 +416,6 @@
       </aside>
     </div>
 
-    <!-- 模板库对话框 -->
-    <div v-if="showTemplates" class="modal-overlay" @click="showTemplates = false">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h2>设计模板</h2>
-          <button @click="showTemplates = false" class="btn-icon">
-            <span class="material-icons">close</span>
-          </button>
-        </div>
-        <div class="templates-grid">
-          <div
-            v-for="template in templates"
-            :key="template.id"
-            @click="loadTemplate(template)"
-            class="template-card"
-          >
-            <div class="template-preview" :style="{ background: template.preview }">
-              <span class="template-icon">{{ template.icon }}</span>
-            </div>
-            <h4>{{ template.name }}</h4>
-            <p>{{ template.description }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 导出对话框 -->
-    <div v-if="showExportDialog" class="modal-overlay" @click="showExportDialog = false">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h2>导出设计</h2>
-          <button @click="showExportDialog = false" class="btn-icon">
-            <span class="material-icons">close</span>
-          </button>
-        </div>
-        <div class="export-options">
-          <button @click="exportAs('png')" class="export-btn">
-            <span class="material-icons">image</span>
-            <div>
-              <h4>PNG 图片</h4>
-              <p>适合分享和打印</p>
-            </div>
-          </button>
-          <button @click="exportAs('svg')" class="export-btn">
-            <span class="material-icons">code</span>
-            <div>
-              <h4>SVG 矢量</h4>
-              <p>无损缩放</p>
-            </div>
-          </button>
-          <button @click="exportAs('json')" class="export-btn">
-            <span class="material-icons">data_object</span>
-            <div>
-              <h4>JSON 数据</h4>
-              <p>保存项目文件</p>
-            </div>
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -508,8 +440,6 @@ const historyIndex = ref(-1)
 
 // UI状态
 const isDarkMode = ref(false)
-const showTemplates = ref(false)
-const showExportDialog = ref(false)
 
 // 拖拽状态
 const isDragging = ref(false)
@@ -549,80 +479,6 @@ const gradients = ref([
   { id: 'gradient3', start: '#4facfe', end: '#00f2fe' },
 ])
 
-// 模板定义
-const templates = [
-  {
-    id: 'social',
-    name: '社交媒体',
-    description: '适合Instagram和Facebook',
-    icon: '📱',
-    preview: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    elements: [
-      { type: 'rectangle', x: 50, y: 50, width: 300, height: 300, fill: 'url(#gradient1)', stroke: 'none', strokeWidth: 0, opacity: 1, rotation: 0, shadow: 20 },
-      { type: 'text', x: 80, y: 180, text: '你的标题', fill: '#ffffff', fontSize: 48, fontFamily: 'Impact', opacity: 1, rotation: 0, shadow: 10 },
-    ]
-  },
-  {
-    id: 'poster',
-    name: '海报设计',
-    description: '活动宣传海报',
-    icon: '🎪',
-    preview: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    elements: [
-      { type: 'rectangle', x: 0, y: 0, width: 1200, height: 800, fill: '#f5576c', stroke: 'none', strokeWidth: 0, opacity: 1, rotation: 0, shadow: 0 },
-      { type: 'circle', x: 400, y: 250, width: 400, height: 400, fill: 'rgba(255,255,255,0.1)', stroke: 'none', strokeWidth: 0, opacity: 1, rotation: 0, shadow: 0 },
-      { type: 'text', x: 100, y: 100, text: '精彩活动', fill: '#ffffff', fontSize: 72, fontFamily: 'Impact', opacity: 1, rotation: -5, shadow: 15 },
-    ]
-  },
-  {
-    id: 'card',
-    name: '名片设计',
-    description: '专业商务名片',
-    icon: '💼',
-    preview: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    elements: [
-      { type: 'rectangle', x: 0, y: 0, width: 1200, height: 800, fill: '#1a1a2e', stroke: 'none', strokeWidth: 0, opacity: 1, rotation: 0, shadow: 0 },
-      { type: 'rectangle', x: 50, y: 50, width: 300, height: 200, fill: 'url(#gradient3)', stroke: 'none', strokeWidth: 0, opacity: 1, rotation: 0, shadow: 20, rounded: 10 },
-      { type: 'text', x: 80, y: 120, text: '您的名字', fill: '#ffffff', fontSize: 32, fontFamily: 'Arial', opacity: 1, rotation: 0, shadow: 5 },
-    ]
-  },
-  {
-    id: 'abstract',
-    name: '抽象艺术',
-    description: '现代抽象设计',
-    icon: '🎨',
-    preview: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    elements: [
-      { type: 'circle', x: 100, y: 100, width: 300, height: 300, fill: '#fa709a', stroke: 'none', strokeWidth: 0, opacity: 0.7, rotation: 0, shadow: 30 },
-      { type: 'circle', x: 300, y: 200, width: 400, height: 400, fill: '#fee140', stroke: 'none', strokeWidth: 0, opacity: 0.6, rotation: 0, shadow: 30 },
-      { type: 'triangle', x: 500, y: 150, width: 300, height: 300, fill: '#4facfe', stroke: 'none', strokeWidth: 0, opacity: 0.5, rotation: 45, shadow: 30 },
-    ]
-  },
-  {
-    id: 'geometric',
-    name: '几何图形',
-    description: '简约几何风格',
-    icon: '📐',
-    preview: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-    elements: [
-      { type: 'rectangle', x: 100, y: 100, width: 200, height: 200, fill: '#667eea', stroke: '#ffffff', strokeWidth: 4, opacity: 1, rotation: 45, shadow: 15 },
-      { type: 'circle', x: 400, y: 200, width: 250, height: 250, fill: '#f093fb', stroke: '#ffffff', strokeWidth: 4, opacity: 1, rotation: 0, shadow: 15 },
-      { type: 'triangle', x: 700, y: 150, width: 200, height: 200, fill: '#4facfe', stroke: '#ffffff', strokeWidth: 4, opacity: 1, rotation: 0, shadow: 15 },
-    ]
-  },
-  {
-    id: 'neon',
-    name: '霓虹风格',
-    description: '赛博朋克霓虹',
-    icon: '💫',
-    preview: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
-    elements: [
-      { type: 'rectangle', x: 0, y: 0, width: 1200, height: 800, fill: '#0f0c29', stroke: 'none', strokeWidth: 0, opacity: 1, rotation: 0, shadow: 0 },
-      { type: 'text', x: 200, y: 300, text: 'NEON', fill: '#ff006e', fontSize: 120, fontFamily: 'Impact', opacity: 1, rotation: 0, shadow: 40 },
-      { type: 'rectangle', x: 150, y: 350, width: 600, height: 8, fill: '#00f5ff', stroke: 'none', strokeWidth: 0, opacity: 1, rotation: 0, shadow: 25 },
-    ]
-  },
-]
 
 // 调整大小手柄
 const resizeHandles = [
@@ -991,83 +847,6 @@ const loadProject = async () => {
     console.error('加载失败:', error)
     alert('加载项目失败')
   }
-}
-
-const loadTemplate = (template) => {
-  elements.value = JSON.parse(JSON.stringify(template.elements))
-  saveHistory()
-  showTemplates.value = false
-}
-
-const exportDesign = () => {
-  showExportDialog.value = true
-}
-
-const exportAs = (format) => {
-  if (format === 'png') {
-    exportAsPNG()
-  } else if (format === 'svg') {
-    exportAsSVG()
-  } else if (format === 'json') {
-    exportAsJSON()
-  }
-  showExportDialog.value = false
-}
-
-const exportAsPNG = () => {
-  const canvas = document.querySelector('.canvas')
-  const svgData = new XMLSerializer().serializeToString(canvas)
-  const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
-  const url = URL.createObjectURL(svgBlob)
-
-  const img = new Image()
-  img.onload = () => {
-    const pngCanvas = document.createElement('canvas')
-    pngCanvas.width = canvasWidth.value
-    pngCanvas.height = canvasHeight.value
-    const ctx = pngCanvas.getContext('2d')
-    ctx.drawImage(img, 0, 0)
-
-    pngCanvas.toBlob((blob) => {
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `design-${Date.now()}.png`
-      a.click()
-      URL.revokeObjectURL(url)
-    })
-
-    URL.revokeObjectURL(url)
-  }
-  img.src = url
-}
-
-const exportAsSVG = () => {
-  const canvas = document.querySelector('.canvas')
-  const svgData = new XMLSerializer().serializeToString(canvas)
-  const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `design-${Date.now()}.svg`
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-const exportAsJSON = () => {
-  const project = {
-    canvasWidth: canvasWidth.value,
-    canvasHeight: canvasHeight.value,
-    canvasBackground: canvasBackground.value,
-    elements: elements.value,
-  }
-  const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `design-${Date.now()}.json`
-  a.click()
-  URL.revokeObjectURL(url)
 }
 
 const toggleDarkMode = () => {
@@ -1649,150 +1428,6 @@ onMounted(() => {
 
 .quick-actions .full-width {
   grid-column: 1 / -1;
-}
-
-/* 模态框 */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  max-width: 900px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.2);
-}
-
-.dark-mode .modal-content {
-  background: #2a2a2a;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 24px;
-}
-
-.templates-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.template-card {
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.dark-mode .template-card {
-  border-color: #404040;
-}
-
-.template-card:hover {
-  border-color: #667eea;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
-}
-
-.template-preview {
-  width: 100%;
-  height: 120px;
-  border-radius: 6px;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.template-icon {
-  font-size: 48px;
-}
-
-.template-card h4 {
-  margin: 0 0 4px 0;
-  font-size: 16px;
-}
-
-.template-card p {
-  margin: 0;
-  font-size: 12px;
-  color: #666;
-}
-
-.dark-mode .template-card p {
-  color: #aaa;
-}
-
-.export-options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.export-btn {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
-}
-
-.dark-mode .export-btn {
-  background: #1a1a1a;
-  border-color: #404040;
-}
-
-.export-btn:hover {
-  border-color: #667eea;
-  transform: translateX(8px);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
-}
-
-.export-btn .material-icons {
-  font-size: 48px;
-  color: #667eea;
-}
-
-.export-btn h4 {
-  margin: 0 0 4px 0;
-  font-size: 18px;
-}
-
-.export-btn p {
-  margin: 0;
-  font-size: 13px;
-  color: #666;
-}
-
-.dark-mode .export-btn p {
-  color: #aaa;
 }
 
 /* 滚动条样式 */
