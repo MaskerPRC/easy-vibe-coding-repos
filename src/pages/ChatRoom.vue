@@ -31,14 +31,19 @@
 
     <!-- 输入区域 -->
     <div class="input-container">
-      <input
-        v-model="inputMessage"
-        @keyup.enter="sendMessage"
-        type="text"
-        placeholder="输入消息... (按 Enter 发送)"
-        class="message-input"
-        maxlength="500"
-      />
+      <div class="input-wrapper">
+        <input
+          v-model="inputMessage"
+          @keyup.enter="sendMessage"
+          type="text"
+          placeholder="输入消息... (按 Enter 发送)"
+          class="message-input"
+          maxlength="500"
+        />
+        <div class="char-counter" :class="{ 'warning': inputMessage.length > 450, 'error': inputMessage.length >= 500 }">
+          {{ inputMessage.length }}/500
+        </div>
+      </div>
       <button @click="sendMessage" class="send-btn" :disabled="!inputMessage.trim()">
         发送
       </button>
@@ -126,7 +131,19 @@ export default {
 
     // 发送消息
     const sendMessage = async () => {
-      if (!inputMessage.value.trim()) return;
+      const trimmedMessage = inputMessage.value.trim();
+
+      // 前端验证：消息不能为空
+      if (!trimmedMessage) {
+        alert('消息内容不能为空，请输入消息后再发送');
+        return;
+      }
+
+      // 前端验证：消息长度不能超过500字符
+      if (trimmedMessage.length > 500) {
+        alert('消息长度不能超过500字符，当前长度：' + trimmedMessage.length + '字符');
+        return;
+      }
 
       const username = localStorage.getItem('chatUsername') || '匿名用户';
 
@@ -139,7 +156,7 @@ export default {
           body: JSON.stringify({
             userId: currentUserId.value,
             username: username,
-            content: inputMessage.value.trim()
+            content: trimmedMessage
           })
         });
 
@@ -148,7 +165,15 @@ export default {
         // 检查 HTTP 状态码
         if (!response.ok) {
           // HTTP 错误（400, 500 等）
-          alert('提交失败：HTTP 错误: ' + response.status + '\n' + (data.message || '未知错误'));
+          let errorMsg = '发送失败';
+          if (response.status === 400) {
+            errorMsg = '消息验证失败：' + (data.message || '请检查消息内容');
+          } else if (response.status >= 500) {
+            errorMsg = '服务器错误：' + (data.message || '请稍后重试');
+          } else {
+            errorMsg = 'HTTP 错误 ' + response.status + '：' + (data.message || '未知错误');
+          }
+          alert(errorMsg);
           return;
         }
 
@@ -325,18 +350,46 @@ export default {
   gap: 10px;
 }
 
-.message-input {
+.input-wrapper {
   flex: 1;
+  position: relative;
+}
+
+.message-input {
+  width: 100%;
   padding: 12px 15px;
+  padding-right: 70px;
   border: 2px solid #ddd;
   border-radius: 25px;
   font-size: 14px;
   outline: none;
   transition: border-color 0.3s;
+  box-sizing: border-box;
 }
 
 .message-input:focus {
   border-color: #667eea;
+}
+
+.char-counter {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #999;
+  pointer-events: none;
+  transition: color 0.3s;
+}
+
+.char-counter.warning {
+  color: #ff9800;
+  font-weight: 600;
+}
+
+.char-counter.error {
+  color: #f44336;
+  font-weight: 700;
 }
 
 .send-btn {
