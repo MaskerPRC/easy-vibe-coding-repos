@@ -2,8 +2,17 @@ import { createRouter, createWebHistory } from 'vue-router'
 import NotFound from '../views/NotFound.vue'
 import ChromeGame from '../views/ChromeGame.vue'
 import BlankPage from '../views/BlankPage.vue'
+import BrowserGameLauncher from '../views/BrowserGameLauncher.vue'
 
 const routes = [
+  {
+    path: '/',
+    name: 'BrowserGameLauncher',
+    component: BrowserGameLauncher,
+    meta: {
+      title: '浏览器游戏启动器'
+    }
+  },
   {
     path: '/chrome-game',
     name: 'ChromeGame',
