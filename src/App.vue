@@ -12,6 +12,7 @@
                 <a href="/home">Home</a> |
                 <a href="/todo">待办事项</a> |
                 <a href="/medicine">吃药提醒</a> |
+                <a href="/clock-out">下班打卡</a> |
                 <a href="/timer">计时器</a> |
                 <a href="/digital-nomad">数字游民</a> |
                 <a href="/about">关于</a>

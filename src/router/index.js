@@ -8,6 +8,7 @@ import RetroNav from '../views/RetroNav.vue';
 import SearchEngine from '../views/SearchEngine.vue';
 import AdminDashboard from '../views/AdminDashboard.vue';
 import About from '../views/About.vue';
+import ClockOutReminder from '../views/ClockOutReminder.vue';
 
 const routes = [
   {
@@ -54,6 +55,11 @@ const routes = [
     path: '/about',
     name: 'About',
     component: About
+  },
+  {
+    path: '/clock-out',
+    name: 'ClockOutReminder',
+    component: ClockOutReminder
   }
 ];
 
