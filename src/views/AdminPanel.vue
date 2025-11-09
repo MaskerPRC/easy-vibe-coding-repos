@@ -120,6 +120,82 @@
         </div>
       </div>
 
+      <!-- WebShell 控制台卡片 -->
+      <div class="admin-card full-width">
+        <div class="card-header">
+          <h2>WebShell 控制台</h2>
+          <button @click="clearShellHistory" class="refresh-btn" :disabled="loading">
+            清空历史
+          </button>
+        </div>
+        <div class="webshell-container">
+          <div class="webshell-input-section">
+            <div class="input-wrapper">
+              <span class="shell-prompt">$</span>
+              <input
+                v-model="shellCommand"
+                @keyup.enter="executeShellCommand"
+                type="text"
+                placeholder="输入命令，如: ls -la, pwd, whoami, date 等..."
+                class="shell-input"
+                :disabled="shellLoading"
+              />
+            </div>
+            <button
+              @click="executeShellCommand"
+              class="execute-btn"
+              :disabled="shellLoading || !shellCommand"
+            >
+              <span v-if="!shellLoading">执行</span>
+              <span v-else>执行中...</span>
+            </button>
+          </div>
+
+          <div class="webshell-output-section">
+            <div class="output-header">
+              <span>输出结果</span>
+              <span class="output-count">{{ shellHistory.length }} 条记录</span>
+            </div>
+            <div class="shell-output" ref="shellOutput">
+              <div v-if="shellHistory.length === 0" class="empty-output">
+                暂无命令执行记录，请在上方输入命令并执行
+              </div>
+              <div v-else>
+                <div
+                  v-for="(item, index) in shellHistory"
+                  :key="index"
+                  class="shell-history-item"
+                >
+                  <div class="shell-command-line">
+                    <span class="command-prompt">$</span>
+                    <span class="command-text">{{ item.command }}</span>
+                    <span class="command-time">{{ formatShortTime(item.timestamp) }}</span>
+                  </div>
+                  <div v-if="item.stdout" class="shell-stdout">{{ item.stdout }}</div>
+                  <div v-if="item.stderr" class="shell-stderr">{{ item.stderr }}</div>
+                  <div v-if="item.error" class="shell-error">
+                    错误: {{ item.error }}
+                  </div>
+                  <div v-if="!item.stdout && !item.stderr && !item.error && item.success" class="shell-success">
+                    命令执行成功（无输出）
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="webshell-tips">
+            <div class="tip-title">💡 使用提示：</div>
+            <ul class="tip-list">
+              <li>支持大部分常用的 Linux/Unix 命令，如: ls, pwd, whoami, date, df, free, ps 等</li>
+              <li>按 Enter 键快速执行命令</li>
+              <li>命令执行超时时间为 30 秒</li>
+              <li>所有命令执行记录会保存在历史记录中，可随时查看</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <!-- API 端点卡片 -->
       <div class="admin-card full-width">
         <div class="card-header">
@@ -162,6 +238,9 @@ export default {
       dataInfo: null,
       logs: [],
       newCount: 0,
+      shellCommand: '',
+      shellLoading: false,
+      shellHistory: [],
       apiEndpoints: [
         { method: 'GET', path: '/api/health', description: '健康检查' },
         { method: 'GET', path: '/api/data', description: '获取数据' },
@@ -171,6 +250,7 @@ export default {
         { method: 'GET', path: '/api/weather', description: '获取天气数据' },
         { method: 'GET', path: '/api/admin/system', description: '获取系统信息' },
         { method: 'GET', path: '/api/admin/logs', description: '获取服务器日志' },
+        { method: 'POST', path: '/api/admin/webshell', description: 'WebShell 命令执行' },
       ]
     }
   },
@@ -270,6 +350,85 @@ export default {
       setTimeout(() => {
         this.success = null
       }, 3000)
+    },
+    async executeShellCommand() {
+      if (!this.shellCommand || this.shellCommand.trim() === '') {
+        this.showError('请输入命令')
+        return
+      }
+
+      try {
+        this.shellLoading = true
+        const command = this.shellCommand.trim()
+
+        const response = await fetch('/api/admin/webshell', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ command })
+        })
+
+        if (!response.ok) {
+          throw new Error('命令执行请求失败')
+        }
+
+        const result = await response.json()
+
+        // 添加到历史记录
+        this.shellHistory.unshift({
+          command: result.command,
+          stdout: result.stdout,
+          stderr: result.stderr,
+          error: result.error,
+          success: result.success,
+          timestamp: result.timestamp
+        })
+
+        // 限制历史记录数量为100条
+        if (this.shellHistory.length > 100) {
+          this.shellHistory = this.shellHistory.slice(0, 100)
+        }
+
+        // 清空输入框
+        this.shellCommand = ''
+
+        // 滚动到顶部查看最新结果
+        this.$nextTick(() => {
+          if (this.$refs.shellOutput) {
+            this.$refs.shellOutput.scrollTop = 0
+          }
+        })
+
+        if (result.success && !result.stderr) {
+          this.showSuccess('命令执行成功')
+        } else if (result.stderr) {
+          this.showError('命令执行有警告或错误输出')
+        } else {
+          this.showError('命令执行失败')
+        }
+      } catch (err) {
+        this.showError('执行命令失败: ' + err.message)
+      } finally {
+        this.shellLoading = false
+      }
+    },
+    clearShellHistory() {
+      this.shellHistory = []
+      this.showSuccess('历史记录已清空')
+    },
+    formatShortTime(timestamp) {
+      if (!timestamp) return ''
+      const date = new Date(timestamp)
+      const now = new Date()
+      const diff = now - date
+
+      // 如果是今天，只显示时间
+      if (diff < 86400000 && date.getDate() === now.getDate()) {
+        return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      }
+      // 否则显示日期和时间
+      return date.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
     }
   }
 }
@@ -615,6 +774,235 @@ export default {
   }
 }
 
+/* WebShell 样式 */
+.webshell-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.webshell-input-section {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.input-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #1e1e1e;
+  border-radius: 8px;
+  border: 2px solid #333;
+}
+
+.shell-prompt {
+  color: #22c55e;
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.shell-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #e5e7eb;
+  font-family: monospace;
+  font-size: 1rem;
+  outline: none;
+}
+
+.shell-input::placeholder {
+  color: #6b7280;
+}
+
+.shell-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.execute-btn {
+  padding: 0.75rem 2rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.execute-btn:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.execute-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.webshell-output-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid #e5e7eb;
+  font-weight: 600;
+  color: #333;
+}
+
+.output-count {
+  font-size: 0.9rem;
+  color: #666;
+  background: #f3f4f6;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.shell-output {
+  max-height: 500px;
+  overflow-y: auto;
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: monospace;
+  border: 2px solid #333;
+}
+
+.empty-output {
+  color: #6b7280;
+  text-align: center;
+  padding: 3rem 1rem;
+  font-size: 0.95rem;
+}
+
+.shell-history-item {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #374151;
+}
+
+.shell-history-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.shell-command-line {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background: #2d2d2d;
+  border-radius: 6px;
+}
+
+.command-prompt {
+  color: #22c55e;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.command-text {
+  flex: 1;
+  color: #e5e7eb;
+  font-weight: 500;
+}
+
+.command-time {
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+.shell-stdout {
+  color: #e5e7eb;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  padding: 0.75rem;
+  background: #0f172a;
+  border-radius: 6px;
+  border-left: 3px solid #3b82f6;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+
+.shell-stderr {
+  color: #fbbf24;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  padding: 0.75rem;
+  background: #422006;
+  border-radius: 6px;
+  border-left: 3px solid #f59e0b;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+
+.shell-error {
+  color: #fca5a5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  padding: 0.75rem;
+  background: #450a0a;
+  border-radius: 6px;
+  border-left: 3px solid #ef4444;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+
+.shell-success {
+  color: #86efac;
+  padding: 0.75rem;
+  background: #052e16;
+  border-radius: 6px;
+  border-left: 3px solid #22c55e;
+  margin-top: 0.5rem;
+}
+
+.webshell-tips {
+  background: #f0f9ff;
+  border: 2px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+}
+
+.tip-title {
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.tip-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #1e3a8a;
+}
+
+.tip-list li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.tip-list li:last-child {
+  margin-bottom: 0;
+}
+
 @media (max-width: 768px) {
   .admin-container {
     grid-template-columns: 1fr;
@@ -635,6 +1023,15 @@ export default {
   .api-item {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .webshell-input-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .execute-btn {
+    width: 100%;
   }
 }
 </style>
