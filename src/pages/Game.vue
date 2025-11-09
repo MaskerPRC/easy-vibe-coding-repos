@@ -45,8 +45,18 @@
 
       <!-- 游戏状态 -->
       <div class="game-status">
+        <div>等级: {{ level }}</div>
+        <div class="exp-bar">
+          <div class="exp-fill" :style="{ width: (exp / maxExp * 100) + '%' }"></div>
+          <span class="exp-text">{{ exp }} / {{ maxExp }}</span>
+        </div>
         <div>击杀: {{ kills }}</div>
         <div>金币: {{ gold }}</div>
+        <div class="auto-battle-toggle">
+          <button @click="toggleAutoBattle" :class="{ 'active': autoBattle }">
+            {{ autoBattle ? '自动战斗: 开' : '自动战斗: 关' }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -106,6 +116,10 @@ export default {
       kills: 0,
       gold: 0,
       killMessages: [],
+      level: 1,
+      exp: 0,
+      maxExp: 100,
+      autoBattle: false,
 
       // 英雄选择
       selectedHeroId: 1,
@@ -231,6 +245,10 @@ export default {
       this.kills = 0;
       this.gold = 0;
       this.killMessages = [];
+      this.level = 1;
+      this.exp = 0;
+      this.maxExp = 100;
+      this.autoBattle = false;
       this.gameOver = false;
       this.victory = false;
       this.gameStarted = true;
@@ -346,23 +364,28 @@ export default {
     updatePlayer() {
       if (!this.playerHero || this.playerHero.hp <= 0) return;
 
-      // 移动
-      let vx = 0, vy = 0;
-      if (this.keys['w'] || this.keys['W']) vy -= 1;
-      if (this.keys['s'] || this.keys['S']) vy += 1;
-      if (this.keys['a'] || this.keys['A']) vx -= 1;
-      if (this.keys['d'] || this.keys['D']) vx += 1;
+      // 自动战斗模式
+      if (this.autoBattle) {
+        this.updatePlayerAutoBattle();
+      } else {
+        // 手动移动
+        let vx = 0, vy = 0;
+        if (this.keys['w'] || this.keys['W']) vy -= 1;
+        if (this.keys['s'] || this.keys['S']) vy += 1;
+        if (this.keys['a'] || this.keys['A']) vx -= 1;
+        if (this.keys['d'] || this.keys['D']) vx += 1;
 
-      if (vx !== 0 || vy !== 0) {
-        const length = Math.sqrt(vx * vx + vy * vy);
-        vx /= length;
-        vy /= length;
-        this.playerHero.x += vx * this.playerHero.speed;
-        this.playerHero.y += vy * this.playerHero.speed;
+        if (vx !== 0 || vy !== 0) {
+          const length = Math.sqrt(vx * vx + vy * vy);
+          vx /= length;
+          vy /= length;
+          this.playerHero.x += vx * this.playerHero.speed;
+          this.playerHero.y += vy * this.playerHero.speed;
 
-        // 限制在地图内
-        this.playerHero.x = Math.max(50, Math.min(this.mapWidth - 50, this.playerHero.x));
-        this.playerHero.y = Math.max(50, Math.min(this.mapHeight - 50, this.playerHero.y));
+          // 限制在地图内
+          this.playerHero.x = Math.max(50, Math.min(this.mapWidth - 50, this.playerHero.x));
+          this.playerHero.y = Math.max(50, Math.min(this.mapHeight - 50, this.playerHero.y));
+        }
       }
 
       // 自动攻击
@@ -385,6 +408,7 @@ export default {
           this.enemies.splice(index, 1);
           this.kills++;
           this.gold += 300;
+          this.gainExp(50);
           this.addKillMessage(`你击杀了 ${enemy.name}!`);
 
           // 重生敌人
@@ -458,6 +482,7 @@ export default {
           this.minions.splice(index, 1);
           if (minion.team === 'red') {
             this.gold += 20;
+            this.gainExp(10);
           }
           return;
         }
@@ -505,6 +530,7 @@ export default {
           this.towers.splice(index, 1);
           if (tower.team === 'red') {
             this.gold += 150;
+            this.gainExp(30);
             this.addKillMessage('你摧毁了敌方防御塔!');
           }
           return;
@@ -825,6 +851,84 @@ export default {
       }, 3000);
     },
 
+    // 获得经验值
+    gainExp(amount) {
+      this.exp += amount;
+      while (this.exp >= this.maxExp) {
+        this.levelUp();
+      }
+    },
+
+    // 升级
+    levelUp() {
+      this.exp -= this.maxExp;
+      this.level++;
+      this.maxExp = Math.floor(this.maxExp * 1.2);
+
+      // 提升英雄属性
+      this.playerHero.maxHp += 50;
+      this.playerHero.hp = this.playerHero.maxHp;
+      this.playerHero.maxMp += 30;
+      this.playerHero.mp = this.playerHero.maxMp;
+      this.playerHero.atk += 10;
+      this.playerHero.def += 3;
+      this.playerHero.speed += 0.1;
+
+      this.addKillMessage(`升级！当前等级: ${this.level}`);
+    },
+
+    // 自动战斗AI
+    updatePlayerAutoBattle() {
+      const hero = this.playerHero;
+
+      // 寻找最近的敌人
+      const targets = [...this.enemies, ...this.minions.filter(m => m.team === 'red'), ...this.towers.filter(t => t.team === 'red')];
+      let nearestTarget = null;
+      let nearestDist = Infinity;
+
+      targets.forEach(target => {
+        if (target && target.hp > 0) {
+          const dist = this.distance(hero, target);
+          if (dist < nearestDist) {
+            nearestDist = dist;
+            nearestTarget = target;
+          }
+        }
+      });
+
+      if (nearestTarget) {
+        // 自动移动向目标
+        const safeDistance = hero.atkRange * 0.8;
+        if (nearestDist > safeDistance) {
+          const dx = nearestTarget.x - hero.x;
+          const dy = nearestTarget.y - hero.y;
+          const length = Math.sqrt(dx * dx + dy * dy);
+          hero.x += (dx / length) * hero.speed;
+          hero.y += (dy / length) * hero.speed;
+
+          // 限制在地图内
+          hero.x = Math.max(50, Math.min(this.mapWidth - 50, hero.x));
+          hero.y = Math.max(50, Math.min(this.mapHeight - 50, hero.y));
+        }
+
+        // 自动使用技能
+        hero.skills.forEach((skill, index) => {
+          if (skill.currentCooldown === 0 && hero.mp >= skill.mpCost && nearestDist < 300) {
+            // 根据血量和距离智能使用技能
+            if (nearestDist < 150 || hero.hp < hero.maxHp * 0.5) {
+              this.executeSkill(hero, skill, nearestTarget.x, nearestTarget.y);
+            }
+          }
+        });
+      }
+    },
+
+    // 切换自动战斗
+    toggleAutoBattle() {
+      this.autoBattle = !this.autoBattle;
+      this.addKillMessage(this.autoBattle ? '自动战斗已开启' : '自动战斗已关闭');
+    },
+
     distance(a, b) {
       const dx = a.x - b.x;
       const dy = a.y - b.y;
@@ -1054,10 +1158,71 @@ export default {
   color: white;
   font-size: 16px;
   font-weight: bold;
+  min-width: 200px;
 }
 
 .game-status div {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+}
+
+.exp-bar {
+  position: relative;
+  height: 20px;
+  background: #333;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.exp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffd700, #ffed4e);
+  transition: width 0.3s;
+  border-radius: 10px;
+}
+
+.exp-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.auto-battle-toggle {
+  margin-top: 10px;
+  pointer-events: all;
+}
+
+.auto-battle-toggle button {
+  width: 100%;
+  padding: 8px 15px;
+  background: rgba(100, 100, 100, 0.8);
+  border: 2px solid #666;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.auto-battle-toggle button:hover {
+  background: rgba(120, 120, 120, 0.9);
+  border-color: #888;
+}
+
+.auto-battle-toggle button.active {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  border-color: #4CAF50;
+}
+
+.auto-battle-toggle button.active:hover {
+  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
 }
 
 .start-screen {
