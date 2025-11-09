@@ -2,6 +2,7 @@
   <div class="google-home">
     <nav class="top-nav">
       <router-link to="/ziwei" class="nav-link">紫微斗数</router-link>
+      <router-link to="/driving-test" class="nav-link">驾驶测试</router-link>
     </nav>
 
     <div class="logo-container">
