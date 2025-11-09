@@ -11,6 +11,7 @@
                 <a href="/">首页</a> |
                 <a href="/home">Home</a> |
                 <a href="/whv">WHV素材库</a> |
+                <a href="/translator">简繁翻译</a> |
                 <a href="/todo">待办事项</a> |
                 <a href="/medicine">吃药提醒</a> |
                 <a href="/clock-out">下班打卡</a> |

@@ -10,6 +10,7 @@ import AdminDashboard from '../views/AdminDashboard.vue';
 import About from '../views/About.vue';
 import ClockOutReminder from '../views/ClockOutReminder.vue';
 import WHVMaterials from '../views/WHVMaterials.vue';
+import Translator from '../views/Translator.vue';
 
 const routes = [
   {
@@ -66,6 +67,11 @@ const routes = [
     path: '/whv',
     name: 'WHVMaterials',
     component: WHVMaterials
+  },
+  {
+    path: '/translator',
+    name: 'Translator',
+    component: Translator
   }
 ];
 
