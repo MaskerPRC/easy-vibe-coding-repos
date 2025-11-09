@@ -1,6 +1,14 @@
 <template>
   <div class="matrix-container" ref="containerRef">
     <canvas ref="canvasRef"></canvas>
+
+    <!-- 游戏入口按钮 -->
+    <div class="game-entrance">
+      <h1 class="game-title">王者荣耀</h1>
+      <p class="game-subtitle">网页版MOBA游戏</p>
+      <button class="play-btn" @click="goToGame">开始游戏</button>
+    </div>
+
     <button
       class="fullscreen-btn"
       @click="toggleFullscreen"
@@ -18,10 +26,16 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const canvasRef = ref(null);
 const containerRef = ref(null);
 const isFullscreen = ref(false);
+
+const goToGame = () => {
+  router.push('/game');
+};
 
 let animationId = null;
 let columns = [];
@@ -178,5 +192,71 @@ canvas {
 .fullscreen-btn svg {
   width: 24px;
   height: 24px;
+}
+
+.game-entrance {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 999;
+}
+
+.game-title {
+  font-size: 72px;
+  color: #ffd700;
+  margin-bottom: 20px;
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.8),
+               0 0 60px rgba(255, 215, 0, 0.5);
+  font-weight: bold;
+  letter-spacing: 10px;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.6),
+                 0 0 40px rgba(255, 215, 0, 0.4);
+  }
+  to {
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.9),
+                 0 0 60px rgba(255, 215, 0, 0.6),
+                 0 0 90px rgba(255, 215, 0, 0.3);
+  }
+}
+
+.game-subtitle {
+  font-size: 24px;
+  color: #0F0;
+  margin-bottom: 40px;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+  letter-spacing: 5px;
+}
+
+.play-btn {
+  padding: 20px 60px;
+  font-size: 28px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border: 3px solid #ffa500;
+  border-radius: 50px;
+  color: #333;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.play-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6),
+              0 0 40px rgba(255, 215, 0, 0.4);
+  background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+}
+
+.play-btn:active {
+  transform: scale(1.05);
 }
 </style>
