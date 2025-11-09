@@ -1,201 +1,182 @@
 <template>
-  <div id="app">
-    <!-- 头部导航 -->
-    <div class="header">
-      <div class="header-right">
-        <a href="javascript:void(0)">新闻</a>
-        <a href="javascript:void(0)">hao123</a>
-        <a href="javascript:void(0)">地图</a>
-        <a href="javascript:void(0)">视频</a>
-        <a href="javascript:void(0)">贴吧</a>
-        <a href="javascript:void(0)">学术</a>
-        <router-link to="/game" class="game-link">小恐龙游戏</router-link>
-        <a href="javascript:void(0)" class="more-link">更多</a>
-      </div>
-    </div>
-
-    <!-- 主体内容 -->
-    <div class="main-content">
-      <!-- Logo -->
-      <div class="logo">
-        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="270" height="129" viewBox="0 0 270 129">
-          <path fill="#2529D8" d="M223.355,88.305c-6.118,0-11.084,4.961-11.084,11.084c0,6.123,4.966,11.084,11.084,11.084s11.084-4.961,11.084-11.084C234.439,93.266,229.473,88.305,223.355,88.305z"/>
-          <text x="20" y="80" font-family="Arial, sans-serif" font-size="78" font-weight="bold" fill="#2319DC">百度</text>
-        </svg>
-      </div>
-
-      <!-- 搜索框 -->
-      <div class="search-box">
-        <input
-          type="text"
-          v-model="searchText"
-          @keyup.enter="handleSearch"
-          placeholder="请输入搜索内容"
-          class="search-input"
-        />
-        <button @click="handleSearch" class="search-btn">百度一下</button>
-      </div>
-
-      <!-- 底部链接 -->
-      <div class="bottom-links">
-        <a href="javascript:void(0)">把百度设为主页</a>
-        <a href="javascript:void(0)">关于百度</a>
-        <a href="javascript:void(0)">About Baidu</a>
-      </div>
-    </div>
-
-    <!-- 页脚 -->
-    <div class="footer">
-      <p>&copy; 2024 Baidu 使用百度前必读 意见反馈 京ICP证030173号</p>
-    </div>
+  <div class="matrix-container" ref="containerRef">
+    <canvas ref="canvasRef"></canvas>
+    <button
+      class="fullscreen-btn"
+      @click="toggleFullscreen"
+      :title="isFullscreen ? '退出全屏' : '全屏'"
+    >
+      <svg v-if="!isFullscreen" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+      </svg>
+      <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
+      </svg>
+    </button>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
-const searchText = ref('');
+const canvasRef = ref(null);
+const containerRef = ref(null);
+const isFullscreen = ref(false);
 
-const handleSearch = () => {
-  if (searchText.value.trim()) {
-    console.log('搜索内容：', searchText.value);
-    alert(`您搜索的内容是：${searchText.value}`);
+let animationId = null;
+let columns = [];
+let fontSize = 16;
+
+// 字符集：包含数字、英文字母、日文片假名等
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+
+const initMatrix = () => {
+  const canvas = canvasRef.value;
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+
+  // 设置canvas尺寸为窗口大小
+  const resize = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 计算列数
+    const columnCount = Math.floor(canvas.width / fontSize);
+
+    // 初始化每列的y坐标
+    columns = [];
+    for (let i = 0; i < columnCount; i++) {
+      columns[i] = Math.floor(Math.random() * canvas.height / fontSize);
+    }
+  };
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  const draw = () => {
+    // 使用半透明黑色覆盖画布，产生拖尾效果
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 设置字体样式和颜色
+    ctx.fillStyle = '#0F0'; // 绿色
+    ctx.font = `${fontSize}px monospace`;
+
+    // 绘制字符
+    for (let i = 0; i < columns.length; i++) {
+      // 随机选择一个字符
+      const char = characters[Math.floor(Math.random() * characters.length)];
+
+      // 绘制字符
+      const x = i * fontSize;
+      const y = columns[i] * fontSize;
+      ctx.fillText(char, x, y);
+
+      // 随机重置列，让字符从顶部重新开始
+      if (y > canvas.height && Math.random() > 0.975) {
+        columns[i] = 0;
+      }
+
+      // 向下移动
+      columns[i]++;
+    }
+
+    animationId = requestAnimationFrame(draw);
+  };
+
+  draw();
+
+  return () => {
+    window.removeEventListener('resize', resize);
+  };
+};
+
+const toggleFullscreen = () => {
+  const container = containerRef.value;
+  if (!container) return;
+
+  if (!document.fullscreenElement) {
+    container.requestFullscreen().then(() => {
+      isFullscreen.value = true;
+    }).catch(err => {
+      console.error('无法进入全屏模式:', err);
+    });
+  } else {
+    document.exitFullscreen().then(() => {
+      isFullscreen.value = false;
+    });
   }
 };
+
+// 监听全屏状态变化
+const handleFullscreenChange = () => {
+  isFullscreen.value = !!document.fullscreenElement;
+};
+
+onMounted(() => {
+  const cleanup = initMatrix();
+  document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+  onUnmounted(() => {
+    if (animationId) {
+      cancelAnimationFrame(animationId);
+    }
+    if (cleanup) {
+      cleanup();
+    }
+    document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  });
+});
 </script>
 
 <style scoped>
-* {
+.matrix-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #000;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
-#app {
+canvas {
+  display: block;
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
+}
+
+.fullscreen-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgba(0, 255, 0, 0.2);
+  border: 2px solid #0F0;
+  color: #0F0;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
-  font-family: Arial, "Microsoft YaHei", sans-serif;
-}
-
-/* 头部导航 */
-.header {
-  width: 100%;
-  height: 60px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0 30px;
-}
-
-.header-right {
-  display: flex;
-  gap: 20px;
-}
-
-.header-right a {
-  color: #333;
-  text-decoration: none;
-  font-size: 13px;
-}
-
-.header-right a:hover {
-  color: #2319DC;
-}
-
-.game-link {
-  color: #ff6b00 !important;
-  font-weight: bold;
-}
-
-.game-link:hover {
-  color: #ff4500 !important;
-}
-
-.more-link {
-  color: #2319DC !important;
-}
-
-/* 主体内容 */
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-bottom: 100px;
+  transition: all 0.3s ease;
+  z-index: 1000;
 }
 
-/* Logo */
-.logo {
-  margin-bottom: 30px;
+.fullscreen-btn:hover {
+  background-color: rgba(0, 255, 0, 0.4);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
 }
 
-/* 搜索框 */
-.search-box {
-  display: flex;
-  width: 640px;
-  max-width: 90%;
-  margin-bottom: 30px;
+.fullscreen-btn:active {
+  transform: scale(0.95);
 }
 
-.search-input {
-  flex: 1;
-  height: 44px;
-  padding: 0 15px;
-  border: 2px solid #c4c7ce;
-  border-right: none;
-  border-radius: 10px 0 0 10px;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.3s;
-}
-
-.search-input:hover,
-.search-input:focus {
-  border-color: #4e6ef2;
-}
-
-.search-btn {
-  width: 108px;
-  height: 44px;
-  background-color: #4e6ef2;
-  color: white;
-  border: none;
-  border-radius: 0 10px 10px 0;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.search-btn:hover {
-  background-color: #4662D9;
-}
-
-/* 底部链接 */
-.bottom-links {
-  display: flex;
-  gap: 20px;
-}
-
-.bottom-links a {
-  color: #999;
-  font-size: 12px;
-  text-decoration: none;
-}
-
-.bottom-links a:hover {
-  color: #2319DC;
-}
-
-/* 页脚 */
-.footer {
-  width: 100%;
-  padding: 20px;
-  text-align: center;
-  background-color: #f5f5f6;
-  color: #999;
-  font-size: 12px;
+.fullscreen-btn svg {
+  width: 24px;
+  height: 24px;
 }
 </style>
