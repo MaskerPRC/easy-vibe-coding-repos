@@ -1,57 +1,119 @@
 <template>
-  <div class="google-search">
-    <div class="search-container" :class="{ 'has-results': searchResults.length > 0 }">
-      <div class="logo-container">
-        <h1 class="google-logo">Google</h1>
+  <div class="models-page">
+    <header class="page-header">
+      <h1 class="page-title">模特管理平台</h1>
+      <p class="page-subtitle">优质模特资源展示</p>
+    </header>
+
+    <div class="filters-container">
+      <div class="filter-group">
+        <label>分类筛选：</label>
+        <select v-model="selectedCategory" @change="fetchModels" class="filter-select">
+          <option value="all">全部分类</option>
+          <option value="时装模特">时装模特</option>
+          <option value="商业模特">商业模特</option>
+          <option value="平面模特">平面模特</option>
+          <option value="高级定制模特">高级定制模特</option>
+          <option value="电商模特">电商模特</option>
+        </select>
       </div>
 
-      <div class="search-box-container">
-        <div class="search-box">
-          <svg class="search-icon" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-          </svg>
-          <input
-            type="text"
-            v-model="searchQuery"
-            @keyup.enter="performSearch"
-            placeholder="输入搜索内容..."
-            class="search-input"
-            ref="searchInput"
-          />
-          <button v-if="searchQuery" @click="clearSearch" class="clear-btn">×</button>
-        </div>
-
-        <div class="search-buttons">
-          <button @click="performSearch" class="search-btn">Google 搜索</button>
-          <button @click="luckySearch" class="search-btn">手气不错</button>
-        </div>
+      <div class="filter-group">
+        <label>性别筛选：</label>
+        <select v-model="selectedGender" @change="fetchModels" class="filter-select">
+          <option value="all">全部</option>
+          <option value="女">女</option>
+          <option value="男">男</option>
+        </select>
       </div>
     </div>
 
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
-      <p>搜索中...</p>
+      <p>加载中...</p>
     </div>
 
     <div v-if="error" class="error-message">
       {{ error }}
     </div>
 
-    <div v-if="searchResults.length > 0" class="results-container">
-      <div class="results-stats">
-        找到约 {{ totalResults }} 条结果（用时 {{ searchTime }} 秒）
-      </div>
+    <div v-if="!loading && models.length === 0 && !error" class="empty-message">
+      暂无模特数据
+    </div>
 
-      <div class="results-list">
-        <div v-for="(result, index) in searchResults" :key="index" class="result-item">
-          <div class="result-url">{{ result.displayLink || result.link }}</div>
-          <a :href="result.link" target="_blank" class="result-title">{{ result.title }}</a>
-          <div class="result-snippet" v-html="result.snippet"></div>
+    <div v-if="models.length > 0" class="models-grid">
+      <div
+        v-for="model in models"
+        :key="model.id"
+        class="model-card"
+        @click="showModelDetail(model)"
+      >
+        <div class="model-image-wrapper">
+          <img :src="model.avatar" :alt="model.name" class="model-image" />
+          <div class="model-overlay">
+            <span class="view-detail">查看详情</span>
+          </div>
+        </div>
+        <div class="model-info">
+          <h3 class="model-name">{{ model.name }}</h3>
+          <div class="model-meta">
+            <span class="model-category">{{ model.category }}</span>
+            <span class="model-gender">{{ model.gender }}</span>
+          </div>
+          <div class="model-stats">
+            <span>身高: {{ model.height }}cm</span>
+            <span>经验: {{ model.experience }}</span>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div v-if="hasMoreResults" class="pagination">
-        <button @click="loadMore" class="load-more-btn">加载更多结果</button>
+    <!-- 详情弹窗 -->
+    <div v-if="selectedModel" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <button class="modal-close" @click="closeModal">×</button>
+        <div class="modal-body">
+          <div class="modal-image-section">
+            <img :src="selectedModel.avatar" :alt="selectedModel.name" class="modal-image" />
+          </div>
+          <div class="modal-info-section">
+            <h2 class="modal-name">{{ selectedModel.name }}</h2>
+            <div class="modal-category">{{ selectedModel.category }}</div>
+
+            <div class="detail-group">
+              <h4>基本信息</h4>
+              <div class="detail-item">
+                <span class="detail-label">性别：</span>
+                <span class="detail-value">{{ selectedModel.gender }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">年龄：</span>
+                <span class="detail-value">{{ selectedModel.age }}岁</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">身高：</span>
+                <span class="detail-value">{{ selectedModel.height }}cm</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">体重：</span>
+                <span class="detail-value">{{ selectedModel.weight }}kg</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">三围：</span>
+                <span class="detail-value">{{ selectedModel.measurements }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">从业经验：</span>
+                <span class="detail-value">{{ selectedModel.experience }}</span>
+              </div>
+            </div>
+
+            <div class="detail-group">
+              <h4>个人简介</h4>
+              <p class="detail-description">{{ selectedModel.description }}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -60,114 +122,54 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 
-const searchQuery = ref('');
-const searchResults = ref([]);
+const models = ref([]);
 const loading = ref(false);
 const error = ref('');
-const totalResults = ref(0);
-const searchTime = ref(0);
-const hasMoreResults = ref(false);
-const currentPage = ref(1);
-const searchInput = ref(null);
+const selectedCategory = ref('all');
+const selectedGender = ref('all');
+const selectedModel = ref(null);
 
-const performSearch = async () => {
-  if (!searchQuery.value.trim()) {
-    return;
-  }
-
+const fetchModels = async () => {
   loading.value = true;
   error.value = '';
-  searchResults.value = [];
-  currentPage.value = 1;
 
   try {
-    const startTime = performance.now();
-    const response = await fetch('/api/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: searchQuery.value,
-        page: currentPage.value
-      })
-    });
+    const params = new URLSearchParams();
+    if (selectedCategory.value !== 'all') {
+      params.append('category', selectedCategory.value);
+    }
+    if (selectedGender.value !== 'all') {
+      params.append('gender', selectedGender.value);
+    }
 
+    const response = await fetch(`/api/models?${params.toString()}`);
     const data = await response.json();
-    const endTime = performance.now();
-    searchTime.value = ((endTime - startTime) / 1000).toFixed(2);
 
     if (data.success) {
-      searchResults.value = data.results || [];
-      totalResults.value = data.totalResults || 0;
-      hasMoreResults.value = data.hasMore || false;
+      models.value = data.data || [];
     } else {
-      error.value = data.error || '搜索失败';
+      error.value = data.error || '获取模特列表失败';
     }
   } catch (err) {
-    error.value = '搜索请求失败: ' + err.message;
-    console.error('搜索失败:', err);
+    error.value = '网络请求失败: ' + err.message;
+    console.error('获取模特列表失败:', err);
   } finally {
     loading.value = false;
   }
 };
 
-const luckySearch = async () => {
-  if (!searchQuery.value.trim()) {
-    return;
-  }
-
-  performSearch();
-  // 如果有结果，自动打开第一个链接
-  setTimeout(() => {
-    if (searchResults.value.length > 0) {
-      window.open(searchResults.value[0].link, '_blank');
-    }
-  }, 1000);
+const showModelDetail = (model) => {
+  selectedModel.value = model;
+  document.body.style.overflow = 'hidden';
 };
 
-const clearSearch = () => {
-  searchQuery.value = '';
-  searchResults.value = [];
-  error.value = '';
-  searchInput.value?.focus();
-};
-
-const loadMore = async () => {
-  if (!hasMoreResults.value || loading.value) {
-    return;
-  }
-
-  currentPage.value++;
-  loading.value = true;
-
-  try {
-    const response = await fetch('/api/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: searchQuery.value,
-        page: currentPage.value
-      })
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      searchResults.value = [...searchResults.value, ...(data.results || [])];
-      hasMoreResults.value = data.hasMore || false;
-    }
-  } catch (err) {
-    error.value = '加载更多结果失败: ' + err.message;
-  } finally {
-    loading.value = false;
-  }
+const closeModal = () => {
+  selectedModel.value = null;
+  document.body.style.overflow = 'auto';
 };
 
 onMounted(() => {
-  searchInput.value?.focus();
+  fetchModels();
 });
 </script>
 
@@ -176,117 +178,76 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-.google-search {
+.models-page {
   min-height: 100vh;
-  background: #fff;
-  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
 }
 
-.search-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 140px;
-  transition: padding-top 0.3s;
+.page-header {
+  text-align: center;
+  padding: 40px 20px;
+  color: white;
 }
 
-.search-container.has-results {
-  padding-top: 30px;
+.page-title {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.logo-container {
-  margin-bottom: 30px;
-}
-
-.google-logo {
-  font-size: 90px;
-  font-weight: 400;
-  color: #4285f4;
+.page-subtitle {
+  font-size: 18px;
   margin: 0;
-  font-family: 'Product Sans', Arial, sans-serif;
-  letter-spacing: -2px;
+  opacity: 0.9;
 }
 
-.search-container.has-results .google-logo {
-  font-size: 32px;
+.filters-container {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
 }
 
-.search-box-container {
-  width: 100%;
-  max-width: 584px;
-  padding: 0 20px;
-}
-
-.search-box {
+.filter-group {
   display: flex;
   align-items: center;
-  border: 1px solid #dfe1e5;
-  border-radius: 24px;
-  padding: 10px 16px;
-  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-  transition: box-shadow 0.2s;
-}
-
-.search-box:hover,
-.search-box:focus-within {
-  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.4);
-  border-color: rgba(223, 225, 229, 0);
-}
-
-.search-icon {
-  width: 20px;
-  height: 20px;
-  fill: #9aa0a6;
-  margin-right: 12px;
-  flex-shrink: 0;
-}
-
-.search-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  color: #202124;
-  background: transparent;
-}
-
-.clear-btn {
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  color: #70757a;
-  cursor: pointer;
-  padding: 0 8px;
-  line-height: 1;
-}
-
-.clear-btn:hover {
-  color: #202124;
-}
-
-.search-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.search-btn {
-  background-color: #f8f9fa;
-  border: 1px solid #f8f9fa;
-  border-radius: 4px;
-  color: #3c4043;
+  gap: 10px;
+  color: white;
   font-size: 14px;
-  padding: 10px 16px;
-  cursor: pointer;
-  transition: all 0.1s;
 }
 
-.search-btn:hover {
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  background-color: #f8f9fa;
-  border: 1px solid #dadce0;
-  color: #202124;
+.filter-group label {
+  font-weight: 500;
+}
+
+.filter-select {
+  padding: 8px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.filter-select:hover {
+  border-color: white;
+  background: white;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: white;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
 .loading {
@@ -295,14 +256,15 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
+  color: white;
 }
 
 .spinner {
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #4285f4;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   animation: spin 1s linear infinite;
 }
 
@@ -313,116 +275,307 @@ onMounted(() => {
 
 .loading p {
   margin-top: 16px;
-  color: #70757a;
-  font-size: 14px;
+  font-size: 16px;
 }
 
-.error-message {
-  max-width: 652px;
+.error-message, .empty-message {
+  max-width: 600px;
   margin: 40px auto;
-  padding: 20px;
-  background: #fce8e6;
-  border: 1px solid #f5c6cb;
-  border-radius: 8px;
-  color: #d93025;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  color: #d32f2f;
   text-align: center;
+  font-size: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.results-container {
-  max-width: 652px;
+.empty-message {
+  color: #666;
+}
+
+.models-grid {
+  max-width: 1200px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
   padding: 20px;
 }
 
-.results-stats {
-  color: #70757a;
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-
-.results-list {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.result-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.result-url {
-  font-size: 14px;
-  color: #202124;
-  margin-bottom: 4px;
-  line-height: 1.3;
-}
-
-.result-title {
-  font-size: 20px;
-  color: #1a0dab;
-  text-decoration: none;
-  line-height: 1.3;
-  margin-bottom: 4px;
-  display: inline-block;
-}
-
-.result-title:hover {
-  text-decoration: underline;
-}
-
-.result-title:visited {
-  color: #681da8;
-}
-
-.result-snippet {
-  font-size: 14px;
-  color: #4d5156;
-  line-height: 1.58;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 40px;
-  padding: 20px 0;
-}
-
-.load-more-btn {
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 12px 24px;
-  font-size: 14px;
+.model-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
 }
 
-.load-more-btn:hover {
-  background-color: #357ae8;
+.model-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.model-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.model-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.model-card:hover .model-image {
+  transform: scale(1.1);
+}
+
+.model-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.model-card:hover .model-overlay {
+  opacity: 1;
+}
+
+.view-detail {
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border: 2px solid white;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.view-detail:hover {
+  background: white;
+  color: #667eea;
+}
+
+.model-info {
+  padding: 20px;
+}
+
+.model-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #333;
+}
+
+.model-meta {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.model-category, .model-gender {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.model-category {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.model-gender {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.model-stats {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+  font-size: 14px;
+}
+
+/* 弹窗样式 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.3s;
+}
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.modal-image-section {
+  background: #f5f5f5;
+}
+
+.modal-image {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  object-fit: cover;
+}
+
+.modal-info-section {
+  padding: 40px;
+}
+
+.modal-name {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.modal-category {
+  display: inline-block;
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 30px;
+}
+
+.detail-group {
+  margin-bottom: 30px;
+}
+
+.detail-group h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: #333;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 8px;
+}
+
+.detail-item {
+  display: flex;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #666;
+  min-width: 100px;
+}
+
+.detail-value {
+  color: #333;
+}
+
+.detail-description {
+  color: #666;
+  line-height: 1.8;
+  margin: 0;
 }
 
 @media (max-width: 768px) {
-  .search-container {
-    padding-top: 80px;
+  .page-title {
+    font-size: 32px;
   }
 
-  .google-logo {
-    font-size: 60px;
+  .page-subtitle {
+    font-size: 14px;
   }
 
-  .search-container.has-results {
-    padding-top: 20px;
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .search-container.has-results .google-logo {
-    font-size: 28px;
+  .filter-group {
+    justify-content: space-between;
   }
 
-  .results-container {
-    padding: 12px;
+  .models-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .modal-body {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-image {
+    min-height: 300px;
+  }
+
+  .modal-info-section {
+    padding: 30px 20px;
+  }
+
+  .modal-name {
+    font-size: 24px;
   }
 }
 </style>
-
