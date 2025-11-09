@@ -104,7 +104,15 @@ const handleLucky = () => {
   display: flex;
   flex-direction: column;
   font-family: Arial, sans-serif;
-  background: #fff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Header */
@@ -113,6 +121,10 @@ const handleLucky = () => {
   justify-content: space-between;
   padding: 15px 20px;
   font-size: 13px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .header-links,
@@ -123,9 +135,10 @@ const handleLucky = () => {
 }
 
 .header a {
-  color: rgba(0, 0, 0, 0.87);
+  color: rgba(255, 255, 255, 0.95);
   text-decoration: none;
   transition: text-decoration 0.3s;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .header a:hover {
@@ -133,35 +146,40 @@ const handleLucky = () => {
 }
 
 .apps-btn {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 20px;
-  color: #5f6368;
+  color: rgba(255, 255, 255, 0.95);
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  backdrop-filter: blur(5px);
 }
 
 .apps-btn:hover {
-  background-color: rgba(60, 64, 67, 0.08);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .signin-btn {
-  background: #1a73e8;
+  background: rgba(255, 255, 255, 0.2);
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 9px 23px;
-  border-radius: 4px;
+  border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .signin-btn:hover {
-  background: #1765cc;
-  box-shadow: 0 1px 2px 0 rgba(66, 133, 244, 0.3), 0 1px 3px 1px rgba(66, 133, 244, 0.15);
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 /* Main Content */
@@ -181,6 +199,8 @@ const handleLucky = () => {
   margin-bottom: 30px;
   font-family: 'Product Sans', Arial, sans-serif;
   user-select: none;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(255, 255, 255, 0.3);
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
 }
 
 .logo-g {
@@ -217,28 +237,34 @@ const handleLucky = () => {
 .search-box {
   display: flex;
   align-items: center;
-  border: 1px solid #dfe1e5;
-  border-radius: 24px;
-  padding: 10px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  padding: 12px 20px;
   width: 100%;
-  transition: box-shadow 0.3s;
-  background: #fff;
+  transition: all 0.3s;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .search-box:hover {
-  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-  border-color: rgba(223, 225, 229, 0);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
 }
 
 .search-box:focus-within {
-  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-  border-color: rgba(223, 225, 229, 0);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
 }
 
 .search-icon {
   width: 20px;
   height: 20px;
-  fill: #9aa0a6;
+  fill: rgba(255, 255, 255, 0.8);
   margin-right: 13px;
   flex-shrink: 0;
 }
@@ -248,8 +274,12 @@ const handleLucky = () => {
   border: none;
   outline: none;
   font-size: 16px;
-  color: #202124;
+  color: white;
   background: transparent;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .voice-icon {
@@ -268,34 +298,39 @@ const handleLucky = () => {
 }
 
 .search-btn {
-  background-color: #f8f9fa;
-  border: 1px solid #f8f9fa;
-  border-radius: 4px;
-  color: #3c4043;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  color: white;
   font-size: 14px;
-  padding: 10px 16px;
+  padding: 10px 20px;
   cursor: pointer;
-  transition: all 0.1s;
+  transition: all 0.3s;
   font-family: Arial, sans-serif;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
 }
 
 .search-btn:hover {
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  background-color: #f8f9fa;
-  border: 1px solid #dadce0;
-  color: #202124;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
 }
 
 .language-offer {
   margin-top: 30px;
   font-size: 13px;
-  color: #3c4043;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .language-offer a {
-  color: #1a0dab;
+  color: rgba(255, 255, 255, 0.95);
   text-decoration: none;
   margin-left: 5px;
+  font-weight: 500;
 }
 
 .language-offer a:hover {
@@ -304,14 +339,17 @@ const handleLucky = () => {
 
 /* Footer */
 .footer {
-  background-color: #f2f2f2;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .footer-top {
   padding: 15px 30px;
-  border-bottom: 1px solid #dadce0;
-  color: rgba(0, 0, 0, 0.54);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 15px;
 }
 
@@ -329,13 +367,15 @@ const handleLucky = () => {
 }
 
 .footer a {
-  color: rgba(0, 0, 0, 0.54);
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
   font-size: 14px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .footer a:hover {
   text-decoration: underline;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 @media (max-width: 768px) {
