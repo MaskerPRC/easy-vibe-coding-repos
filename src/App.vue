@@ -1,5 +1,15 @@
 <template>
   <div id="app">
+    <!-- 星空背景层 -->
+    <div class="stars-container">
+      <div
+        v-for="index in starCount"
+        :key="'star-' + index"
+        class="star"
+        :style="getStarStyle(index)"
+      ></div>
+    </div>
+
     <div class="chat-buttons-container">
       <div
         v-for="index in buttonCount"
@@ -24,6 +34,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 
 const buttonCount = ref(0);
+const starCount = ref(200); // 星星数量
 
 const calculateButtonCount = () => {
   // 按钮大小为 60px (包括间距)
@@ -31,6 +42,30 @@ const calculateButtonCount = () => {
   const cols = Math.ceil(window.innerWidth / buttonSize);
   const rows = Math.ceil(window.innerHeight / buttonSize);
   buttonCount.value = cols * rows + 20; // 多一些确保填满
+};
+
+// 生成星星的随机样式
+const getStarStyle = (index) => {
+  // 使用index作为种子生成伪随机位置
+  const random1 = (index * 9301 + 49297) % 233280 / 233280;
+  const random2 = (index * 4253 + 19203) % 233280 / 233280;
+  const random3 = (index * 7919 + 13841) % 233280 / 233280;
+  const random4 = (index * 3571 + 29167) % 233280 / 233280;
+
+  const left = random1 * 100;
+  const top = random2 * 100;
+  const size = 1 + random3 * 2; // 1-3px
+  const duration = 2 + random4 * 3; // 2-5秒
+  const delay = random1 * 5; // 0-5秒延迟
+
+  return {
+    left: `${left}%`,
+    top: `${top}%`,
+    width: `${size}px`,
+    height: `${size}px`,
+    animationDuration: `${duration}s`,
+    animationDelay: `${delay}s`
+  };
 };
 
 onMounted(() => {
@@ -64,8 +99,39 @@ body {
 #app {
   width: 100%;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #000000;
   overflow: hidden;
+  position: relative;
+}
+
+/* ==================== 星空背景 ==================== */
+.stars-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.star {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 3px #ffffff;
+  animation: twinkle infinite ease-in-out;
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
 .chat-buttons-container {
@@ -77,6 +143,8 @@ body {
   gap: 10px;
   padding: 10px;
   overflow: hidden;
+  position: relative;
+  z-index: 2;
 }
 
 .chat-button {
