@@ -1,71 +1,100 @@
 <template>
-  <div class="baidu-page">
+  <div class="bocai-page">
+    <!-- 顶部导航栏 -->
     <header class="header">
-      <div class="header-links">
-        <a href="https://www.baidu.com" target="_blank">关于</a>
-        <a href="https://www.baidu.com" target="_blank">商店</a>
-      </div>
-      <div class="header-right">
-        <a href="https://www.baidu.com" target="_blank">Gmail</a>
-        <a href="https://www.baidu.com" target="_blank">图片</a>
-        <button class="apps-btn">⋮⋮⋮</button>
-        <button class="signin-btn">登录</button>
+      <div class="header-container">
+        <div class="logo-section">
+          <div class="logo-icon">
+            <span class="logo-text">博采</span>
+          </div>
+        </div>
+
+        <nav class="nav-menu">
+          <a href="#" class="nav-item active">首页</a>
+          <a href="#" class="nav-item">资讯</a>
+          <a href="#" class="nav-item">数据</a>
+          <a href="#" class="nav-item">分析</a>
+          <a href="#" class="nav-item">赛事</a>
+          <a href="#" class="nav-item">关于我们</a>
+        </nav>
+
+        <div class="auth-buttons">
+          <button class="btn-login">登录</button>
+          <button class="btn-register">注册</button>
+        </div>
       </div>
     </header>
 
+    <!-- 主要内容区 -->
     <main class="main-content">
-      <div class="logo">
-        <span class="logo-bai">百</span>
-        <span class="logo-du">度</span>
-      </div>
-
-      <div class="search-container">
-        <div class="search-box">
-          <svg class="search-icon" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-          </svg>
-          <input
-            type="text"
-            v-model="searchQuery"
-            @keyup.enter="handleSearch"
-            placeholder=""
-            class="search-input"
-          />
-          <svg class="voice-icon" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path fill="#4285f4" d="m12 15c1.66 0 3-1.31 3-2.97v-7.02c0-1.66-1.34-3.01-3-3.01s-3 1.34-3 3.01v7.02c0 1.66 1.34 2.97 3 2.97z"></path>
-            <path fill="#34a853" d="m11 18.08h2v3.92h-2z"></path>
-            <path fill="#fbbc05" d="m7.05 16.87c-1.27-1.33-2.05-2.83-2.05-4.87h2c0 1.45 0.56 2.42 1.47 3.38v0.32l-1.15 1.18z"></path>
-            <path fill="#ea4335" d="m12 16.93a4.97 5.25 0 0 1 -3.54 -1.55l-1.41 1.49c1.26 1.34 3.02 2.13 4.95 2.13 3.87 0 6.99-2.92 6.99-7h-1.99c0 2.92-2.24 4.93-5 4.93z"></path>
-          </svg>
+      <!-- Banner 区域 -->
+      <section class="banner-section">
+        <div class="banner-content">
+          <h1 class="banner-title">欢迎来到博采平台</h1>
+          <p class="banner-subtitle">专业的信息资讯与数据分析平台</p>
+          <div class="banner-actions">
+            <button class="btn-primary">立即探索</button>
+            <button class="btn-secondary">了解更多</button>
+          </div>
         </div>
+      </section>
 
-        <div class="search-buttons">
-          <button @click="handleSearch" class="search-btn">百度搜索</button>
-          <button @click="handleLucky" class="search-btn">手气不错</button>
-          <button @click="handleNewFeature" class="search-btn new-feature-btn">新功能</button>
+      <!-- 功能卡片区 -->
+      <section class="features-section">
+        <h2 class="section-title">核心功能</h2>
+        <div class="cards-container">
+          <div class="feature-card" v-for="feature in features" :key="feature.id">
+            <div class="card-icon">{{ feature.icon }}</div>
+            <h3 class="card-title">{{ feature.title }}</h3>
+            <p class="card-description">{{ feature.description }}</p>
+            <button class="card-btn">查看详情</button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="language-offer">
-        百度提供: <a href="#">English</a>
-      </div>
+      <!-- 数据展示区 -->
+      <section class="data-section">
+        <h2 class="section-title">实时数据</h2>
+        <div class="data-grid">
+          <div class="data-item" v-for="data in dataItems" :key="data.id">
+            <div class="data-label">{{ data.label }}</div>
+            <div class="data-value">{{ data.value }}</div>
+            <div class="data-change" :class="data.trend">{{ data.change }}</div>
+          </div>
+        </div>
+      </section>
     </main>
 
+    <!-- 页脚 -->
     <footer class="footer">
-      <div class="footer-top">
-        中国
+      <div class="footer-container">
+        <div class="footer-column">
+          <h4>关于我们</h4>
+          <a href="#">公司简介</a>
+          <a href="#">团队介绍</a>
+          <a href="#">联系我们</a>
+        </div>
+        <div class="footer-column">
+          <h4>产品服务</h4>
+          <a href="#">数据分析</a>
+          <a href="#">资讯服务</a>
+          <a href="#">API接口</a>
+        </div>
+        <div class="footer-column">
+          <h4>帮助中心</h4>
+          <a href="#">使用指南</a>
+          <a href="#">常见问题</a>
+          <a href="#">技术支持</a>
+        </div>
+        <div class="footer-column">
+          <h4>法律条款</h4>
+          <a href="#">服务协议</a>
+          <a href="#">隐私政策</a>
+          <a href="#">免责声明</a>
+        </div>
       </div>
       <div class="footer-bottom">
-        <div class="footer-left">
-          <a href="https://www.baidu.com" target="_blank">广告</a>
-          <a href="https://www.baidu.com" target="_blank">商务</a>
-          <a href="https://www.baidu.com" target="_blank">百度的运作方式</a>
-        </div>
-        <div class="footer-right">
-          <a href="https://www.baidu.com" target="_blank">隐私权</a>
-          <a href="https://www.baidu.com" target="_blank">条款</a>
-          <a href="https://www.baidu.com" target="_blank">设置</a>
-        </div>
+        <p>&copy; 2025 博采平台. 保留所有权利.</p>
       </div>
     </footer>
   </div>
@@ -74,25 +103,65 @@
 <script setup>
 import { ref } from 'vue';
 
-const searchQuery = ref('');
-
-const handleSearch = () => {
-  if (searchQuery.value.trim()) {
-    // 实际上使用百度搜索
-    window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
+// 功能卡片数据
+const features = ref([
+  {
+    id: 1,
+    icon: '📊',
+    title: '数据分析',
+    description: '专业的数据统计与分析服务，为您提供深度洞察'
+  },
+  {
+    id: 2,
+    icon: '📰',
+    title: '实时资讯',
+    description: '第一时间获取最新资讯，掌握行业动态'
+  },
+  {
+    id: 3,
+    icon: '🎯',
+    title: '精准推荐',
+    description: '基于智能算法的个性化内容推荐系统'
+  },
+  {
+    id: 4,
+    icon: '🔒',
+    title: '安全可靠',
+    description: '企业级安全保障，保护您的数据隐私'
   }
-};
+]);
 
-const handleLucky = () => {
-  if (searchQuery.value.trim()) {
-    // 手气不错也使用百度搜索
-    window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
+// 数据展示
+const dataItems = ref([
+  {
+    id: 1,
+    label: '今日访问',
+    value: '128,456',
+    change: '+12.5%',
+    trend: 'up'
+  },
+  {
+    id: 2,
+    label: '活跃用户',
+    value: '45,892',
+    change: '+8.3%',
+    trend: 'up'
+  },
+  {
+    id: 3,
+    label: '数据更新',
+    value: '2,341',
+    change: '-3.2%',
+    trend: 'down'
+  },
+  {
+    id: 4,
+    label: '系统稳定',
+    value: '99.9%',
+    change: '+0.1%',
+    trend: 'up'
   }
-};
-
-const handleNewFeature = () => {
-  alert('欢迎使用新功能按钮！');
-};
+]);
 </script>
 
 <style scoped>
@@ -100,293 +169,520 @@ const handleNewFeature = () => {
   box-sizing: border-box;
 }
 
-.baidu-page {
+.bocai-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+  color: #ffffff;
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Header */
+/* ========== 头部导航 ========== */
 .header {
+  background: linear-gradient(90deg, #1a1f3a 0%, #0f1824 100%);
+  border-bottom: 2px solid #d4af37;
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
-  padding: 15px 20px;
-  font-size: 13px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  padding: 15px 30px;
 }
 
-.header-links,
-.header-right {
+.logo-section {
   display: flex;
   align-items: center;
+}
+
+.logo-icon {
+  background: linear-gradient(135deg, #d4af37 0%, #f4e5c3 50%, #d4af37 100%);
+  padding: 10px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.logo-text {
+  font-size: 28px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #1a1f3a 0%, #0a0e27 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 2px;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 35px;
+  align-items: center;
+}
+
+.nav-item {
+  color: #c0c5d0;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-item:hover {
+  color: #d4af37;
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.nav-item.active {
+  color: #d4af37;
+  background: rgba(212, 175, 55, 0.15);
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -17px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #d4af37;
+}
+
+.auth-buttons {
+  display: flex;
   gap: 15px;
 }
 
-.header a {
-  color: rgba(255, 255, 255, 0.95);
-  text-decoration: none;
-  transition: text-decoration 0.3s;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.header a:hover {
-  text-decoration: underline;
-}
-
-.apps-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.95);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  transition: all 0.3s;
-  backdrop-filter: blur(5px);
-}
-
-.apps-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.signin-btn {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 9px 23px;
-  border-radius: 20px;
+.btn-login {
+  background: transparent;
+  color: #d4af37;
+  border: 2px solid #d4af37;
+  padding: 10px 25px;
+  border-radius: 25px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-.signin-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+.btn-login:hover {
+  background: rgba(212, 175, 55, 0.1);
   transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
 }
 
-/* Main Content */
+.btn-register {
+  background: linear-gradient(135deg, #d4af37 0%, #f4e5c3 50%, #d4af37 100%);
+  color: #0a0e27;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.btn-register:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+/* ========== 主要内容区 ========== */
 .main-content {
   flex: 1;
+}
+
+/* Banner 区域 */
+.banner-section {
+  background: linear-gradient(135deg, #1a1f3a 0%, #0f1824 100%);
+  padding: 100px 30px;
+  text-align: center;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.banner-content {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.banner-title {
+  font-size: 52px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #d4af37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+}
+
+.banner-subtitle {
+  font-size: 20px;
+  color: #a8adb8;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.banner-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #d4af37 0%, #f4e5c3 50%, #d4af37 100%);
+  color: #0a0e27;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #d4af37;
+  border: 2px solid #d4af37;
+  padding: 15px 40px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(212, 175, 55, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.2);
+}
+
+/* 功能卡片区 */
+.features-section {
+  padding: 80px 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 38px;
+  font-weight: 700;
+  margin-bottom: 50px;
+  color: #d4af37;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #d4af37, transparent);
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.feature-card {
+  background: linear-gradient(135deg, #1a1f3a 0%, #0f1824 100%);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 15px;
+  padding: 35px 25px;
+  text-align: center;
+  transition: all 0.4s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.feature-card:hover::before {
+  left: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  border-color: #d4af37;
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+}
+
+.card-icon {
+  font-size: 50px;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+.card-description {
+  font-size: 14px;
+  color: #a8adb8;
+  line-height: 1.7;
+  margin-bottom: 25px;
+}
+
+.card-btn {
+  background: transparent;
+  color: #d4af37;
+  border: 1px solid #d4af37;
+  padding: 10px 25px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card-btn:hover {
+  background: #d4af37;
+  color: #0a0e27;
+  transform: scale(1.05);
+}
+
+/* 数据展示区 */
+.data-section {
+  background: linear-gradient(135deg, #1a1f3a 0%, #0f1824 100%);
+  padding: 80px 30px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.data-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+.data-item {
+  background: rgba(15, 20, 36, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 12px;
+  padding: 30px 25px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.data-item:hover {
+  border-color: #d4af37;
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.2);
+  transform: translateY(-5px);
+}
+
+.data-label {
+  font-size: 14px;
+  color: #a8adb8;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.data-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #d4af37;
+  margin-bottom: 10px;
+}
+
+.data-change {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 15px;
+  display: inline-block;
+}
+
+.data-change.up {
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.data-change.down {
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
+}
+
+/* ========== 页脚 ========== */
+.footer {
+  background: linear-gradient(90deg, #0f1419 0%, #1a1f3a 100%);
+  border-top: 2px solid #d4af37;
+  padding: 60px 30px 30px;
+  margin-top: auto;
+}
+
+.footer-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.footer-column {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 100px;
+  gap: 15px;
 }
 
-/* Logo */
-.logo {
-  font-size: 90px;
-  font-weight: 400;
-  margin-bottom: 30px;
-  font-family: 'Product Sans', Arial, sans-serif;
-  user-select: none;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(255, 255, 255, 0.3);
-  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
-}
-
-.logo-bai {
-  color: #2932E1;
-}
-
-.logo-du {
-  color: #DE0F17;
-}
-
-/* Search Container */
-.search-container {
-  width: 100%;
-  max-width: 584px;
-  padding: 0 20px;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 30px;
-  padding: 12px 20px;
-  width: 100%;
-  transition: all 0.3s;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(15px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.search-box:hover {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-2px);
-}
-
-.search-box:focus-within {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
-}
-
-.search-icon {
-  width: 20px;
-  height: 20px;
-  fill: rgba(255, 255, 255, 0.8);
-  margin-right: 13px;
-  flex-shrink: 0;
-}
-
-.search-input {
-  flex: 1;
-  border: none;
-  outline: none;
+.footer-column h4 {
   font-size: 16px;
-  color: white;
-  background: transparent;
+  font-weight: 700;
+  color: #d4af37;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.search-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.voice-icon {
-  width: 24px;
-  height: 24px;
-  margin-left: 8px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.search-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  margin-top: 30px;
-}
-
-.search-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
-  color: white;
-  font-size: 14px;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-family: Arial, sans-serif;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  font-weight: 500;
-}
-
-.search-btn:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-  background: rgba(255, 255, 255, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  transform: translateY(-2px);
-}
-
-.new-feature-btn {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
-  border: 1px solid rgba(255, 215, 0, 0.5);
-  font-weight: 600;
-}
-
-.new-feature-btn:hover {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 165, 0, 0.4));
-  border: 1px solid rgba(255, 215, 0, 0.6);
-}
-
-.language-offer {
-  margin-top: 30px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.language-offer a {
-  color: rgba(255, 255, 255, 0.95);
+.footer-column a {
+  color: #a8adb8;
   text-decoration: none;
-  margin-left: 5px;
-  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  padding-left: 5px;
 }
 
-.language-offer a:hover {
-  text-decoration: underline;
-}
-
-/* Footer */
-.footer {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  margin-top: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.footer-top {
-  padding: 15px 30px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 15px;
+.footer-column a:hover {
+  color: #d4af37;
+  padding-left: 10px;
 }
 
 .footer-bottom {
-  display: flex;
-  justify-content: space-between;
-  padding: 15px 20px;
-  flex-wrap: wrap;
+  text-align: center;
+  padding-top: 30px;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
 }
 
-.footer-left,
-.footer-right {
-  display: flex;
-  gap: 27px;
-}
-
-.footer a {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
+.footer-bottom p {
+  color: #6b7280;
   font-size: 14px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin: 0;
 }
 
-.footer a:hover {
-  text-decoration: underline;
-  color: rgba(255, 255, 255, 0.95);
+/* ========== 响应式设计 ========== */
+@media (max-width: 1024px) {
+  .nav-menu {
+    gap: 20px;
+  }
+
+  .banner-title {
+    font-size: 40px;
+  }
+
+  .banner-subtitle {
+    font-size: 18px;
+  }
 }
 
 @media (max-width: 768px) {
-  .logo {
-    font-size: 60px;
+  .header-container {
+    flex-direction: column;
+    gap: 20px;
   }
 
-  .footer-bottom {
+  .nav-menu {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .nav-item.active::after {
+    display: none;
+  }
+
+  .banner-section {
+    padding: 60px 20px;
+  }
+
+  .banner-title {
+    font-size: 32px;
+  }
+
+  .banner-subtitle {
+    font-size: 16px;
+  }
+
+  .banner-actions {
     flex-direction: column;
     gap: 15px;
   }
 
-  .footer-left,
-  .footer-right {
-    justify-content: center;
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .features-section,
+  .data-section {
+    padding: 50px 20px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  .data-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
