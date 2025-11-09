@@ -1,581 +1,283 @@
 <template>
-  <div class="models-page">
-    <header class="page-header">
-      <h1 class="page-title">模特管理平台</h1>
-      <p class="page-subtitle">优质模特资源展示</p>
-    </header>
-
-    <div class="filters-container">
-      <div class="filter-group">
-        <label>分类筛选：</label>
-        <select v-model="selectedCategory" @change="fetchModels" class="filter-select">
-          <option value="all">全部分类</option>
-          <option value="时装模特">时装模特</option>
-          <option value="商业模特">商业模特</option>
-          <option value="平面模特">平面模特</option>
-          <option value="高级定制模特">高级定制模特</option>
-          <option value="电商模特">电商模特</option>
-        </select>
+  <div class="google-page">
+    <div class="search-container">
+      <!-- Logo -->
+      <div class="logo">
+        <span class="logo-g">G</span>
+        <span class="logo-o1">o</span>
+        <span class="logo-o2">o</span>
+        <span class="logo-g2">g</span>
+        <span class="logo-l">l</span>
+        <span class="logo-e">e</span>
       </div>
 
-      <div class="filter-group">
-        <label>性别筛选：</label>
-        <select v-model="selectedGender" @change="fetchModels" class="filter-select">
-          <option value="all">全部</option>
-          <option value="女">女</option>
-          <option value="男">男</option>
-        </select>
-      </div>
-    </div>
-
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      <p>加载中...</p>
-    </div>
-
-    <div v-if="error" class="error-message">
-      {{ error }}
-    </div>
-
-    <div v-if="!loading && models.length === 0 && !error" class="empty-message">
-      暂无模特数据
-    </div>
-
-    <div v-if="models.length > 0" class="models-grid">
-      <div
-        v-for="model in models"
-        :key="model.id"
-        class="model-card"
-        @click="showModelDetail(model)"
-      >
-        <div class="model-image-wrapper">
-          <img :src="model.avatar" :alt="model.name" class="model-image" />
-          <div class="model-overlay">
-            <span class="view-detail">查看详情</span>
-          </div>
-        </div>
-        <div class="model-info">
-          <h3 class="model-name">{{ model.name }}</h3>
-          <div class="model-meta">
-            <span class="model-category">{{ model.category }}</span>
-            <span class="model-gender">{{ model.gender }}</span>
-          </div>
-          <div class="model-stats">
-            <span>身高: {{ model.height }}cm</span>
-            <span>经验: {{ model.experience }}</span>
-          </div>
+      <!-- 搜索框 -->
+      <div class="search-box-wrapper">
+        <div class="search-box">
+          <svg class="search-icon" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+          </svg>
+          <input
+            type="text"
+            v-model="searchQuery"
+            @keyup.enter="handleSearch"
+            placeholder=""
+            class="search-input"
+          />
+          <svg v-if="searchQuery" class="clear-icon" @click="clearSearch" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path>
+          </svg>
         </div>
       </div>
-    </div>
 
-    <!-- 详情弹窗 -->
-    <div v-if="selectedModel" class="modal-overlay" @click="closeModal">
-      <div class="modal-content" @click.stop>
-        <button class="modal-close" @click="closeModal">×</button>
-        <div class="modal-body">
-          <div class="modal-image-section">
-            <img :src="selectedModel.avatar" :alt="selectedModel.name" class="modal-image" />
-          </div>
-          <div class="modal-info-section">
-            <h2 class="modal-name">{{ selectedModel.name }}</h2>
-            <div class="modal-category">{{ selectedModel.category }}</div>
-
-            <div class="detail-group">
-              <h4>基本信息</h4>
-              <div class="detail-item">
-                <span class="detail-label">性别：</span>
-                <span class="detail-value">{{ selectedModel.gender }}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">年龄：</span>
-                <span class="detail-value">{{ selectedModel.age }}岁</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">身高：</span>
-                <span class="detail-value">{{ selectedModel.height }}cm</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">体重：</span>
-                <span class="detail-value">{{ selectedModel.weight }}kg</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">三围：</span>
-                <span class="detail-value">{{ selectedModel.measurements }}</span>
-              </div>
-              <div class="detail-item">
-                <span class="detail-label">从业经验：</span>
-                <span class="detail-value">{{ selectedModel.experience }}</span>
-              </div>
-            </div>
-
-            <div class="detail-group">
-              <h4>个人简介</h4>
-              <p class="detail-description">{{ selectedModel.description }}</p>
-            </div>
-          </div>
-        </div>
+      <!-- 按钮 -->
+      <div class="button-wrapper">
+        <button class="search-button" @click="handleSearch">Google 搜索</button>
+        <button class="lucky-button" @click="handleLucky">手气不错</button>
       </div>
     </div>
+
+    <!-- 底部链接 -->
+    <footer class="footer">
+      <div class="footer-links">
+        <a href="javascript:void(0)">关于</a>
+        <a href="javascript:void(0)">广告</a>
+        <a href="javascript:void(0)">商务</a>
+        <a href="javascript:void(0)">隐私权</a>
+        <a href="javascript:void(0)">条款</a>
+        <a href="javascript:void(0)">设置</a>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 
-const models = ref([]);
-const loading = ref(false);
-const error = ref('');
-const selectedCategory = ref('all');
-const selectedGender = ref('all');
-const selectedModel = ref(null);
+const searchQuery = ref('');
 
-const fetchModels = async () => {
-  loading.value = true;
-  error.value = '';
-
-  try {
-    const params = new URLSearchParams();
-    if (selectedCategory.value !== 'all') {
-      params.append('category', selectedCategory.value);
-    }
-    if (selectedGender.value !== 'all') {
-      params.append('gender', selectedGender.value);
-    }
-
-    const response = await fetch(`/api/models?${params.toString()}`);
-    const data = await response.json();
-
-    if (data.success) {
-      models.value = data.data || [];
-    } else {
-      error.value = data.error || '获取模特列表失败';
-    }
-  } catch (err) {
-    error.value = '网络请求失败: ' + err.message;
-    console.error('获取模特列表失败:', err);
-  } finally {
-    loading.value = false;
+const handleSearch = () => {
+  if (searchQuery.value.trim()) {
+    // 实际使用百度搜索
+    window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
   }
 };
 
-const showModelDetail = (model) => {
-  selectedModel.value = model;
-  document.body.style.overflow = 'hidden';
+const handleLucky = () => {
+  if (searchQuery.value.trim()) {
+    // 手气不错也跳转到百度
+    window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
+  }
 };
 
-const closeModal = () => {
-  selectedModel.value = null;
-  document.body.style.overflow = 'auto';
+const clearSearch = () => {
+  searchQuery.value = '';
 };
-
-onMounted(() => {
-  fetchModels();
-});
 </script>
 
 <style scoped>
 * {
   box-sizing: border-box;
-}
-
-.models-page {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-}
-
-.page-header {
-  text-align: center;
-  padding: 40px 20px;
-  color: white;
-}
-
-.page-title {
-  font-size: 48px;
-  font-weight: 700;
-  margin: 0 0 10px 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.page-subtitle {
-  font-size: 18px;
   margin: 0;
-  opacity: 0.9;
+  padding: 0;
 }
 
-.filters-container {
-  max-width: 1200px;
-  margin: 0 auto 40px;
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-}
-
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: white;
-  font-size: 14px;
-}
-
-.filter-group label {
-  font-weight: 500;
-}
-
-.filter-select {
-  padding: 8px 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.filter-select:hover {
-  border-color: white;
-  background: white;
-}
-
-.filter-select:focus {
-  outline: none;
-  border-color: white;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
-}
-
-.loading {
+.google-page {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
-  color: white;
-}
-
-.spinner {
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid white;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loading p {
-  margin-top: 16px;
-  font-size: 16px;
-}
-
-.error-message, .empty-message {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 30px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  color: #d32f2f;
-  text-align: center;
-  font-size: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.empty-message {
-  color: #666;
-}
-
-.models-grid {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px;
-  padding: 20px;
-}
-
-.model-card {
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.model-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-}
-
-.model-image-wrapper {
+  font-family: Arial, sans-serif;
+  background-color: #fff;
   position: relative;
-  width: 100%;
-  height: 320px;
-  overflow: hidden;
-  background: #f0f0f0;
 }
 
-.model-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.model-card:hover .model-image {
-  transform: scale(1.1);
-}
-
-.model-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+.search-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.model-card:hover .model-overlay {
-  opacity: 1;
-}
-
-.view-detail {
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 12px 24px;
-  border: 2px solid white;
-  border-radius: 8px;
-  transition: all 0.3s;
-}
-
-.view-detail:hover {
-  background: white;
-  color: #667eea;
-}
-
-.model-info {
+  width: 100%;
+  max-width: 584px;
   padding: 20px;
 }
 
-.model-name {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 12px 0;
-  color: #333;
-}
-
-.model-meta {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.model-category, .model-gender {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
+/* Logo 样式 */
+.logo {
+  font-size: 90px;
   font-weight: 500;
+  margin-bottom: 25px;
+  letter-spacing: -5px;
+  user-select: none;
 }
 
-.model-category {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+.logo-g {
+  color: #4285F4;
 }
 
-.model-gender {
-  background: #e3f2fd;
-  color: #1976d2;
+.logo-o1 {
+  color: #EA4335;
 }
 
-.model-stats {
-  display: flex;
-  justify-content: space-between;
-  color: #666;
-  font-size: 14px;
+.logo-o2 {
+  color: #FBBC05;
 }
 
-/* 弹窗样式 */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+.logo-g2 {
+  color: #4285F4;
+}
+
+.logo-l {
+  color: #34A853;
+}
+
+.logo-e {
+  color: #EA4335;
+}
+
+/* 搜索框样式 */
+.search-box-wrapper {
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  margin-bottom: 20px;
+}
+
+.search-box {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 20px;
-  max-width: 900px;
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  height: 44px;
+  border: 1px solid #dfe1e5;
+  border-radius: 24px;
+  padding: 0 14px;
+  transition: box-shadow 0.2s;
 }
 
-.modal-close {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 40px;
-  height: 40px;
+.search-box:hover {
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+  border-color: rgba(223, 225, 229, 0);
+}
+
+.search-box:focus-within {
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+  border-color: rgba(223, 225, 229, 0);
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  fill: #9aa0a6;
+  flex-shrink: 0;
+  margin-right: 13px;
+}
+
+.search-input {
+  flex: 1;
   border: none;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  font-size: 28px;
-  border-radius: 50%;
+  outline: none;
+  font-size: 16px;
+  background: transparent;
+  color: #202124;
+}
+
+.clear-icon {
+  width: 24px;
+  height: 24px;
+  fill: #70757a;
   cursor: pointer;
-  z-index: 10;
+  padding: 4px;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.clear-icon:hover {
+  fill: #202124;
+}
+
+/* 按钮样式 */
+.button-wrapper {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  transition: all 0.3s;
+  gap: 12px;
+  margin-top: 8px;
 }
 
-.modal-close:hover {
-  background: rgba(0, 0, 0, 0.7);
-  transform: rotate(90deg);
-}
-
-.modal-body {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-}
-
-.modal-image-section {
-  background: #f5f5f5;
-}
-
-.modal-image {
-  width: 100%;
-  height: 100%;
-  min-height: 500px;
-  object-fit: cover;
-}
-
-.modal-info-section {
-  padding: 40px;
-}
-
-.modal-name {
-  font-size: 32px;
-  font-weight: 700;
-  margin: 0 0 10px 0;
-  color: #333;
-}
-
-.modal-category {
-  display: inline-block;
-  padding: 6px 16px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  border-radius: 20px;
+.search-button,
+.lucky-button {
+  background-color: #f8f9fa;
+  border: 1px solid #f8f9fa;
+  border-radius: 4px;
+  color: #3c4043;
   font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 30px;
+  padding: 0 16px;
+  height: 36px;
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: Arial, sans-serif;
 }
 
-.detail-group {
-  margin-bottom: 30px;
+.search-button:hover,
+.lucky-button:hover {
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
+  border: 1px solid #dadce0;
+  color: #202124;
 }
 
-.detail-group h4 {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0 0 16px 0;
-  color: #333;
-  border-bottom: 2px solid #667eea;
-  padding-bottom: 8px;
+.search-button:active,
+.lucky-button:active {
+  border: 1px solid #4285f4;
 }
 
-.detail-item {
+/* 底部链接 */
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: #f2f2f2;
+  border-top: 1px solid #e4e4e4;
+}
+
+.footer-links {
   display: flex;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 15px;
+  gap: 27px;
 }
 
-.detail-item:last-child {
-  border-bottom: none;
+.footer-links a {
+  color: #70757a;
+  text-decoration: none;
+  font-size: 14px;
 }
 
-.detail-label {
-  font-weight: 600;
-  color: #666;
-  min-width: 100px;
+.footer-links a:hover {
+  text-decoration: underline;
 }
 
-.detail-value {
-  color: #333;
-}
-
-.detail-description {
-  color: #666;
-  line-height: 1.8;
-  margin: 0;
-}
-
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .page-title {
-    font-size: 32px;
+  .logo {
+    font-size: 60px;
   }
 
-  .page-subtitle {
-    font-size: 14px;
+  .search-container {
+    max-width: 90%;
   }
 
-  .filters-container {
+  .button-wrapper {
     flex-direction: column;
-    align-items: stretch;
+    width: 100%;
+    gap: 8px;
   }
 
-  .filter-group {
-    justify-content: space-between;
+  .search-button,
+  .lucky-button {
+    width: 100%;
   }
 
-  .models-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-  }
-
-  .modal-body {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-image {
-    min-height: 300px;
-  }
-
-  .modal-info-section {
-    padding: 30px 20px;
-  }
-
-  .modal-name {
-    font-size: 24px;
+  .footer-links {
+    gap: 15px;
+    font-size: 12px;
   }
 }
 </style>
