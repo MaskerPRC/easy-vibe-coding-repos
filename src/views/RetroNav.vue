@@ -1,423 +1,224 @@
 <template>
-  <div class="baidu-page">
-    <!-- 顶部导航 -->
-    <header class="top-nav">
-      <div class="nav-links">
-        <a href="javascript:void(0)" class="nav-link">新闻</a>
-        <a href="javascript:void(0)" class="nav-link">hao123</a>
-        <a href="javascript:void(0)" class="nav-link">地图</a>
-        <a href="javascript:void(0)" class="nav-link">直播</a>
-        <a href="javascript:void(0)" class="nav-link">视频</a>
-        <a href="javascript:void(0)" class="nav-link">贴吧</a>
-        <a href="javascript:void(0)" class="nav-link">学术</a>
-        <a href="javascript:void(0)" class="nav-link">更多</a>
-      </div>
-    </header>
-
-    <!-- 主内容区域 -->
-    <main class="main-content">
-      <!-- 百度 Logo -->
-      <div class="logo-container">
-        <h1 class="baidu-logo">
-          <span class="logo-text">百度</span>
-        </h1>
+  <div class="chrome-404">
+    <div class="error-container">
+      <!-- Chrome Dino -->
+      <div class="dino-container">
+        <svg class="dino" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+          <!-- Dino body -->
+          <rect x="80" y="40" width="40" height="35" fill="#535353"/>
+          <!-- Dino head -->
+          <rect x="105" y="30" width="30" height="25" fill="#535353"/>
+          <!-- Dino eye -->
+          <circle cx="125" cy="40" r="3" fill="white"/>
+          <!-- Dino legs -->
+          <rect x="85" y="75" width="8" height="15" fill="#535353"/>
+          <rect x="107" y="75" width="8" height="15" fill="#535353"/>
+          <!-- Dino tail -->
+          <polygon points="80,60 70,55 75,65" fill="#535353"/>
+          <!-- Dino arm -->
+          <rect x="115" y="55" width="6" height="12" fill="#535353"/>
+        </svg>
       </div>
 
-      <!-- 搜索框 -->
-      <div class="search-container">
-        <div class="search-box">
-          <input
-            type="text"
-            class="search-input"
-            v-model="searchQuery"
-            @keyup.enter="handleSearch"
-            placeholder="请输入搜索内容"
-          />
-          <button class="search-btn" @click="handleSearch">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
+      <!-- Error Text -->
+      <div class="error-content">
+        <h1 class="error-code">404</h1>
+        <h2 class="error-title">找不到网页</h2>
+        <p class="error-message">网页可能已被删除，或者网址有误</p>
+
+        <div class="suggestions">
+          <p class="suggestion-title">请尝试以下操作：</p>
+          <ul class="suggestion-list">
+            <li>检查网址是否正确</li>
+            <li>返回上一页</li>
+            <li>访问首页</li>
+          </ul>
         </div>
-        <div class="search-buttons">
-          <button class="btn-primary" @click="handleSearch">百度一下</button>
+
+        <div class="error-code-detail">
+          <span class="code-label">错误代码：</span>
+          <span class="code-value">ERR_PAGE_NOT_FOUND</span>
         </div>
       </div>
+    </div>
 
-      <!-- 快捷导航 -->
-      <div class="quick-links">
-        <a href="javascript:void(0)" class="quick-link">百度翻译</a>
-        <a href="javascript:void(0)" class="quick-link">百度网盘</a>
-        <a href="javascript:void(0)" class="quick-link">百度图片</a>
-        <a href="javascript:void(0)" class="quick-link">百度知道</a>
-        <a href="javascript:void(0)" class="quick-link">百度文库</a>
-        <a href="javascript:void(0)" class="quick-link">百度百科</a>
-      </div>
-
-      <!-- Canva 设计编辑器入口 -->
-      <div class="canva-entry">
-        <router-link to="/canva" class="canva-button">
-          <span class="canva-icon">🎨</span>
-          <div class="canva-text">
-            <span class="canva-title">Design Studio</span>
-            <span class="canva-subtitle">专业设计工具 · 在线创作</span>
-          </div>
-        </router-link>
-      </div>
-    </main>
-
-    <!-- 页脚 -->
-    <footer class="footer">
-      <div class="footer-links">
-        <a href="javascript:void(0)" class="footer-link">把百度设为主页</a>
-        <span class="separator">|</span>
-        <a href="javascript:void(0)" class="footer-link">关于百度</a>
-        <span class="separator">|</span>
-        <a href="javascript:void(0)" class="footer-link">About Baidu</a>
-        <span class="separator">|</span>
-        <a href="javascript:void(0)" class="footer-link">百度营销</a>
-      </div>
-      <p class="footer-text">©2025 Baidu 使用百度前必读 意见反馈 京ICP证030173号</p>
-    </footer>
+    <!-- Ground line (decorative) -->
+    <div class="ground"></div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-const searchQuery = ref('')
-
-const handleSearch = () => {
-  if (searchQuery.value.trim()) {
-    // 搜索功能已禁用
-    alert('搜索功能暂不可用')
-  }
-}
+// Chrome 404 page - no interactive functionality needed for basic version
 </script>
 
 <style scoped>
-/* 百度风格样式 */
-.baidu-page {
+/* Chrome 404 Page Styles */
+.chrome-404 {
   min-height: 100vh;
-  background: var(--theme-bg-primary);
-  display: flex;
-  flex-direction: column;
-}
-
-/* 顶部导航 */
-.top-nav {
-  padding: 20px 0 0;
-  text-align: right;
-}
-
-.nav-links {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.nav-link {
-  color: var(--theme-text-primary);
-  text-decoration: none;
-  font-size: 13px;
-  margin-left: 20px;
-  transition: color 0.2s;
-}
-
-.nav-link:hover {
-  color: #3385ff;
-}
-
-/* 主内容区 */
-.main-content {
-  flex: 1;
+  background: #f5f5f5;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 20px;
-  margin-top: -80px;
-}
-
-/* 百度 Logo */
-.logo-container {
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.baidu-logo {
-  margin: 0;
-  padding: 0;
-}
-
-.logo-text {
-  font-size: 88px;
-  font-weight: 500;
-  color: #3385ff;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  letter-spacing: 8px;
-  text-shadow: 2px 2px 4px rgba(51, 133, 255, 0.2);
-}
-
-/* 搜索容器 */
-.search-container {
-  width: 100%;
-  max-width: 640px;
-}
-
-/* 搜索框 */
-.search-box {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: var(--theme-card-bg);
-  border: 2px solid #c4c7ce;
-  border-radius: 10px;
-  padding: 0;
-  transition: all 0.3s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.search-box:hover,
-.search-box:focus-within {
-  border-color: #4e6ef2;
-  box-shadow: 0 2px 8px rgba(78, 110, 242, 0.3);
-}
-
-.search-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  padding: 16px 20px;
-  font-size: 16px;
-  background: transparent;
-  color: var(--theme-text-primary);
-}
-
-.search-input::placeholder {
-  color: var(--theme-text-secondary);
-}
-
-.search-btn {
-  background: transparent;
-  border: none;
-  padding: 12px 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-  border-radius: 0 8px 8px 0;
-}
-
-.search-btn:hover {
-  background: var(--theme-bg-tertiary);
-}
-
-.search-icon {
-  width: 24px;
-  height: 24px;
-  color: var(--theme-text-secondary);
-}
-
-/* 搜索按钮 */
-.search-buttons {
-  margin-top: 28px;
-  text-align: center;
-}
-
-.btn-primary {
-  background: #3385ff;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-weight: 500;
-  box-shadow: 0 2px 4px rgba(51, 133, 255, 0.3);
-}
-
-.btn-primary:hover {
-  background: #4e6ef2;
-  box-shadow: 0 4px 8px rgba(51, 133, 255, 0.4);
-  transform: translateY(-1px);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(51, 133, 255, 0.3);
-}
-
-/* 快捷导航 */
-.quick-links {
-  margin-top: 40px;
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.quick-link {
-  color: var(--theme-text-secondary);
-  text-decoration: none;
-  font-size: 13px;
-  transition: color 0.2s;
-}
-
-.quick-link:hover {
-  color: #3385ff;
-}
-
-/* Canva 设计编辑器入口 */
-.canva-entry {
-  margin-top: 50px;
-  width: 100%;
-  max-width: 640px;
-}
-
-.canva-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 24px 32px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
-  text-decoration: none;
-  transition: all 0.3s;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   position: relative;
   overflow: hidden;
 }
 
-.canva-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.canva-button:hover::before {
-  left: 100%;
-}
-
-.canva-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
-}
-
-.canva-icon {
-  font-size: 48px;
-  line-height: 1;
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-.canva-text {
+.error-container {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  align-items: center;
+  gap: 60px;
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.canva-title {
+/* Dino Styles */
+.dino-container {
+  flex-shrink: 0;
+}
+
+.dino {
+  width: 200px;
+  height: 100px;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Error Content */
+.error-content {
+  flex: 1;
+  max-width: 450px;
+}
+
+.error-code {
+  font-size: 72px;
+  font-weight: 500;
+  color: #5f6368;
+  margin: 0 0 16px 0;
+  line-height: 1;
+}
+
+.error-title {
   font-size: 28px;
-  font-weight: 700;
-  color: white;
-  letter-spacing: 1px;
-}
-
-.canva-subtitle {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
   font-weight: 400;
-  letter-spacing: 0.5px;
+  color: #202124;
+  margin: 0 0 12px 0;
 }
 
-/* 页脚 */
-.footer {
-  text-align: center;
-  padding: 30px 20px;
-  background: var(--theme-bg-secondary);
-  border-top: 1px solid var(--theme-border-primary);
+.error-message {
+  font-size: 16px;
+  color: #5f6368;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
 }
 
-.footer-links {
-  margin-bottom: 12px;
+/* Suggestions */
+.suggestions {
+  margin: 24px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.footer-link {
-  color: var(--theme-text-secondary);
-  text-decoration: none;
-  font-size: 12px;
-  transition: color 0.2s;
+.suggestion-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #202124;
+  margin: 0 0 12px 0;
 }
 
-.footer-link:hover {
-  color: #3385ff;
-}
-
-.separator {
-  color: var(--theme-text-secondary);
-  margin: 0 8px;
-  font-size: 12px;
-}
-
-.footer-text {
-  color: var(--theme-text-secondary);
-  font-size: 12px;
+.suggestion-list {
   margin: 0;
+  padding-left: 20px;
+  list-style-type: disc;
 }
 
-/* 响应式设计 */
+.suggestion-list li {
+  font-size: 14px;
+  color: #5f6368;
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+/* Error Code Detail */
+.error-code-detail {
+  margin-top: 24px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.code-label {
+  color: #5f6368;
+  font-weight: 500;
+}
+
+.code-value {
+  color: #d93025;
+  margin-left: 8px;
+}
+
+/* Ground Line */
+.ground {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #dadce0;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .logo-text {
-    font-size: 56px;
-    letter-spacing: 4px;
-  }
-
-  .search-container {
-    max-width: 100%;
-  }
-
-  .search-input {
-    padding: 14px 16px;
-    font-size: 14px;
-  }
-
-  .nav-links {
+  .error-container {
+    flex-direction: column;
+    gap: 30px;
+    padding: 20px;
     text-align: center;
   }
 
-  .nav-link {
-    margin: 0 10px;
-    font-size: 12px;
+  .dino {
+    width: 160px;
+    height: 80px;
   }
 
-  .quick-links {
-    gap: 12px;
+  .error-code {
+    font-size: 56px;
   }
 
-  .quick-link {
-    font-size: 12px;
+  .error-title {
+    font-size: 24px;
   }
 
-  .main-content {
-    margin-top: -40px;
+  .error-message {
+    font-size: 14px;
+  }
+
+  .suggestions {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .error-code {
+    font-size: 48px;
+  }
+
+  .error-title {
+    font-size: 20px;
+  }
+
+  .dino {
+    width: 120px;
+    height: 60px;
+  }
+
+  .error-container {
+    gap: 20px;
   }
 }
 </style>
