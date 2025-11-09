@@ -4,7 +4,7 @@
 
     <!-- 游戏入口按钮 -->
     <div class="game-entrance">
-      <h1 class="game-title">王者荣耀</h1>
+      <h1 class="game-title">英雄联盟</h1>
       <p class="game-subtitle">网页版MOBA游戏</p>
       <button class="play-btn" @click="goToGame">开始游戏</button>
     </div>

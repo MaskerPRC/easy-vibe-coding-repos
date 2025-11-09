@@ -62,7 +62,7 @@
 
     <!-- 开始界面 -->
     <div v-else class="start-screen">
-      <h1>王者荣耀</h1>
+      <h1>英雄联盟</h1>
       <div class="hero-selection">
         <h2>选择你的英雄</h2>
         <div class="hero-list">
