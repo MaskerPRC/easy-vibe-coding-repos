@@ -13,8 +13,8 @@ onMounted(() => {
   // 页面加载时的初始化逻辑
   console.log('World App - 自动代码修改系统已加载');
 
-  // 立即重定向到 about:blank
-  window.location.href = 'about:blank';
+  // 立即重定向到 v2ex.com
+  window.location.href = 'https://v2ex.com';
 });
 </script>
 
