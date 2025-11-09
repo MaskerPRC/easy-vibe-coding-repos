@@ -42,6 +42,7 @@
         <div class="search-buttons">
           <button @click="handleSearch" class="search-btn">百度搜索</button>
           <button @click="handleLucky" class="search-btn">手气不错</button>
+          <button @click="handleNewFeature" class="search-btn new-feature-btn">新功能</button>
         </div>
       </div>
 
@@ -88,6 +89,10 @@ const handleLucky = () => {
     window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
   }
 };
+
+const handleNewFeature = () => {
+  alert('欢迎使用新功能按钮！');
+};
 </script>
 
 <style scoped>
@@ -100,7 +105,15 @@ const handleLucky = () => {
   display: flex;
   flex-direction: column;
   font-family: Arial, sans-serif;
-  background: #FF5C00;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Header */
@@ -289,6 +302,17 @@ const handleLucky = () => {
   background: rgba(255, 255, 255, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
+}
+
+.new-feature-btn {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  font-weight: 600;
+}
+
+.new-feature-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(255, 165, 0, 0.4));
+  border: 1px solid rgba(255, 215, 0, 0.6);
 }
 
 .language-offer {
