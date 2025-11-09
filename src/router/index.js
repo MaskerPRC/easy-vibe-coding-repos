@@ -6,10 +6,16 @@ import MedicineReminder from '../views/MedicineReminder.vue';
 import Timer from '../views/Timer.vue';
 import RetroNav from '../views/RetroNav.vue';
 import SearchEngine from '../views/SearchEngine.vue';
+import AdminDashboard from '../views/AdminDashboard.vue';
 
 const routes = [
   {
     path: '/',
+    name: 'AdminDashboard',
+    component: AdminDashboard
+  },
+  {
+    path: '/retro',
     name: 'RetroNav',
     component: RetroNav
   },
