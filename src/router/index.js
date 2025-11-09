@@ -7,6 +7,7 @@ import Timer from '../views/Timer.vue';
 import RetroNav from '../views/RetroNav.vue';
 import SearchEngine from '../views/SearchEngine.vue';
 import AdminDashboard from '../views/AdminDashboard.vue';
+import About from '../views/About.vue';
 
 const routes = [
   {
@@ -48,6 +49,11 @@ const routes = [
     path: '/search',
     name: 'SearchEngine',
     component: SearchEngine
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: About
   }
 ];
 
