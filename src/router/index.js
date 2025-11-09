@@ -1,7 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import NotFound from '../views/NotFound.vue'
+import ChromeGame from '../views/ChromeGame.vue'
+import BlankPage from '../views/BlankPage.vue'
 
 const routes = [
+  {
+    path: '/chrome-game',
+    name: 'ChromeGame',
+    component: ChromeGame,
+    meta: {
+      title: 'Chrome Game'
+    }
+  },
+  {
+    path: '/blank',
+    name: 'BlankPage',
+    component: BlankPage,
+    meta: {
+      title: ''
+    }
+  },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
