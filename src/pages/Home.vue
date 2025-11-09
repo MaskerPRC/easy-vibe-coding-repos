@@ -172,7 +172,7 @@ canvas {
   border: 2px solid #0F0;
   color: #0F0;
   cursor: pointer;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
