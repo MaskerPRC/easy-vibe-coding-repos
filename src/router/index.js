@@ -8,6 +8,7 @@ import Blog from '../views/Blog.vue';
 import Login from '../views/Login.vue';
 import OpsCoffee from '../views/OpsCoffee.vue';
 import SearchEngine from '../views/SearchEngine.vue';
+import RandomSite from '../views/RandomSite.vue';
 
 const routes = [
   {
@@ -54,6 +55,11 @@ const routes = [
     path: '/search',
     name: 'SearchEngine',
     component: SearchEngine
+  },
+  {
+    path: '/random-site',
+    name: 'RandomSite',
+    component: RandomSite
   }
 ];
 

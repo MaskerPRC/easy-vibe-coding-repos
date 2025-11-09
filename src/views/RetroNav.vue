@@ -135,6 +135,7 @@
           </td>
           <td bgcolor="#FFFFFF">
             <ul>
+              <li><router-link to="/random-site"><b>🎲 随机网站生成器</b></router-link> - 🌟 每5分钟自动生成新网站（内置）</li>
               <li><a href="https://mail.google.com" target="_blank">Gmail</a> - 电子邮件</li>
               <li><a href="https://translate.google.com" target="_blank">Google Translate</a> - 在线翻译</li>
               <li><a href="https://drive.google.com" target="_blank">Google Drive</a> - 云存储</li>

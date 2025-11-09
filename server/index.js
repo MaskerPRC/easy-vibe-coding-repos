@@ -260,6 +260,131 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
+// 随机生成网站描述和配置
+app.get('/api/random-site', async (req, res) => {
+  try {
+    // 网站主题列表（排除不当内容）
+    const themes = [
+      '宠物收养平台',
+      '环保生活指南',
+      '美食菜谱分享',
+      '旅游景点推荐',
+      '读书笔记社区',
+      '健康运动助手',
+      '手工艺品展示',
+      '音乐学习平台',
+      '摄影作品欣赏',
+      '科技新闻资讯',
+      '在线教育课程',
+      '园艺种植指南',
+      '电影评论社区',
+      '编程学习社区',
+      '数字艺术画廊',
+      '智能家居展示',
+      '咖啡文化分享',
+      '户外探险日志',
+      '瑜伽冥想指导',
+      '古诗词鉴赏'
+    ];
+
+    // 颜色方案
+    const colorSchemes = [
+      { primary: '#3498db', secondary: '#2ecc71', accent: '#e74c3c', bg: '#ecf0f1' },
+      { primary: '#9b59b6', secondary: '#f39c12', accent: '#1abc9c', bg: '#f5f5f5' },
+      { primary: '#e67e22', secondary: '#16a085', accent: '#c0392b', bg: '#fafafa' },
+      { primary: '#34495e', secondary: '#95a5a6', accent: '#d35400', bg: '#fff' },
+      { primary: '#27ae60', secondary: '#2980b9', accent: '#8e44ad', bg: '#f0f3f4' },
+      { primary: '#e91e63', secondary: '#00bcd4', accent: '#ff9800', bg: '#fafafa' },
+      { primary: '#607d8b', secondary: '#4caf50', accent: '#ff5722', bg: '#eceff1' }
+    ];
+
+    // 布局风格
+    const layouts = ['卡片式', '列表式', '瀑布流', '网格式', '杂志式'];
+
+    // 功能特性
+    const features = [
+      ['搜索功能', '用户评论', '分享按钮'],
+      ['收藏功能', '在线聊天', '订阅通知'],
+      ['标签分类', '评分系统', '推荐算法'],
+      ['多语言支持', '深色模式', '无障碍访问'],
+      ['数据可视化', '实时更新', '社交登录']
+    ];
+
+    // 随机选择
+    const selectedTheme = themes[Math.floor(Math.random() * themes.length)];
+    const selectedColors = colorSchemes[Math.floor(Math.random() * colorSchemes.length)];
+    const selectedLayout = layouts[Math.floor(Math.random() * layouts.length)];
+    const selectedFeatures = features[Math.floor(Math.random() * features.length)];
+
+    // 生成描述
+    const description = `一个现代化的${selectedTheme}，采用${selectedLayout}布局，配色清新雅致。网站提供${selectedFeatures.join('、')}等核心功能，致力于为用户提供优质的浏览体验。`;
+
+    // 生成网站配置
+    const siteConfig = {
+      theme: selectedTheme,
+      description,
+      colors: selectedColors,
+      layout: selectedLayout,
+      features: selectedFeatures,
+      timestamp: new Date().toISOString(),
+      // 生成随机内容
+      content: generateContent(selectedTheme, selectedFeatures)
+    };
+
+    res.json({
+      success: true,
+      data: siteConfig
+    });
+  } catch (error) {
+    console.error('生成随机网站失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '生成随机网站失败',
+      error: error.message
+    });
+  }
+});
+
+// 生成网站内容的辅助函数
+function generateContent(theme, features) {
+  const contentTemplates = {
+    title: `欢迎来到${theme}`,
+    subtitle: `发现精彩，分享生活`,
+    sections: [
+      {
+        title: '特色功能',
+        items: features.map(feature => ({
+          name: feature,
+          description: `强大的${feature}，让您的体验更加完美`
+        }))
+      },
+      {
+        title: '精选推荐',
+        items: Array.from({ length: 6 }, (_, i) => ({
+          id: i + 1,
+          title: `精选内容 ${i + 1}`,
+          description: '这是一段精彩的内容描述，吸引用户点击了解更多',
+          image: `https://picsum.photos/400/300?random=${i + 1}`
+        }))
+      },
+      {
+        title: '用户评价',
+        items: [
+          { user: '用户A', comment: '非常好用，界面简洁美观！', rating: 5 },
+          { user: '用户B', comment: '功能齐全，体验很棒！', rating: 5 },
+          { user: '用户C', comment: '推荐大家使用，值得拥有！', rating: 4 }
+        ]
+      }
+    ],
+    footer: {
+      copyright: `© ${new Date().getFullYear()} ${theme}. 保留所有权利。`,
+      links: ['关于我们', '联系方式', '隐私政策', '使用条款']
+    }
+  };
+
+  return contentTemplates;
+}
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);
