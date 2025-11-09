@@ -1,22 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import AdminPanel from '../views/AdminPanel.vue'
+import NotFound from '../views/NotFound.vue'
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home,
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound,
     meta: {
-      title: 'World App - 首页'
-    }
-  },
-  {
-    path: '/admin',
-    name: 'Admin',
-    component: AdminPanel,
-    meta: {
-      title: 'World App - 服务器管理'
+      title: '404 Not Found'
     }
   }
 ]
