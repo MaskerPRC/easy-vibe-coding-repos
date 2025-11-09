@@ -5,6 +5,7 @@ import Fortune from '../views/Fortune.vue';
 import Products from '../views/Products.vue';
 import Blog from '../views/Blog.vue';
 import Login from '../views/Login.vue';
+import OpsCoffee from '../views/OpsCoffee.vue';
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/ops-coffee',
+    name: 'OpsCoffee',
+    component: OpsCoffee
   }
 ];
 
