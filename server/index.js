@@ -113,6 +113,15 @@ const chatMessages = [];
 const MAX_MESSAGES = 100; // 最多保存100条消息
 let onlineUsers = new Set();
 
+// 提示词存储
+let currentPrompt = {
+  id: 1,
+  title: '默认提示词',
+  content: '你是一个智能助手，请帮助用户解答问题，提供有用的信息和建议。',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+};
+
 // 获取聊天消息
 app.get('/api/chat/messages', (req, res) => {
   res.json({
@@ -173,6 +182,40 @@ app.get('/api/chat/online', (req, res) => {
   res.json({
     success: true,
     count: Math.max(1, onlineUsers.size)
+  });
+});
+
+// 提示词管理接口
+// 获取当前提示词
+app.get('/api/prompt', (req, res) => {
+  res.json({
+    success: true,
+    data: currentPrompt
+  });
+});
+
+// 更新提示词
+app.post('/api/prompt', (req, res) => {
+  const { title, content } = req.body;
+
+  if (!content || !content.trim()) {
+    return res.status(400).json({
+      success: false,
+      message: '提示词内容不能为空'
+    });
+  }
+
+  currentPrompt = {
+    ...currentPrompt,
+    title: title || currentPrompt.title,
+    content: content.trim(),
+    updatedAt: new Date().toISOString()
+  };
+
+  res.json({
+    success: true,
+    message: '提示词已更新',
+    data: currentPrompt
   });
 });
 

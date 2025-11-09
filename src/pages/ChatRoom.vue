@@ -3,8 +3,13 @@
     <!-- 聊天室头部 -->
     <div class="chat-header">
       <h2>聊天室</h2>
-      <div class="online-users">
-        <span>在线用户: {{ onlineCount }}</span>
+      <div class="header-actions">
+        <router-link to="/prompt" class="prompt-link">
+          查看提示词
+        </router-link>
+        <div class="online-users">
+          <span>在线用户: {{ onlineCount }}</span>
+        </div>
       </div>
     </div>
 
@@ -241,6 +246,29 @@ export default {
   margin: 0;
   color: #333;
   font-size: 24px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.prompt-link {
+  padding: 8px 18px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 18px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+
+.prompt-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
 .online-users {
