@@ -91,6 +91,78 @@
       </div>
       <button class="restart-btn" @click="restartGame">重新开始</button>
     </div>
+
+    <!-- FAB按钮组 -->
+    <div class="fab-container" v-if="gameStarted && !gameOver">
+      <!-- 返回主页按钮 - 红色 -->
+      <button
+        class="fab-btn fab-home"
+        @click="goHome"
+        title="返回主页"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </button>
+
+      <!-- 暂停/继续按钮 - 黄色 -->
+      <button
+        class="fab-btn fab-pause"
+        @click="togglePause"
+        :title="isPaused ? '继续游戏' : '暂停游戏'"
+      >
+        <svg v-if="!isPaused" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="4" width="4" height="16"></rect>
+          <rect x="14" y="4" width="4" height="16"></rect>
+        </svg>
+        <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+      </button>
+
+      <!-- 音乐开关按钮 - 紫色 -->
+      <button
+        class="fab-btn fab-music"
+        @click="toggleMusic"
+        :title="isMusicPlaying ? '关闭音乐' : '开启音乐'"
+      >
+        <svg v-if="isMusicPlaying" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+        <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+
+      <!-- 全屏按钮 - 绿色 -->
+      <button
+        class="fab-btn fab-fullscreen"
+        @click="toggleFullscreen"
+        :title="isFullscreen ? '退出全屏' : '全屏'"
+      >
+        <svg v-if="!isFullscreen" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+        <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- 暂停菜单 -->
+    <div v-if="isPaused" class="pause-overlay">
+      <div class="pause-menu">
+        <h2>游戏已暂停</h2>
+        <button class="menu-btn" @click="togglePause">继续游戏</button>
+        <button class="menu-btn" @click="restartGame">重新开始</button>
+        <button class="menu-btn" @click="goHome">返回主页</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -104,6 +176,9 @@ export default {
       gameStarted: false,
       gameOver: false,
       victory: false,
+      isPaused: false,
+      isFullscreen: false,
+      isMusicPlaying: false,
 
       // 游戏对象
       playerHero: null,
@@ -977,6 +1052,57 @@ export default {
       this.minions = [];
       this.towers = [];
       this.projectiles = [];
+      this.isPaused = false;
+    },
+
+    // 返回主页
+    goHome() {
+      if (this.animationId) {
+        cancelAnimationFrame(this.animationId);
+      }
+      this.$router.push('/');
+    },
+
+    // 切换暂停状态
+    togglePause() {
+      this.isPaused = !this.isPaused;
+      if (this.isPaused) {
+        // 暂停游戏循环
+        if (this.animationId) {
+          cancelAnimationFrame(this.animationId);
+        }
+      } else {
+        // 继续游戏循环
+        this.lastTime = performance.now();
+        this.gameLoop();
+      }
+    },
+
+    // 切换全屏
+    toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+          this.isFullscreen = true;
+        }).catch(err => {
+          console.error('无法进入全屏模式:', err);
+        });
+      } else {
+        document.exitFullscreen().then(() => {
+          this.isFullscreen = false;
+        });
+      }
+    },
+
+    // 切换音乐
+    toggleMusic() {
+      this.isMusicPlaying = !this.isMusicPlaying;
+      if (this.isMusicPlaying) {
+        console.log('音乐已开启');
+        // 这里可以添加实际的音乐播放逻辑
+      } else {
+        console.log('音乐已关闭');
+        // 这里可以添加实际的音乐停止逻辑
+      }
     }
   }
 };
@@ -1366,5 +1492,237 @@ export default {
 .restart-btn:hover {
   transform: scale(1.1);
   box-shadow: 0 0 30px rgba(76, 175, 80, 0.5);
+}
+
+/* FAB按钮容器 */
+.fab-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 1000;
+}
+
+/* FAB按钮基础样式 */
+.fab-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.fab-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.fab-btn:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+.fab-btn:hover {
+  transform: scale(1.15) rotate(10deg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.fab-btn:active {
+  transform: scale(0.95);
+}
+
+.fab-btn svg {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* 返回主页按钮 - 红色 */
+.fab-home {
+  background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+  color: #fff;
+  animation: pulse-home 3s ease-in-out infinite;
+}
+
+.fab-home:hover {
+  box-shadow: 0 0 30px rgba(255, 71, 87, 0.8);
+}
+
+@keyframes pulse-home {
+  0%, 100% {
+    box-shadow: 0 4px 8px rgba(255, 71, 87, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(255, 71, 87, 0.7);
+  }
+}
+
+/* 暂停按钮 - 黄色 */
+.fab-pause {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  color: #333;
+  animation: glow-yellow 2s ease-in-out infinite;
+}
+
+.fab-pause:hover {
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+  animation: rotate-pause 1s linear infinite;
+}
+
+@keyframes glow-yellow {
+  0%, 100% {
+    box-shadow: 0 4px 8px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.7);
+  }
+}
+
+@keyframes rotate-pause {
+  from {
+    transform: rotate(0deg) scale(1.15);
+  }
+  to {
+    transform: rotate(360deg) scale(1.15);
+  }
+}
+
+/* 音乐按钮 - 紫色 */
+.fab-music {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+  color: #fff;
+  animation: wave 1.5s ease-in-out infinite;
+}
+
+.fab-music:hover {
+  box-shadow: 0 0 30px rgba(155, 89, 182, 0.8);
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-4px) scale(1.05);
+  }
+  75% {
+    transform: translateY(4px) scale(0.95);
+  }
+}
+
+/* 全屏按钮 - 绿色 */
+.fab-fullscreen {
+  background: linear-gradient(135deg, #00ff00 0%, #00cc00 100%);
+  color: #fff;
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+.fab-fullscreen:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 4px 8px rgba(0, 255, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(0, 255, 0, 0.7);
+  }
+}
+
+/* 暂停菜单 */
+.pause-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pause-menu {
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(50, 50, 50, 0.95) 100%);
+  padding: 50px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+  border: 3px solid rgba(255, 215, 0, 0.4);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.pause-menu h2 {
+  color: #ffd700;
+  font-size: 36px;
+  margin-bottom: 30px;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+}
+
+.menu-btn {
+  display: block;
+  width: 100%;
+  padding: 15px 40px;
+  margin: 15px 0;
+  font-size: 18px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.menu-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.6);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.menu-btn:active {
+  transform: translateY(0);
 }
 </style>
