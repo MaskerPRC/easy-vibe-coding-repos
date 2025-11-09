@@ -1,5 +1,9 @@
 <template>
   <div class="google-home">
+    <nav class="top-nav">
+      <router-link to="/ziwei" class="nav-link">紫微斗数</router-link>
+    </nav>
+
     <div class="logo-container">
       <h1 class="logo">Google</h1>
     </div>
@@ -66,6 +70,25 @@ const handleLucky = () => {
   font-family: Arial, sans-serif;
   position: relative;
   padding: 20px;
+}
+
+.top-nav {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+}
+
+.nav-link {
+  color: #5f6368;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 15px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+  background-color: #f1f3f4;
 }
 
 .logo-container {
