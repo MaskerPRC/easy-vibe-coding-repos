@@ -5,26 +5,58 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
 import axios from 'axios';
+import os from 'os';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, 'data.json');
 
 const app = express();
 const PORT = process.env.PORT || 3002; // 后端端口 3002，前端 5173
+const SERVER_START_TIME = new Date();
+
+// 服务器日志存储（内存中）
+const serverLogs = [];
+
+// 日志辅助函数
+const addLog = (level, message) => {
+  const log = {
+    timestamp: new Date().toISOString(),
+    level,
+    message
+  };
+  serverLogs.push(log);
+  // 限制日志数量为最近100条
+  if (serverLogs.length > 100) {
+    serverLogs.shift();
+  }
+};
 
 // 中间件
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
+// 请求日志中间件
+app.use((req, res, next) => {
+  addLog('info', `${req.method} ${req.path}`);
+  next();
+});
+
 // API 路由
 
 // 健康检查
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  const uptime = Math.floor((new Date() - SERVER_START_TIME) / 1000);
+  const hours = Math.floor(uptime / 3600);
+  const minutes = Math.floor((uptime % 3600) / 60);
+  const seconds = uptime % 60;
+
+  res.json({
+    status: 'healthy',
     port: PORT,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    uptime: `${hours}小时 ${minutes}分钟 ${seconds}秒`
   });
 });
 
@@ -100,6 +132,32 @@ app.get('/api/config', (req, res) => {
     appName: '应用项目',
     version: '1.0.0',
     features: ['前端', '后端', 'API']
+  });
+});
+
+// 管理 API - 获取系统信息
+app.get('/api/admin/system', (req, res) => {
+  const totalMem = os.totalmem();
+  const freeMem = os.freemem();
+  const usedMem = totalMem - freeMem;
+  const memUsagePercent = ((usedMem / totalMem) * 100).toFixed(2);
+
+  res.json({
+    nodeVersion: process.version,
+    platform: `${os.type()} ${os.release()}`,
+    arch: os.arch(),
+    memoryUsage: `${memUsagePercent}% (${(usedMem / 1024 / 1024 / 1024).toFixed(2)}GB / ${(totalMem / 1024 / 1024 / 1024).toFixed(2)}GB)`,
+    cpus: os.cpus().length,
+    hostname: os.hostname(),
+    uptime: `${Math.floor(os.uptime() / 3600)}小时`
+  });
+});
+
+// 管理 API - 获取服务器日志
+app.get('/api/admin/logs', (req, res) => {
+  res.json({
+    logs: serverLogs,
+    count: serverLogs.length
   });
 });
 
@@ -302,5 +360,10 @@ app.listen(PORT, () => {
   console.log(`健康检查: http://localhost:${PORT}/api/health`);
   console.log(`数据文件路径: ${DATA_FILE}`);
   console.log(`__dirname: ${__dirname}`);
+
+  // 添加服务器启动日志
+  addLog('info', `服务器启动于端口 ${PORT}`);
+  addLog('info', `Node版本: ${process.version}`);
+  addLog('info', `平台: ${os.type()} ${os.release()}`);
 });
 
