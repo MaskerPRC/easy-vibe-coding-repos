@@ -13,7 +13,7 @@
 .home {
   width: 100%;
   min-height: calc(100vh - 200px);
-  background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 100%);
+  background: #000000;
   padding: 40px 20px;
   display: flex;
   align-items: center;
