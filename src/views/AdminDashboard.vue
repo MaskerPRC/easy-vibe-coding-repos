@@ -19,7 +19,7 @@
             v-for="item in menuItems"
             :key="item.id"
             :class="['menu-item', { active: activeMenu === item.id }]"
-            @click="activeMenu = item.id"
+            @click="handleMenuClick(item.id)"
           >
             <span class="menu-icon">{{ item.icon }}</span>
             <span class="menu-text">{{ item.text }}</span>
@@ -103,7 +103,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const adminName = ref('Admin');
 const activeMenu = ref('dashboard');
 
@@ -115,7 +117,8 @@ const menuItems = ref([
   { id: 'settings', icon: '⚙️', text: '系统设置' },
   { id: 'analytics', icon: '📈', text: '数据分析' },
   { id: 'plugins', icon: '🔌', text: '插件管理' },
-  { id: 'logs', icon: '📋', text: '系统日志' }
+  { id: 'logs', icon: '📋', text: '系统日志' },
+  { id: 'wps-debug', icon: '🔧', text: 'WPS 调试' }
 ]);
 
 const stats = ref([
@@ -171,6 +174,15 @@ const handleLogout = () => {
 
 const refreshData = () => {
   alert('刷新数据功能（演示）');
+};
+
+const handleMenuClick = (menuId) => {
+  activeMenu.value = menuId;
+
+  // 如果点击 WPS 调试，跳转到 WPS 调试页面
+  if (menuId === 'wps-debug') {
+    router.push('/wps-debug');
+  }
 };
 
 onMounted(() => {

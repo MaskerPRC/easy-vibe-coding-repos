@@ -11,6 +11,7 @@ import About from '../views/About.vue';
 import ClockOutReminder from '../views/ClockOutReminder.vue';
 import WHVMaterials from '../views/WHVMaterials.vue';
 import Translator from '../views/Translator.vue';
+import WPSDebug from '../views/WPSDebug.vue';
 
 const routes = [
   {
@@ -72,6 +73,11 @@ const routes = [
     path: '/translator',
     name: 'Translator',
     component: Translator
+  },
+  {
+    path: '/wps-debug',
+    name: 'WPSDebug',
+    component: WPSDebug
   }
 ];
 

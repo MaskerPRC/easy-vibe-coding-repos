@@ -5,6 +5,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
 import schedule from 'node-schedule';
+import { spawn } from 'child_process';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,19 +14,176 @@ const DATA_FILE = path.join(__dirname, 'data.json');
 
 const app = express();
 const PORT = process.env.PORT || 3002; // 后端端口 3002，前端 5173
+const WPS_BRIDGE_PORT = 23334; // WPS Bridge 服务端口
 
 // 中间件
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
+// ==================== WPS Bridge 服务管理 ====================
+
+let wpsBridgeProcess = null;
+let wpsBridgeReady = false;
+
+/**
+ * 启动 WPS Bridge Python 服务
+ */
+function startWPSBridge() {
+  if (wpsBridgeProcess) {
+    console.log('WPS Bridge 服务已在运行');
+    return;
+  }
+
+  const bridgePath = path.join(__dirname, '../packages/wps-bridge');
+  const appPath = path.join(bridgePath, 'app.py');
+
+  console.log('正在启动 WPS Bridge 服务...');
+  console.log('Python 脚本路径:', appPath);
+
+  try {
+    wpsBridgeProcess = spawn('python', [appPath], {
+      cwd: bridgePath,
+      env: {
+        ...process.env,
+        PORT: WPS_BRIDGE_PORT.toString(),
+        PYTHONIOENCODING: 'utf-8',
+        PYTHONUTF8: '1'
+      },
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+
+    // 监听标准输出
+    wpsBridgeProcess.stdout?.on('data', (data) => {
+      const output = data.toString().trim();
+      console.log('[WPS Bridge stdout]', output);
+
+      // 检测服务是否已启动
+      if (output.includes('Running on') || output.includes('启动在端口')) {
+        wpsBridgeReady = true;
+        console.log('✓ WPS Bridge 服务已就绪');
+      }
+    });
+
+    // 监听标准错误
+    wpsBridgeProcess.stderr?.on('data', (data) => {
+      const output = data.toString().trim();
+      console.error('[WPS Bridge stderr]', output);
+    });
+
+    // 监听进程退出
+    wpsBridgeProcess.on('exit', (code, signal) => {
+      console.log(`WPS Bridge 进程退出，code: ${code}, signal: ${signal}`);
+      wpsBridgeProcess = null;
+      wpsBridgeReady = false;
+
+      // 5秒后自动重启
+      if (code !== 0 && !signal) {
+        console.log('5秒后自动重启 WPS Bridge 服务...');
+        setTimeout(startWPSBridge, 5000);
+      }
+    });
+
+    // 监听错误
+    wpsBridgeProcess.on('error', (error) => {
+      console.error('WPS Bridge 启动失败:', error.message);
+      console.error('请确保已安装 Python 3.9+ 和依赖包 (pip install -r requirements.txt)');
+      wpsBridgeProcess = null;
+      wpsBridgeReady = false;
+    });
+
+    console.log('WPS Bridge 进程已启动，PID:', wpsBridgeProcess.pid);
+  } catch (error) {
+    console.error('启动 WPS Bridge 失败:', error);
+  }
+}
+
+/**
+ * 停止 WPS Bridge 服务
+ */
+function stopWPSBridge() {
+  if (wpsBridgeProcess) {
+    console.log('正在停止 WPS Bridge 服务...');
+    wpsBridgeProcess.kill('SIGTERM');
+    wpsBridgeProcess = null;
+    wpsBridgeReady = false;
+  }
+}
+
+// 启动 WPS Bridge 服务
+startWPSBridge();
+
+// 进程退出时清理
+process.on('SIGTERM', stopWPSBridge);
+process.on('SIGINT', stopWPSBridge);
+process.on('exit', stopWPSBridge);
+
 // API 路由
+
+// ==================== WPS Bridge API 代理 ====================
+
+// WPS Bridge 健康检查
+app.get('/api/wps/bridge/health', async (req, res) => {
+  try {
+    const response = await fetch(`http://localhost:${WPS_BRIDGE_PORT}/health`);
+    const data = await response.json();
+    res.json({
+      ...data,
+      bridgeReady: wpsBridgeReady,
+      pid: wpsBridgeProcess?.pid
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'error',
+      message: 'WPS Bridge 服务未启动或无响应',
+      error: error.message
+    });
+  }
+});
+
+// WPS Bridge 服务控制
+app.post('/api/wps/bridge/restart', (req, res) => {
+  stopWPSBridge();
+  setTimeout(() => {
+    startWPSBridge();
+    res.json({
+      success: true,
+      message: 'WPS Bridge 服务重启中...'
+    });
+  }, 1000);
+});
+
+// 代理所有 WPS API 请求到 Python Flask
+app.use('/api/wps', createProxyMiddleware({
+  target: `http://localhost:${WPS_BRIDGE_PORT}`,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api/wps': '/api/wps'
+  },
+  onError: (err, req, res) => {
+    console.error('WPS API 代理错误:', err.message);
+    res.status(503).json({
+      error: 'WPS Bridge 服务不可用',
+      message: err.message,
+      hint: '请确保 WPS Bridge 服务已启动且运行正常'
+    });
+  },
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`[WPS Proxy] ${req.method} ${req.url} -> http://localhost:${WPS_BRIDGE_PORT}${req.url}`);
+  }
+}));
+
+// ==================== 应用健康检查 ====================
 
 // 健康检查
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     port: PORT,
+    wpsBridge: {
+      ready: wpsBridgeReady,
+      port: WPS_BRIDGE_PORT
+    },
     timestamp: new Date().toISOString()
   });
 });
