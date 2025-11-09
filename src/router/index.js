@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
 import DigitalNomad from '../views/DigitalNomad.vue';
 import TodoList from '../views/TodoList.vue';
+import MedicineReminder from '../views/MedicineReminder.vue';
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: '/todo',
     name: 'TodoList',
     component: TodoList
+  },
+  {
+    path: '/medicine',
+    name: 'MedicineReminder',
+    component: MedicineReminder
   }
 ];
 
