@@ -1,401 +1,455 @@
 <template>
-  <div class="retro-page">
-    <!-- 顶部标题栏 -->
-    <div class="header-bar">
-      <marquee behavior="scroll" direction="left">
-        欢迎使用复古搜索引擎 - 探索互联网的无限可能！ - Welcome to Retro Search Engine - Explore the Internet!
-      </marquee>
-    </div>
+  <div class="search-page">
+    <!-- Google 风格搜索页面 -->
+    <div class="search-container">
+      <!-- Logo -->
+      <div class="logo-section">
+        <h1 class="logo">
+          <span class="logo-g">G</span><span class="logo-o1">o</span><span class="logo-o2">o</span><span class="logo-g2">g</span><span class="logo-l">l</span><span class="logo-e">e</span>
+        </h1>
+      </div>
 
-    <!-- 主标题 -->
-    <center>
-      <h1 class="main-title">
-        <font color="#0000FF">🔍</font>
-        <font color="#FF0000">复古搜索引擎</font>
-        <font color="#0000FF">🔍</font>
-      </h1>
-      <p class="subtitle">Retro Search Engine - Since 1997</p>
+      <!-- 搜索框 -->
+      <form @submit.prevent="performSearch" class="search-form">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            v-model="searchQuery"
+            class="search-input"
+            placeholder="搜索 Google 或输入网址"
+            autofocus
+          >
+          <button v-if="searchQuery" @click="clearSearch" type="button" class="clear-btn">✕</button>
+        </div>
 
-      <br>
-      <hr width="80%" size="3" color="#0000FF">
-    </center>
+        <div class="search-buttons">
+          <button type="submit" class="search-btn">Google 搜索</button>
+          <button type="button" @click="feelingLucky" class="search-btn">手气不错</button>
+        </div>
+      </form>
 
-    <!-- 主搜索区域 -->
-    <center>
-      <table width="90%" border="3" cellpadding="15" cellspacing="0" bgcolor="#C0C0C0">
-        <tr>
-          <td bgcolor="#000080">
-            <center>
-              <font color="#FFFF00" size="+2"><b>≡≡≡ 网络搜索中心 ≡≡≡</b></font>
-            </center>
-          </td>
-        </tr>
-        <tr>
-          <td bgcolor="#E0E0E0">
-            <center>
-              <!-- 搜索框 -->
-              <table border="2" cellpadding="10" bgcolor="#FFFFFF" width="80%">
-                <tr>
-                  <td>
-                    <form @submit.prevent="performSearch">
-                      <table width="100%" border="0">
-                        <tr>
-                          <td colspan="2" align="center">
-                            <font size="+1"><b>请输入搜索关键词：</b></font>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td align="center" colspan="2">
-                            <input
-                              type="text"
-                              v-model="searchQuery"
-                              size="50"
-                              style="font-size: 16px; padding: 5px;"
-                              placeholder="输入您要搜索的内容..."
-                            >
-                          </td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" align="center">
-                            <font size="-1"><b>选择搜索引擎：</b></font>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" align="center">
-                            <select v-model="selectedEngine" style="font-size: 14px; padding: 5px; width: 200px;">
-                              <option value="baidu">百度 (Baidu)</option>
-                              <option value="google">谷歌 (Google)</option>
-                              <option value="bing">必应 (Bing)</option>
-                              <option value="sogou">搜狗 (Sogou)</option>
-                              <option value="360">360搜索</option>
-                            </select>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" align="center">
-                            <br>
-                            <button type="submit" style="font-size: 16px; padding: 10px 30px; cursor: pointer;">
-                              <b>🔍 开始搜索</b>
-                            </button>
-                          </td>
-                        </tr>
-                      </table>
-                    </form>
-                  </td>
-                </tr>
-              </table>
-
-              <br><br>
-
-              <!-- 搜索引擎快捷入口 -->
-              <table width="80%" border="2" cellpadding="10" bgcolor="#FFFF99">
-                <tr>
-                  <td bgcolor="#008080">
-                    <center>
-                      <font color="#FFFFFF" size="+1"><b>🌐 热门搜索引擎直达</b></font>
-                    </center>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <table width="100%" border="0" cellpadding="5">
-                      <tr>
-                        <td width="50%">
-                          <b>• <a href="https://www.baidu.com" target="_blank">百度搜索</a></b> - 中文搜索领先者
-                        </td>
-                        <td width="50%">
-                          <b>• <a href="https://www.google.com" target="_blank">Google搜索</a></b> - 全球最大搜索引擎
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <b>• <a href="https://www.bing.com" target="_blank">必应搜索</a></b> - 微软搜索引擎
-                        </td>
-                        <td>
-                          <b>• <a href="https://www.sogou.com" target="_blank">搜狗搜索</a></b> - 智能搜索引擎
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <b>• <a href="https://www.so.com" target="_blank">360搜索</a></b> - 安全搜索引擎
-                        </td>
-                        <td>
-                          <b>• <a href="https://duckduckgo.com" target="_blank">DuckDuckGo</a></b> - 隐私保护搜索
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </center>
-          </td>
-        </tr>
-      </table>
-
-      <br><br>
+      <!-- 搜索引擎选择 -->
+      <div class="engine-selector">
+        <button
+          v-for="engine in engines"
+          :key="engine.value"
+          @click="selectedEngine = engine.value"
+          :class="['engine-btn', { active: selectedEngine === engine.value }]"
+        >
+          {{ engine.label }}
+        </button>
+      </div>
 
       <!-- 搜索历史 -->
-      <table width="90%" border="3" cellpadding="10" cellspacing="0" bgcolor="#C0C0C0" v-if="searchHistory.length > 0">
-        <tr>
-          <td bgcolor="#800000">
-            <center>
-              <font color="#FFFF00" size="+1"><b>📜 最近搜索历史</b></font>
-            </center>
-          </td>
-        </tr>
-        <tr>
-          <td bgcolor="#FFE4B5">
-            <table width="100%" border="1" cellpadding="5">
-              <tr bgcolor="#D3D3D3">
-                <th width="10%">序号</th>
-                <th width="30%">搜索内容</th>
-                <th width="20%">搜索引擎</th>
-                <th width="30%">搜索时间</th>
-                <th width="10%">操作</th>
-              </tr>
-              <tr v-for="(item, index) in searchHistory" :key="index" bgcolor="#FFFFFF">
-                <td align="center">{{ index + 1 }}</td>
-                <td>{{ item.query }}</td>
-                <td align="center">{{ getEngineName(item.engine) }}</td>
-                <td align="center">{{ formatDate(item.timestamp) }}</td>
-                <td align="center">
-                  <a href="#" @click.prevent="searchAgain(item)" style="text-decoration: none;">
-                    <b>[重新搜索]</b>
-                  </a>
-                </td>
-              </tr>
-            </table>
-            <br>
-            <center>
-              <button @click="clearHistory" style="padding: 5px 15px; cursor: pointer;">
-                <b>🗑️ 清空历史</b>
-              </button>
-            </center>
-          </td>
-        </tr>
-      </table>
+      <div v-if="searchHistory.length > 0" class="history-section">
+        <div class="history-header">
+          <h3>最近搜索</h3>
+          <button @click="clearHistory" class="clear-history-btn">清空</button>
+        </div>
+        <div class="history-list">
+          <div
+            v-for="(item, index) in searchHistory.slice(0, 5)"
+            :key="index"
+            @click="searchAgain(item)"
+            class="history-item"
+          >
+            <span class="history-icon">🕐</span>
+            <span class="history-query">{{ item.query }}</span>
+            <span class="history-engine">{{ getEngineName(item.engine) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <br>
-
-      <!-- 返回链接 -->
-      <p>
-        <a href="#" @click.prevent="$router.push('/')">
-          <b>&lt;&lt; 返回主页</b>
-        </a>
-      </p>
-
-      <br>
-
-      <!-- 页脚 -->
-      <table border="1" cellpadding="5" bgcolor="#D3D3D3" width="80%">
-        <tr>
-          <td align="center">
-            <font size="-1">
-              <b>提示：</b> 选择您喜欢的搜索引擎，输入关键词即可开始搜索。搜索将在新窗口打开。
-            </font>
-          </td>
-        </tr>
-      </table>
-
-      <br>
-      <hr width="80%" size="3" color="#0000FF">
-
-      <p>
-        <font size="-1" color="#808080">
-          © 1997 Retro Search Engine - Powered by Web 1.0 Technology
-        </font>
-      </p>
-    </center>
+    <!-- 返回首页 -->
+    <div class="back-home">
+      <router-link to="/" class="back-link">← 返回首页</router-link>
+    </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'SearchEngine',
-  data() {
-    return {
-      searchQuery: '',
-      selectedEngine: 'baidu',
-      searchHistory: []
-    }
-  },
-  mounted() {
-    this.loadSearchHistory()
-  },
-  methods: {
-    performSearch() {
-      if (!this.searchQuery.trim()) {
-        alert('请输入搜索关键词！')
-        return
-      }
+<script setup>
+import { ref, onMounted } from 'vue';
 
-      const searchEngines = {
-        baidu: `https://www.baidu.com/s?wd=${encodeURIComponent(this.searchQuery)}`,
-        google: `https://www.google.com/search?q=${encodeURIComponent(this.searchQuery)}`,
-        bing: `https://www.bing.com/search?q=${encodeURIComponent(this.searchQuery)}`,
-        sogou: `https://www.sogou.com/web?query=${encodeURIComponent(this.searchQuery)}`,
-        360: `https://www.so.com/s?q=${encodeURIComponent(this.searchQuery)}`
-      }
+const searchQuery = ref('');
+const selectedEngine = ref('google');
+const searchHistory = ref([]);
 
-      const url = searchEngines[this.selectedEngine]
+const engines = [
+  { label: 'Google', value: 'google' },
+  { label: '百度', value: 'baidu' },
+  { label: 'Bing', value: 'bing' },
+  { label: '搜狗', value: 'sogou' },
+  { label: '360', value: '360' }
+];
 
-      // 保存搜索历史
-      this.saveSearchHistory(this.searchQuery, this.selectedEngine)
-
-      // 在新窗口打开搜索结果
-      window.open(url, '_blank')
-    },
-
-    async saveSearchHistory(query, engine) {
-      const historyItem = {
-        query,
-        engine,
-        timestamp: new Date().toISOString()
-      }
-
-      this.searchHistory.unshift(historyItem)
-
-      // 只保留最近20条
-      if (this.searchHistory.length > 20) {
-        this.searchHistory = this.searchHistory.slice(0, 20)
-      }
-
-      // 保存到后端
-      try {
-        await fetch('/api/search-history', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.searchHistory)
-        })
-      } catch (error) {
-        console.error('保存搜索历史失败:', error)
-      }
-    },
-
-    async loadSearchHistory() {
-      try {
-        const response = await fetch('/api/search-history')
-        if (response.ok) {
-          const data = await response.json()
-          this.searchHistory = data || []
-        }
-      } catch (error) {
-        console.error('加载搜索历史失败:', error)
-      }
-    },
-
-    async clearHistory() {
-      if (confirm('确定要清空所有搜索历史吗？')) {
-        this.searchHistory = []
-        try {
-          await fetch('/api/search-history', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify([])
-          })
-        } catch (error) {
-          console.error('清空搜索历史失败:', error)
-        }
-      }
-    },
-
-    searchAgain(item) {
-      this.searchQuery = item.query
-      this.selectedEngine = item.engine
-      this.performSearch()
-    },
-
-    getEngineName(engine) {
-      const names = {
-        baidu: '百度',
-        google: '谷歌',
-        bing: '必应',
-        sogou: '搜狗',
-        360: '360搜索'
-      }
-      return names[engine] || engine
-    },
-
-    formatDate(timestamp) {
-      const date = new Date(timestamp)
-      return date.toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      })
-    }
+const performSearch = () => {
+  if (!searchQuery.value.trim()) {
+    return;
   }
-}
+
+  const searchEngines = {
+    google: `https://www.google.com/search?q=${encodeURIComponent(searchQuery.value)}`,
+    baidu: `https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`,
+    bing: `https://www.bing.com/search?q=${encodeURIComponent(searchQuery.value)}`,
+    sogou: `https://www.sogou.com/web?query=${encodeURIComponent(searchQuery.value)}`,
+    360: `https://www.so.com/s?q=${encodeURIComponent(searchQuery.value)}`
+  };
+
+  const url = searchEngines[selectedEngine.value];
+  saveSearchHistory(searchQuery.value, selectedEngine.value);
+  window.open(url, '_blank');
+};
+
+const feelingLucky = () => {
+  if (searchQuery.value.trim()) {
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery.value)}&btnI`, '_blank');
+  }
+};
+
+const clearSearch = () => {
+  searchQuery.value = '';
+};
+
+const saveSearchHistory = async (query, engine) => {
+  const historyItem = {
+    query,
+    engine,
+    timestamp: new Date().toISOString()
+  };
+
+  searchHistory.value.unshift(historyItem);
+
+  if (searchHistory.value.length > 20) {
+    searchHistory.value = searchHistory.value.slice(0, 20);
+  }
+
+  try {
+    await fetch('/api/search-history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(searchHistory.value)
+    });
+  } catch (error) {
+    console.error('保存搜索历史失败:', error);
+  }
+};
+
+const loadSearchHistory = async () => {
+  try {
+    const response = await fetch('/api/search-history');
+    if (response.ok) {
+      const data = await response.json();
+      searchHistory.value = data || [];
+    }
+  } catch (error) {
+    console.error('加载搜索历史失败:', error);
+  }
+};
+
+const clearHistory = async () => {
+  searchHistory.value = [];
+  try {
+    await fetch('/api/search-history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([])
+    });
+  } catch (error) {
+    console.error('清空搜索历史失败:', error);
+  }
+};
+
+const searchAgain = (item) => {
+  searchQuery.value = item.query;
+  selectedEngine.value = item.engine;
+  performSearch();
+};
+
+const getEngineName = (engine) => {
+  const names = {
+    google: 'Google',
+    baidu: '百度',
+    bing: 'Bing',
+    sogou: '搜狗',
+    360: '360'
+  };
+  return names[engine] || engine;
+};
+
+onMounted(() => {
+  loadSearchHistory();
+});
 </script>
 
 <style scoped>
-.retro-page {
-  background-color: #C0C0C0;
+.search-page {
   min-height: 100vh;
+  background: var(--theme-bg-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px;
+}
+
+.search-container {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 100px;
+}
+
+/* Logo */
+.logo-section {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo {
+  font-size: 64px;
+  font-weight: 400;
+  margin: 0;
+  letter-spacing: -2px;
+  font-family: 'Product Sans', 'Google Sans', Roboto, Arial, sans-serif;
+}
+
+.logo-g { color: #4285f4; }
+.logo-o1 { color: #ea4335; }
+.logo-o2 { color: #fbbc04; }
+.logo-g2 { color: #4285f4; }
+.logo-l { color: #34a853; }
+.logo-e { color: #ea4335; }
+
+/* 搜索框 */
+.search-form {
+  margin-bottom: 32px;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: var(--theme-card-bg);
+  border: 1px solid var(--theme-border-primary);
+  border-radius: 24px;
+  padding: 12px 20px;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-box:hover {
+  box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+}
+
+.search-box:focus-within {
+  box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+  border-color: var(--theme-primary);
+}
+
+.search-icon {
+  font-size: 20px;
+  margin-right: 12px;
+  color: var(--theme-text-tertiary);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--theme-text-primary);
+  font-family: Roboto, Arial, sans-serif;
+}
+
+.search-input::placeholder {
+  color: var(--theme-text-tertiary);
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: var(--theme-text-tertiary);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 8px;
+  transition: color 0.2s;
+}
+
+.clear-btn:hover {
+  color: var(--theme-text-primary);
+}
+
+/* 搜索按钮 */
+.search-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.search-btn {
+  background: var(--theme-card-bg);
+  border: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-primary);
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.1s;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.search-btn:hover {
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.15);
+  border-color: var(--theme-border-secondary);
+}
+
+.search-btn:active {
+  transform: scale(0.98);
+}
+
+/* 搜索引擎选择器 */
+.engine-selector {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.engine-btn {
+  background: var(--theme-card-bg);
+  border: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-secondary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.engine-btn:hover {
+  border-color: var(--theme-primary);
+  color: var(--theme-primary);
+}
+
+.engine-btn.active {
+  background: var(--theme-primary);
+  border-color: var(--theme-primary);
+  color: white;
+}
+
+/* 搜索历史 */
+.history-section {
+  background: var(--theme-card-bg);
+  border: 1px solid var(--theme-border-primary);
+  border-radius: 12px;
   padding: 20px;
-  font-family: "MS Sans Serif", "Microsoft Sans Serif", sans-serif;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
 }
 
-.header-bar {
-  background-color: #000080;
-  color: #FFFFFF;
-  padding: 5px;
-  margin-bottom: 20px;
-  border: 2px solid #000000;
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
-.main-title {
-  margin: 20px 0 10px 0;
-  text-shadow: 2px 2px #000000;
+.history-header h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--theme-text-primary);
+  margin: 0;
 }
 
-.subtitle {
-  color: #008080;
-  font-style: italic;
-  margin: 5px 0;
+.clear-history-btn {
+  background: none;
+  border: none;
+  color: var(--theme-primary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
 
-a {
-  color: #0000FF;
-  text-decoration: underline;
+.clear-history-btn:hover {
+  background: var(--theme-bg-tertiary);
 }
 
-a:visited {
-  color: #800080;
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-a:hover {
-  color: #FF0000;
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-table {
-  margin: 10px auto;
+.history-item:hover {
+  background: var(--theme-bg-secondary);
 }
 
-input[type="text"] {
-  border: 2px inset #808080;
+.history-icon {
+  font-size: 18px;
+  color: var(--theme-text-tertiary);
 }
 
-button {
-  border: 2px outset #808080;
-  background-color: #C0C0C0;
-  font-family: "MS Sans Serif", sans-serif;
+.history-query {
+  flex: 1;
+  color: var(--theme-text-primary);
+  font-size: 14px;
 }
 
-button:active {
-  border-style: inset;
+.history-engine {
+  color: var(--theme-text-tertiary);
+  font-size: 12px;
 }
 
-select {
-  border: 2px inset #808080;
-  background-color: #FFFFFF;
-  font-family: "MS Sans Serif", sans-serif;
+/* 返回首页 */
+.back-home {
+  margin-top: 40px;
+}
+
+.back-link {
+  color: var(--theme-primary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.back-link:hover {
+  background: var(--theme-bg-tertiary);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .search-container {
+    margin-top: 60px;
+  }
+
+  .logo {
+    font-size: 48px;
+  }
+
+  .search-buttons {
+    flex-direction: column;
+  }
+
+  .search-btn {
+    width: 100%;
+  }
 }
 </style>

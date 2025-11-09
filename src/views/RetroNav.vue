@@ -1,370 +1,251 @@
 <template>
-  <div class="retro-page">
-    <!-- 顶部标题栏 -->
-    <div class="header-bar">
-      <marquee behavior="scroll" direction="left">
-        欢迎来到互联网导航中心 - 您的网络之旅从这里开始！ - Welcome to Internet Navigator - Your Gateway to the Web!
-      </marquee>
-    </div>
+  <div class="google-page">
+    <!-- Google 风格头部 -->
+    <header class="header">
+      <div class="logo-section">
+        <h1 class="logo">
+          <span class="logo-g">G</span><span class="logo-o1">o</span><span class="logo-o2">o</span><span class="logo-g2">g</span><span class="logo-l">l</span><span class="logo-e">e</span>
+        </h1>
+        <p class="tagline">探索更大的世界</p>
+      </div>
+    </header>
 
-    <!-- 主标题 -->
-    <center>
-      <h1 class="main-title">
-        <font color="#0000FF">★</font>
-        <font color="#FF0000">网络导航中心</font>
-        <font color="#0000FF">★</font>
-      </h1>
-      <p class="subtitle">Internet Navigator - Since 1997</p>
+    <!-- 主内容区域 -->
+    <main class="main-content">
+      <!-- 导航卡片网格 -->
+      <div class="nav-grid">
+        <!-- 搜索引擎 -->
+        <div class="nav-card">
+          <div class="card-icon search-icon">🔍</div>
+          <h3 class="card-title">搜索引擎</h3>
+          <div class="card-links">
+            <router-link to="/search" class="link-item featured">搜索工具</router-link>
+            <a href="https://www.google.com" target="_blank" class="link-item">Google</a>
+            <a href="https://www.bing.com" target="_blank" class="link-item">Bing</a>
+            <a href="https://www.baidu.com" target="_blank" class="link-item">百度</a>
+            <a href="https://duckduckgo.com" target="_blank" class="link-item">DuckDuckGo</a>
+          </div>
+        </div>
 
-      <!-- 访问计数器 -->
-      <table border="1" cellpadding="5" cellspacing="0" bgcolor="#FFFF99" class="counter">
-        <tr>
-          <td align="center">
-            <b>您是第 <font color="#FF0000" size="+1">{{ visitorCount }}</font> 位访客</b>
-          </td>
-        </tr>
-      </table>
+        <!-- 新闻资讯 -->
+        <div class="nav-card">
+          <div class="card-icon news-icon">📰</div>
+          <h3 class="card-title">新闻资讯</h3>
+          <div class="card-links">
+            <a href="https://news.ycombinator.com" target="_blank" class="link-item">Hacker News</a>
+            <a href="https://www.bbc.com" target="_blank" class="link-item">BBC News</a>
+            <a href="https://www.reuters.com" target="_blank" class="link-item">Reuters</a>
+            <a href="https://techcrunch.com" target="_blank" class="link-item">TechCrunch</a>
+          </div>
+        </div>
 
-      <br>
-      <hr width="80%" size="3" color="#0000FF">
-    </center>
+        <!-- 社交网络 -->
+        <div class="nav-card">
+          <div class="card-icon social-icon">👥</div>
+          <h3 class="card-title">社交网络</h3>
+          <div class="card-links">
+            <a href="https://twitter.com" target="_blank" class="link-item">Twitter</a>
+            <a href="https://www.reddit.com" target="_blank" class="link-item">Reddit</a>
+            <a href="https://github.com" target="_blank" class="link-item">GitHub</a>
+            <a href="https://stackoverflow.com" target="_blank" class="link-item">Stack Overflow</a>
+          </div>
+        </div>
 
-    <!-- 主要内容区域 -->
-    <center>
-      <table width="90%" border="3" cellpadding="10" cellspacing="0" bgcolor="#C0C0C0">
-        <tr>
-          <td colspan="2" bgcolor="#000080">
-            <center>
-              <font color="#FFFF00" size="+2"><b>≡≡≡ 网站分类导航 ≡≡≡</b></font>
-            </center>
-          </td>
-        </tr>
-
-        <!-- 搜索引擎分类 -->
-        <tr>
-          <td width="30%" bgcolor="#008080" valign="top">
-            <center>
-              <font color="#FFFFFF" size="+1"><b>🔍 搜索引擎</b></font>
-            </center>
-          </td>
-          <td bgcolor="#E0E0E0">
-            <ul>
-              <li><router-link to="/search"><b>🔍 复古搜索引擎</b></router-link> - 🌟 全新搜索工具（内置）</li>
-              <li><a href="https://www.google.com" target="_blank">Google</a> - 最流行的搜索引擎</li>
-              <li><a href="https://www.bing.com" target="_blank">Bing</a> - 微软搜索引擎</li>
-              <li><a href="https://www.baidu.com" target="_blank">百度</a> - 中文搜索引擎</li>
-              <li><a href="https://duckduckgo.com" target="_blank">DuckDuckGo</a> - 注重隐私的搜索</li>
-            </ul>
-          </td>
-        </tr>
-
-        <!-- 新闻门户 -->
-        <tr>
-          <td bgcolor="#008080" valign="top">
-            <center>
-              <font color="#FFFFFF" size="+1"><b>📰 新闻资讯</b></font>
-            </center>
-          </td>
-          <td bgcolor="#FFFFFF">
-            <ul>
-              <li><a href="https://news.ycombinator.com" target="_blank">Hacker News</a> - 科技新闻</li>
-              <li><a href="https://www.bbc.com" target="_blank">BBC News</a> - 国际新闻</li>
-              <li><a href="https://www.reuters.com" target="_blank">Reuters</a> - 路透社</li>
-              <li><a href="https://techcrunch.com" target="_blank">TechCrunch</a> - 科技媒体</li>
-            </ul>
-          </td>
-        </tr>
-
-        <!-- 社交媒体 -->
-        <tr>
-          <td bgcolor="#008080" valign="top">
-            <center>
-              <font color="#FFFFFF" size="+1"><b>👥 社交网络</b></font>
-            </center>
-          </td>
-          <td bgcolor="#E0E0E0">
-            <ul>
-              <li><a href="https://twitter.com" target="_blank">Twitter</a> - 微博客平台</li>
-              <li><a href="https://www.reddit.com" target="_blank">Reddit</a> - 社区讨论</li>
-              <li><a href="https://github.com" target="_blank">GitHub</a> - 代码托管平台</li>
-              <li><a href="https://stackoverflow.com" target="_blank">Stack Overflow</a> - 编程问答</li>
-            </ul>
-          </td>
-        </tr>
-
-        <!-- 学习资源 -->
-        <tr>
-          <td bgcolor="#008080" valign="top">
-            <center>
-              <font color="#FFFFFF" size="+1"><b>📚 学习教育</b></font>
-            </center>
-          </td>
-          <td bgcolor="#FFFFFF">
-            <ul>
-              <li><a href="https://www.wikipedia.org" target="_blank">Wikipedia</a> - 维基百科</li>
-              <li><a href="https://www.coursera.org" target="_blank">Coursera</a> - 在线课程</li>
-              <li><a href="https://www.khanacademy.org" target="_blank">Khan Academy</a> - 可汗学院</li>
-              <li><a href="https://developer.mozilla.org" target="_blank">MDN Web Docs</a> - Web开发文档</li>
-            </ul>
-          </td>
-        </tr>
+        <!-- 学习教育 -->
+        <div class="nav-card">
+          <div class="card-icon education-icon">📚</div>
+          <h3 class="card-title">学习教育</h3>
+          <div class="card-links">
+            <a href="https://www.wikipedia.org" target="_blank" class="link-item">Wikipedia</a>
+            <a href="https://www.coursera.org" target="_blank" class="link-item">Coursera</a>
+            <a href="https://www.khanacademy.org" target="_blank" class="link-item">Khan Academy</a>
+            <a href="https://developer.mozilla.org" target="_blank" class="link-item">MDN Web Docs</a>
+          </div>
+        </div>
 
         <!-- 娱乐休闲 -->
-        <tr>
-          <td bgcolor="#008080" valign="top">
-            <center>
-              <font color="#FFFFFF" size="+1"><b>🎮 娱乐休闲</b></font>
-            </center>
-          </td>
-          <td bgcolor="#E0E0E0">
-            <ul>
-              <li><router-link to="/fluid-art"><b>🌊 流体艺术空间</b></router-link> - 🌟 WebGL流体模拟展示（内置）</li>
-              <li><a href="https://www.youtube.com" target="_blank">YouTube</a> - 视频分享平台</li>
-              <li><a href="https://www.spotify.com" target="_blank">Spotify</a> - 音乐流媒体</li>
-              <li><a href="https://www.twitch.tv" target="_blank">Twitch</a> - 游戏直播</li>
-              <li><a href="https://www.imdb.com" target="_blank">IMDB</a> - 电影数据库</li>
-            </ul>
-          </td>
-        </tr>
+        <div class="nav-card">
+          <div class="card-icon entertainment-icon">🎮</div>
+          <h3 class="card-title">娱乐休闲</h3>
+          <div class="card-links">
+            <router-link to="/fluid-art" class="link-item featured">流体艺术</router-link>
+            <a href="https://www.youtube.com" target="_blank" class="link-item">YouTube</a>
+            <a href="https://www.spotify.com" target="_blank" class="link-item">Spotify</a>
+            <a href="https://www.twitch.tv" target="_blank" class="link-item">Twitch</a>
+            <a href="https://www.imdb.com" target="_blank" class="link-item">IMDB</a>
+          </div>
+        </div>
 
-        <!-- 工具软件 -->
-        <tr>
-          <td bgcolor="#008080" valign="top">
-            <center>
-              <font color="#FFFFFF" size="+1"><b>🔧 实用工具</b></font>
-            </center>
-          </td>
-          <td bgcolor="#FFFFFF">
-            <ul>
-              <li><router-link to="/random-site"><b>🎲 随机网站生成器</b></router-link> - 🌟 每5分钟自动生成新网站（内置）</li>
-              <li><a href="https://mail.google.com" target="_blank">Gmail</a> - 电子邮件</li>
-              <li><a href="https://translate.google.com" target="_blank">Google Translate</a> - 在线翻译</li>
-              <li><a href="https://drive.google.com" target="_blank">Google Drive</a> - 云存储</li>
-              <li><a href="https://www.notion.so" target="_blank">Notion</a> - 笔记工具</li>
-            </ul>
-          </td>
-        </tr>
+        <!-- 实用工具 -->
+        <div class="nav-card">
+          <div class="card-icon tools-icon">🔧</div>
+          <h3 class="card-title">实用工具</h3>
+          <div class="card-links">
+            <router-link to="/random-site" class="link-item featured">随机网站</router-link>
+            <a href="https://mail.google.com" target="_blank" class="link-item">Gmail</a>
+            <a href="https://translate.google.com" target="_blank" class="link-item">Google Translate</a>
+            <a href="https://drive.google.com" target="_blank" class="link-item">Google Drive</a>
+            <a href="https://www.notion.so" target="_blank" class="link-item">Notion</a>
+          </div>
+        </div>
+      </div>
+    </main>
 
-        <!-- 底部信息 -->
-        <tr>
-          <td colspan="2" bgcolor="#800080">
-            <center>
-              <font color="#FFFF00"><b>⭐ 本站特色 ⭐</b></font>
-            </center>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" bgcolor="#FFFACD">
-            <center>
-              <blink style="animation: blink 1s infinite;">
-                <b>★ 每日更新 ★ 精选链接 ★ 完全免费 ★</b>
-              </blink>
-              <br><br>
-              <img :src="constructionGif" alt="Under Construction" v-if="showConstruction" style="max-width: 100px;">
-              <br>
-              <font size="-1">
-                <i>Best viewed with Internet Explorer 4.0 or Netscape Navigator 4.0</i><br>
-                <i>最佳浏览分辨率: 800x600</i>
-              </font>
-            </center>
-          </td>
-        </tr>
-      </table>
-
-      <br>
-
-      <!-- 友情链接 -->
-      <table width="90%" border="2" cellpadding="8" bgcolor="#FFCCCC">
-        <tr>
-          <td>
-            <center>
-              <b>≡ 友情链接 ≡</b><br><br>
-              <a href="#">网站A</a> |
-              <a href="#">网站B</a> |
-              <a href="#">网站C</a> |
-              <a href="#">网站D</a> |
-              <a href="#">网站E</a>
-            </center>
-          </td>
-        </tr>
-      </table>
-
-      <br>
-
-      <!-- 页脚 -->
-      <hr width="80%" size="2" color="#FF0000">
-      <p class="footer">
-        <font size="-1">
-          <b>网络导航中心</b><br>
-          版权所有 © 1997-2025<br>
-          网站管理员: webmaster@navigator.com<br>
-          最后更新时间: {{ lastUpdate }}
-        </font>
-      </p>
-
-      <br>
-
-      <!-- 动态时间显示 -->
-      <table border="2" cellpadding="5" bgcolor="#CCFFCC">
-        <tr>
-          <td align="center">
-            <b>当前时间: <font color="#FF0000">{{ currentTime }}</font></b>
-          </td>
-        </tr>
-      </table>
-
-      <br><br>
-    </center>
+    <!-- 页脚 -->
+    <footer class="footer">
+      <p class="footer-text">© 2025 网络导航中心 - 您的互联网入口</p>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-
-// 访客计数器
-const visitorCount = ref(0);
-
-// 当前时间
-const currentTime = ref('');
-
-// 最后更新时间
-const lastUpdate = ref('');
-
-// 是否显示施工图标
-const showConstruction = ref(false);
-
-// 施工中GIF（使用data URL）
-const constructionGif = ref('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
-
-let timeInterval = null;
-
-// 更新时间
-const updateTime = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-
-  currentTime.value = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
-// 初始化
-onMounted(() => {
-  // 生成随机访客数
-  visitorCount.value = Math.floor(Math.random() * 999999) + 100000;
-
-  // 设置最后更新时间
-  const now = new Date();
-  lastUpdate.value = now.toLocaleDateString('zh-CN');
-
-  // 开始更新时间
-  updateTime();
-  timeInterval = setInterval(updateTime, 1000);
-
-  // 随机显示施工图标
-  showConstruction.value = Math.random() > 0.5;
-});
-
-onUnmounted(() => {
-  if (timeInterval) {
-    clearInterval(timeInterval);
-  }
-});
+// Google 风格首页 - 简洁设计
 </script>
 
 <style scoped>
-.retro-page {
-  background-color: #C0C0C0;
-  font-family: 'Times New Roman', Times, serif;
-  padding: 0;
-  margin: 0;
+/* Google Material Design 风格 */
+.google-page {
   min-height: 100vh;
+  background: var(--theme-bg-secondary);
+  display: flex;
+  flex-direction: column;
 }
 
-.header-bar {
-  background-color: #000080;
-  color: #FFFF00;
-  padding: 5px;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.main-title {
-  margin-top: 20px;
-  margin-bottom: 5px;
-  font-family: Arial, sans-serif;
-  text-shadow: 2px 2px 4px #888888;
-}
-
-.subtitle {
-  margin: 5px 0;
-  font-style: italic;
-  color: #666666;
-}
-
-.counter {
-  margin: 15px auto;
-  box-shadow: 3px 3px 5px #888888;
-}
-
-/* 表格样式 */
-table {
-  box-shadow: 5px 5px 10px #666666;
-}
-
-/* 链接样式 - 1997年经典蓝色下划线 */
-a {
-  color: #0000EE;
-  text-decoration: underline;
-}
-
-a:visited {
-  color: #551A8B;
-}
-
-a:hover {
-  color: #FF0000;
-  background-color: #FFFF00;
-}
-
-/* 列表样式 */
-ul {
-  margin: 5px 0;
-  padding-left: 25px;
-}
-
-li {
-  margin: 5px 0;
-  line-height: 1.6;
-}
-
-/* 页脚样式 */
-.footer {
-  color: #333333;
-  margin: 10px 0;
-}
-
-/* HR样式 */
-hr {
-  margin: 15px auto;
-}
-
-/* 闪烁动画 */
-@keyframes blink {
-  0%, 49% {
-    opacity: 1;
-  }
-  50%, 100% {
-    opacity: 0;
-  }
-}
-
-/* Center标签支持 */
-center {
-  display: block;
+/* Google Logo 样式 */
+.header {
+  padding: 60px 0 40px;
   text-align: center;
+}
+
+.logo {
+  font-size: 72px;
+  font-weight: 400;
+  margin: 0;
+  letter-spacing: -2px;
+  font-family: 'Product Sans', 'Google Sans', Roboto, Arial, sans-serif;
+}
+
+.logo-g { color: #4285f4; }
+.logo-o1 { color: #ea4335; }
+.logo-o2 { color: #fbbc04; }
+.logo-g2 { color: #4285f4; }
+.logo-l { color: #34a853; }
+.logo-e { color: #ea4335; }
+
+.tagline {
+  color: var(--theme-text-secondary);
+  font-size: 16px;
+  margin-top: 8px;
+  font-weight: 400;
+}
+
+/* 主内容区 */
+.main-content {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px 60px;
+}
+
+/* 导航卡片网格 */
+.nav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+/* 导航卡片 */
+.nav-card {
+  background: var(--theme-card-bg);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--theme-border-primary);
+}
+
+.nav-card:hover {
+  box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+  transform: translateY(-4px);
+}
+
+.card-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--theme-text-primary);
+  margin: 0 0 20px 0;
+  text-align: center;
+  letter-spacing: 0.25px;
+}
+
+.card-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.link-item {
+  color: var(--theme-primary);
+  text-decoration: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 14px;
+  font-weight: 500;
+  display: block;
+  background: var(--theme-bg-secondary);
+}
+
+.link-item:hover {
+  background: var(--theme-bg-tertiary);
+  transform: translateX(4px);
+}
+
+.link-item.featured {
+  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+  color: white;
+}
+
+.link-item.featured:hover {
+  box-shadow: 0 2px 4px rgba(66, 133, 244, 0.3);
+  transform: translateX(4px) translateY(-2px);
+}
+
+/* 页脚 */
+.footer {
+  text-align: center;
+  padding: 32px 24px;
+  background: var(--theme-bg-primary);
+  border-top: 1px solid var(--theme-border-primary);
+}
+
+.footer-text {
+  color: var(--theme-text-secondary);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .logo {
+    font-size: 48px;
+  }
+
+  .nav-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .header {
+    padding: 40px 0 24px;
+  }
 }
 </style>
