@@ -118,6 +118,7 @@
           </td>
           <td bgcolor="#E0E0E0">
             <ul>
+              <li><router-link to="/fluid-art"><b>🌊 流体艺术空间</b></router-link> - 🌟 WebGL流体模拟展示（内置）</li>
               <li><a href="https://www.youtube.com" target="_blank">YouTube</a> - 视频分享平台</li>
               <li><a href="https://www.spotify.com" target="_blank">Spotify</a> - 音乐流媒体</li>
               <li><a href="https://www.twitch.tv" target="_blank">Twitch</a> - 游戏直播</li>

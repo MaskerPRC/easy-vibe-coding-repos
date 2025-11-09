@@ -9,6 +9,7 @@ import Login from '../views/Login.vue';
 import OpsCoffee from '../views/OpsCoffee.vue';
 import SearchEngine from '../views/SearchEngine.vue';
 import RandomSite from '../views/RandomSite.vue';
+import FluidArt from '../views/FluidArt.vue';
 
 const routes = [
   {
@@ -60,6 +61,11 @@ const routes = [
     path: '/random-site',
     name: 'RandomSite',
     component: RandomSite
+  },
+  {
+    path: '/fluid-art',
+    name: 'FluidArt',
+    component: FluidArt
   }
 ];
 
