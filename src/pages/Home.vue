@@ -582,6 +582,7 @@ canvas {
   bottom: 30px;
   right: 30px;
   flex-direction: column;
+  display: none; /* 隐藏右下角按钮组 */
 }
 
 /* 左上角 */
