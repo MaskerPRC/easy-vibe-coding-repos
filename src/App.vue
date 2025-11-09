@@ -8,6 +8,7 @@
           <router-link to="/home" class="nav-link">Home</router-link>
           <router-link to="/todo" class="nav-link">待办事项</router-link>
           <router-link to="/medicine" class="nav-link">吃药提醒</router-link>
+          <router-link to="/timer" class="nav-link">计时器</router-link>
         </div>
       </div>
     </nav>
