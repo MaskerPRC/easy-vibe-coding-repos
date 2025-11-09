@@ -85,7 +85,7 @@ const initMatrix = () => {
     animationId = requestAnimationFrame(draw);
   };
 
-  draw();
+  // draw(); // 已停止字符流动动画
 
   return () => {
     window.removeEventListener('resize', resize);
