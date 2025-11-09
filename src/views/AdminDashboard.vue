@@ -29,6 +29,11 @@
 
       <!-- 主内容区 -->
       <main class="main-content">
+        <!-- 五角星展示区 -->
+        <div class="star-section">
+          <pre class="star-display">{{ starArt }}</pre>
+        </div>
+
         <!-- 数据统计卡片 -->
         <div class="stats-grid">
           <div class="stat-card" v-for="stat in stats" :key="stat.label">
@@ -137,6 +142,19 @@ const activities = ref([
 ]);
 
 const tableTitle = ref('内容管理');
+
+// 五角星ASCII艺术
+const starArt = ref(`
+    *
+   ***
+  *****
+ *******
+*********
+ *     *
+  *   *
+   * *
+    *
+`);
 
 const getStatusText = (status) => {
   const statusMap = {
@@ -266,6 +284,28 @@ onMounted(() => {
   flex: 1;
   padding: 24px;
   overflow-y: auto;
+}
+
+/* 五角星展示区 */
+.star-section {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.star-display {
+  font-family: monospace;
+  font-size: 20px;
+  line-height: 1.2;
+  color: #fadb14;
+  text-shadow: 0 0 10px rgba(250, 219, 20, 0.5);
+  margin: 0;
+  font-weight: bold;
 }
 
 /* 数据统计卡片 */
