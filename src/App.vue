@@ -12,12 +12,12 @@
             <path d="M2 17L12 22L22 17V7L12 12L2 7V17Z" fill="url(#gradient2)" opacity="0.8"/>
             <defs>
               <linearGradient id="gradient1" x1="2" y1="2" x2="22" y2="12">
-                <stop offset="0%" stop-color="#667eea" />
-                <stop offset="100%" stop-color="#764ba2" />
+                <stop offset="0%" stop-color="#888888" />
+                <stop offset="100%" stop-color="#666666" />
               </linearGradient>
               <linearGradient id="gradient2" x1="2" y1="7" x2="22" y2="22">
-                <stop offset="0%" stop-color="#f093fb" />
-                <stop offset="100%" stop-color="#f5576c" />
+                <stop offset="0%" stop-color="#aaaaaa" />
+                <stop offset="100%" stop-color="#777777" />
               </linearGradient>
             </defs>
           </svg>
@@ -251,7 +251,7 @@ onUnmounted(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1f1f1f 100%);
   color: #e4e4e7;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   overflow: hidden;
@@ -263,9 +263,9 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: rgba(26, 26, 46, 0.95);
+  background: rgba(40, 40, 40, 0.95);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+  border-bottom: 1px solid rgba(100, 100, 100, 0.2);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   z-index: 100;
 }
@@ -297,7 +297,7 @@ onUnmounted(() => {
 .brand-title {
   font-size: 1.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+  background: linear-gradient(135deg, #aaaaaa 0%, #777777 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -339,17 +339,17 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: rgba(15, 15, 30, 0.6);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(30, 30, 30, 0.6);
+  border: 1px solid rgba(120, 120, 120, 0.3);
   border-radius: 8px;
   font-size: 0.875rem;
-  color: #ef4444;
+  color: #999999;
   transition: all 0.3s;
 }
 
 .status-badge.online {
-  border-color: rgba(34, 197, 94, 0.3);
-  color: #22c55e;
+  border-color: rgba(150, 150, 150, 0.3);
+  color: #cccccc;
 }
 
 .status-dot {
@@ -381,9 +381,9 @@ onUnmounted(() => {
 /* 侧边栏 */
 .sidebar {
   width: 280px;
-  background: rgba(26, 26, 46, 0.95);
+  background: rgba(40, 40, 40, 0.95);
   backdrop-filter: blur(10px);
-  border-right: 1px solid rgba(102, 126, 234, 0.2);
+  border-right: 1px solid rgba(100, 100, 100, 0.2);
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
@@ -397,16 +397,16 @@ onUnmounted(() => {
 .sidebar-toggle {
   margin: 1.5rem 1.5rem 1rem;
   padding: 0.75rem;
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  background: rgba(100, 100, 100, 0.1);
+  border: 1px solid rgba(120, 120, 120, 0.3);
   border-radius: 8px;
-  color: #667eea;
+  color: #888888;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .sidebar-toggle:hover {
-  background: rgba(102, 126, 234, 0.2);
+  background: rgba(120, 120, 120, 0.2);
   transform: scale(1.05);
 }
 
@@ -431,7 +431,7 @@ onUnmounted(() => {
 }
 
 .nav-menu::-webkit-scrollbar-thumb {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(120, 120, 120, 0.3);
   border-radius: 3px;
 }
 
@@ -451,14 +451,14 @@ onUnmounted(() => {
 }
 
 .nav-item:hover {
-  background: rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.3);
+  background: rgba(100, 100, 100, 0.15);
+  border-color: rgba(120, 120, 120, 0.3);
   transform: translateX(5px);
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(240, 147, 251, 0.2) 100%);
-  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(100, 100, 100, 0.3) 0%, rgba(130, 130, 130, 0.2) 100%);
+  border-color: #888888;
 }
 
 .nav-item.active::before {
@@ -468,7 +468,7 @@ onUnmounted(() => {
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, #667eea 0%, #f093fb 100%);
+  background: linear-gradient(180deg, #888888 0%, #aaaaaa 100%);
 }
 
 .nav-icon {
@@ -499,7 +499,7 @@ onUnmounted(() => {
 }
 
 .nav-item.active .nav-indicator {
-  background: #667eea;
+  background: #888888;
 }
 
 /* 内容区域 */
@@ -515,8 +515,8 @@ onUnmounted(() => {
   position: relative;
   margin: 2rem;
   padding: 3rem;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, rgba(100, 100, 100, 0.2) 0%, rgba(80, 80, 80, 0.2) 100%);
+  border: 1px solid rgba(120, 120, 120, 0.3);
   border-radius: 20px;
   overflow: hidden;
   backdrop-filter: blur(10px);
@@ -530,7 +530,7 @@ onUnmounted(() => {
   right: -10%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(120, 120, 120, 0.3) 0%, transparent 70%);
   border-radius: 50%;
   animation: float-slow 20s ease-in-out infinite;
 }
@@ -562,9 +562,9 @@ onUnmounted(() => {
 }
 
 .hero-close:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
-  color: #ef4444;
+  background: rgba(120, 120, 120, 0.2);
+  border-color: #999999;
+  color: #999999;
 }
 
 .hero-close svg {
@@ -581,12 +581,12 @@ onUnmounted(() => {
 .hero-badge {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.4);
+  background: rgba(100, 100, 100, 0.2);
+  border: 1px solid rgba(120, 120, 120, 0.4);
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #a5b4fc;
+  color: #bbbbbb;
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -631,7 +631,7 @@ onUnmounted(() => {
 .feature-tag svg {
   width: 16px;
   height: 16px;
-  color: #22c55e;
+  color: #aaaaaa;
 }
 
 .hero-illustration {
@@ -646,8 +646,8 @@ onUnmounted(() => {
   position: absolute;
   width: 100px;
   height: 120px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(240, 147, 251, 0.3) 100%);
-  border: 1px solid rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, rgba(100, 100, 100, 0.3) 0%, rgba(130, 130, 130, 0.3) 100%);
+  border: 1px solid rgba(120, 120, 120, 0.4);
   border-radius: 12px;
   backdrop-filter: blur(5px);
 }
@@ -701,8 +701,8 @@ onUnmounted(() => {
   margin: 0 2rem 2rem;
   overflow: auto;
   border-radius: 16px;
-  background: rgba(26, 26, 46, 0.5);
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  background: rgba(40, 40, 40, 0.5);
+  border: 1px solid rgba(100, 100, 100, 0.2);
   backdrop-filter: blur(10px);
 }
 
@@ -716,12 +716,12 @@ onUnmounted(() => {
 }
 
 .component-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(120, 120, 120, 0.3);
   border-radius: 5px;
 }
 
 .component-wrapper::-webkit-scrollbar-thumb:hover {
-  background: rgba(102, 126, 234, 0.5);
+  background: rgba(120, 120, 120, 0.5);
 }
 
 /* 过渡动画 */
@@ -743,9 +743,9 @@ onUnmounted(() => {
 /* 底部栏 */
 .bottom-footer {
   padding: 1rem 2rem;
-  background: rgba(26, 26, 46, 0.95);
+  background: rgba(40, 40, 40, 0.95);
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(102, 126, 234, 0.2);
+  border-top: 1px solid rgba(100, 100, 100, 0.2);
 }
 
 .footer-info {
@@ -766,7 +766,7 @@ onUnmounted(() => {
 .footer-icon {
   width: 16px;
   height: 16px;
-  color: #667eea;
+  color: #888888;
 }
 
 .footer-divider {
