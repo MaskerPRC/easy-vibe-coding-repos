@@ -290,6 +290,60 @@ app.get('/api/config', (req, res) => {
   });
 });
 
+/**
+ * 项目检测API - 综合检测项目健康状态
+ */
+app.get('/api/project/detect', (req, res) => {
+  try {
+    const detection = {
+      success: true,
+      timestamp: new Date().toISOString(),
+      server: {
+        status: 'running',
+        port: PORT,
+        uptime: process.uptime(),
+        memory: process.memoryUsage()
+      },
+      data: {
+        totalRecords: spyRecords.length,
+        maxRecords: MAX_RECORDS,
+        dataFileExists: fsSync.existsSync(SPY_DATA_FILE),
+        dataFilePath: SPY_DATA_FILE
+      },
+      features: {
+        apiEndpoints: [
+          '/api/health',
+          '/api/config',
+          '/api/spy/records',
+          '/api/spy/stats',
+          '/api/project/detect'
+        ],
+        hooks: [
+          'fetch', 'xhr', 'localStorage', 'sessionStorage',
+          'cookie', 'console', 'setTimeout', 'setInterval',
+          'eval', 'Function'
+        ]
+      },
+      health: {
+        status: 'healthy',
+        checks: {
+          memoryUsage: process.memoryUsage().heapUsed < 500 * 1024 * 1024, // <500MB
+          recordsLimit: spyRecords.length < MAX_RECORDS,
+          dataStorage: fsSync.existsSync(SPY_DATA_FILE)
+        }
+      }
+    };
+
+    res.json(detection);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: '项目检测失败',
+      message: error.message
+    });
+  }
+});
+
 // ==================== 错误处理 ====================
 
 app.use((req, res) => {

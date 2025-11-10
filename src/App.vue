@@ -5,13 +5,30 @@
         <h1 class="app-title">JSpspy - JavaScript Spy Tool</h1>
         <p class="app-subtitle">浏览器API拦截与监控工具</p>
       </div>
+      <div class="header-center">
+        <div class="view-tabs">
+          <button
+            @click="currentView = 'monitor'"
+            class="tab-btn"
+            :class="{ active: currentView === 'monitor' }">
+            🎯 监控面板
+          </button>
+          <button
+            @click="currentView = 'detector'"
+            class="tab-btn"
+            :class="{ active: currentView === 'detector' }">
+            📊 项目检测
+          </button>
+        </div>
+      </div>
       <div class="header-right">
-        <button @click="exportData" class="btn btn-export">导出记录</button>
-        <button @click="clearRecords" class="btn btn-clear">清空记录</button>
+        <button v-if="currentView === 'monitor'" @click="exportData" class="btn btn-export">导出记录</button>
+        <button v-if="currentView === 'monitor'" @click="clearRecords" class="btn btn-clear">清空记录</button>
       </div>
     </header>
 
-    <div class="app-body">
+    <!-- 监控面板视图 -->
+    <div class="app-body" v-show="currentView === 'monitor'">
       <!-- 左侧：Hook控制面板 -->
       <aside class="control-panel">
         <div class="panel-header">
@@ -116,8 +133,8 @@
       </main>
     </div>
 
-    <!-- 测试按钮区域 -->
-    <div class="test-panel">
+    <!-- 测试按钮区域 - 只在监控视图显示 -->
+    <div class="test-panel" v-show="currentView === 'monitor'">
       <h3>测试区域</h3>
       <div class="test-buttons">
         <button @click="testFetch" class="btn-test">测试Fetch</button>
@@ -128,12 +145,21 @@
         <button @click="testTimer" class="btn-test">测试Timer</button>
       </div>
     </div>
+
+    <!-- 项目检测视图 -->
+    <div class="detector-view" v-show="currentView === 'detector'">
+      <ProjectDetector />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import jspspy from './utils/jspspy.js';
+import ProjectDetector from './components/ProjectDetector.vue';
+
+// 视图状态
+const currentView = ref('monitor'); // 'monitor' 或 'detector'
 
 // 状态
 const hooks = ref({});
@@ -372,6 +398,44 @@ onUnmounted(() => {
   margin: 5px 0 0 0;
   font-size: 14px;
   color: #999;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.view-tabs {
+  display: flex;
+  gap: 10px;
+  background: #1a1a1a;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: #999;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.tab-btn.active {
+  background: #00ff88;
+  color: #1a1a1a;
+  font-weight: 600;
 }
 
 .header-right {
@@ -854,6 +918,13 @@ input:checked + .slider:before {
   background: #555;
 }
 
+/* Detector View */
+.detector-view {
+  width: 100%;
+  height: calc(100vh - 150px);
+  overflow: hidden;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .app-body {
@@ -865,6 +936,14 @@ input:checked + .slider:before {
     max-height: 400px;
     border-right: none;
     border-bottom: 1px solid #444;
+  }
+
+  .header-center {
+    margin: 10px 0;
+  }
+
+  .app-header {
+    flex-wrap: wrap;
   }
 }
 </style>
