@@ -44,6 +44,11 @@
         </div>
       </div>
 
+      <!-- 计算结果展示 -->
+      <div class="calculation-result">
+        <div class="calc-expression">7 × 7 = {{ 7 * 7 }}</div>
+      </div>
+
       <div class="language-offer">
         360搜索 - 安全、精准、可信赖
       </div>
@@ -279,6 +284,34 @@ const handleSearch = () => {
   background: rgba(255, 255, 255, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
+}
+
+/* 计算结果展示 */
+.calculation-result {
+  margin-top: 25px;
+  padding: 20px 30px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s;
+}
+
+.calculation-result:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.calc-expression {
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
 }
 
 .language-offer {
