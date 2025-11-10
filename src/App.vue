@@ -51,12 +51,20 @@
       >
         🔐 Shadow文件
       </button>
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'excel' }"
+        @click="currentTab = 'excel'"
+      >
+        📊 Excel学习指南
+      </button>
     </nav>
 
     <main class="app-body">
       <ScreenCapture v-if="currentTab === 'screen'" />
       <ChatRoom v-if="currentTab === 'chat'" />
       <ShadowViewer v-if="currentTab === 'shadow'" />
+      <ExcelGuide v-if="currentTab === 'excel'" />
     </main>
 
     <footer class="app-footer">
@@ -76,6 +84,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import ScreenCapture from './components/ScreenCapture.vue';
 import ChatRoom from './components/ChatRoom.vue';
 import ShadowViewer from './components/ShadowViewer.vue';
+import ExcelGuide from './components/ExcelGuide.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);
