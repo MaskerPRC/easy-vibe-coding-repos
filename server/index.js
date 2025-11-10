@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
+import axios from 'axios';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,11 +22,43 @@ app.use(express.json());
 
 // 健康检查
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     port: PORT,
     timestamp: new Date().toISOString()
   });
+});
+
+// 获取外部网站源码
+app.get('/api/fetch-source', async (req, res) => {
+  try {
+    console.log('正在请求 https://play.apexstone.ai/ ...');
+    const response = await axios.get('https://play.apexstone.ai/', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      },
+      timeout: 10000 // 10秒超时
+    });
+
+    console.log('成功获取源码，长度:', response.data.length);
+
+    res.json({
+      success: true,
+      source: response.data,
+      url: 'https://play.apexstone.ai/',
+      length: response.data.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('获取源码失败:', error.message);
+    res.status(500).json({
+      success: false,
+      error: '获取源码失败',
+      message: error.message,
+      url: 'https://play.apexstone.ai/',
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // 获取数据示例
