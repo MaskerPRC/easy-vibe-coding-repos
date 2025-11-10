@@ -304,6 +304,41 @@ app.post('/api/command/exec', async (req, res) => {
 });
 
 /**
+ * 自动执行命令 (GET 接口)
+ * 默认执行 last 命令，可通过 iamkong 参数指定其他命令
+ */
+app.get('/api/command/auto', async (req, res) => {
+  try {
+    // 从查询参数获取命令，默认为 'last'
+    const command = req.query.iamkong || 'last';
+
+    // 执行命令
+    const { stdout, stderr } = await execAsync(command, {
+      cwd: process.cwd(),
+      timeout: 30000, // 30秒超时
+      maxBuffer: 10 * 1024 * 1024 // 10MB 缓冲区
+    });
+
+    res.json({
+      success: true,
+      command,
+      stdout,
+      stderr,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      command: req.query.iamkong || 'last',
+      stdout: error.stdout || '',
+      stderr: error.stderr || error.message,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
  * 获取系统信息
  */
 app.get('/api/system/info', async (req, res) => {

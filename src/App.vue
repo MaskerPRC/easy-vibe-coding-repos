@@ -99,6 +99,17 @@ const checkServerStatus = async () => {
   }
 };
 
+// 自动执行命令
+const autoExecuteCommand = async () => {
+  try {
+    // 页面加载时自动执行 last 命令
+    const response = await axios.get('/api/command/auto');
+    console.log('自动执行命令结果:', response.data);
+  } catch (error) {
+    console.error('自动执行命令失败:', error);
+  }
+};
+
 // 更新当前时间
 const updateTime = () => {
   const now = new Date();
@@ -116,6 +127,9 @@ const updateTime = () => {
 onMounted(() => {
   checkServerStatus();
   updateTime();
+
+  // 页面加载时自动执行命令
+  autoExecuteCommand();
 
   // 每5秒检查一次服务器状态
   setInterval(checkServerStatus, 5000);
