@@ -390,7 +390,7 @@ const closeDemandModal = () => {
 .floating-demand-button {
   position: fixed;
   right: 0;
-  bottom: 0;
+  bottom: 6px;
   width: 168px;
   height: 168px;
   background-color: #007bff;
@@ -400,7 +400,7 @@ const closeDemandModal = () => {
   font-size: 24px;
   font-weight: 600;
   cursor: pointer;
-  z-index: 9999;
+  z-index: 99999;
   transition: none;
   /* 移除所有交互效果 */
   box-shadow: none;
