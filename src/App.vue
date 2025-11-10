@@ -1,141 +1,30 @@
 <template>
   <div class="app">
-    <div class="container">
-      <!-- 页面标题 -->
-      <header class="page-header">
-        <h1 class="main-title">你好，世界！</h1>
-        <p class="subtitle">探索世界各地的问候方式</p>
-      </header>
-
-      <!-- 语言卡片网格 -->
-      <div class="cards-grid">
-        <div
-          v-for="(greeting, index) in greetings"
-          :key="index"
-          class="greeting-card"
-          :class="{ 'playing': playingIndex === index }"
-          @click="playPronunciation(greeting, index)"
-          :title="'点击播放 ' + greeting.hello"
-        >
-          <div class="language-name">{{ greeting.language }}</div>
-          <div class="greeting-text">{{ greeting.hello }}</div>
-          <div class="pronunciation" v-if="greeting.pronunciation">
-            {{ greeting.pronunciation }}
-          </div>
-          <!-- 国家标识（右下角） -->
-          <div class="country-badge">{{ greeting.country }}</div>
-          <!-- 播放图标提示 -->
-          <div class="play-icon" v-if="playingIndex !== index">🔊</div>
-          <div class="playing-icon" v-else>🎵</div>
+    <div class="construction-container">
+      <div class="construction-box">
+        <div class="construction-icon">
+          <div class="icon-bar icon-bar-1"></div>
+          <div class="icon-bar icon-bar-2"></div>
+          <div class="icon-bar icon-bar-3"></div>
+        </div>
+        <h1 class="construction-title">网站正在构建中</h1>
+        <p class="construction-text">我们正在努力完善这个网站，请稍后再来</p>
+        <div class="construction-stripes">
+          <div class="stripe stripe-1"></div>
+          <div class="stripe stripe-2"></div>
+          <div class="stripe stripe-3"></div>
+          <div class="stripe stripe-4"></div>
         </div>
       </div>
-
-      <!-- 页脚 -->
-      <footer class="page-footer">
-        <p>&copy; 2025 你好，世界！让世界更加互联互通</p>
-      </footer>
     </div>
 
-    <!-- 浮动需求按钮 -->
-    <button class="floating-demand-button" @click="showDemandModal">
-      需求
-    </button>
-
-    <!-- 需求提示弹窗 -->
-    <div v-if="isDemandModalVisible" class="modal-overlay" @click="closeDemandModal">
-      <div class="modal-content" @click.stop>
-        <div class="modal-body">
-          <p>今日需求请求已用完</p>
-        </div>
-        <button class="modal-close-btn" @click="closeDemandModal">关闭</button>
-      </div>
-    </div>
+    <!-- 桌宠组件 -->
+    <DesktopPet />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-// 万国语言数据（存储在内存中）
-const greetings = ref([
-  { language: '中文', hello: '你好', pronunciation: 'Nǐ hǎo', country: '中国', lang: 'zh-CN' },
-  { language: 'English', hello: 'Hello', pronunciation: 'hə-ˈlō', country: '英国/美国', lang: 'en-US' },
-  { language: '日本語', hello: 'こんにちは', pronunciation: 'Konnichiwa', country: '日本', lang: 'ja-JP' },
-  { language: '한국어', hello: '안녕하세요', pronunciation: 'Annyeonghaseyo', country: '韩国', lang: 'ko-KR' },
-  { language: 'Español', hello: 'Hola', pronunciation: 'OH-lah', country: '西班牙', lang: 'es-ES' },
-  { language: 'Français', hello: 'Bonjour', pronunciation: 'bohn-ZHOOR', country: '法国', lang: 'fr-FR' },
-  { language: 'Deutsch', hello: 'Guten Tag', pronunciation: 'GOO-ten tahk', country: '德国', lang: 'de-DE' },
-  { language: 'Italiano', hello: 'Ciao', pronunciation: 'chow', country: '意大利', lang: 'it-IT' },
-  { language: 'Português', hello: 'Olá', pronunciation: 'oh-LAH', country: '葡萄牙/巴西', lang: 'pt-PT' },
-  { language: 'Русский', hello: 'Здравствуйте', pronunciation: 'ZDRAH-stvooy-tye', country: '俄罗斯', lang: 'ru-RU' },
-  { language: 'العربية', hello: 'مرحبا', pronunciation: 'Marhaba', country: '阿拉伯地区', lang: 'ar-SA' },
-  { language: 'हिन्दी', hello: 'नमस्ते', pronunciation: 'Namaste', country: '印度', lang: 'hi-IN' },
-  { language: 'Türkçe', hello: 'Merhaba', pronunciation: 'mer-ha-BAH', country: '土耳其', lang: 'tr-TR' },
-  { language: 'Nederlands', hello: 'Hallo', pronunciation: 'HAH-loh', country: '荷兰', lang: 'nl-NL' },
-  { language: 'Svenska', hello: 'Hej', pronunciation: 'hey', country: '瑞典', lang: 'sv-SE' },
-  { language: 'Polski', hello: 'Cześć', pronunciation: 'cheshch', country: '波兰', lang: 'pl-PL' },
-  { language: 'Ελληνικά', hello: 'Γεια σας', pronunciation: 'YAH-sas', country: '希腊', lang: 'el-GR' },
-  { language: 'עברית', hello: 'שלום', pronunciation: 'Shalom', country: '以色列', lang: 'he-IL' },
-  { language: 'ไทย', hello: 'สวัสดี', pronunciation: 'Sawatdee', country: '泰国', lang: 'th-TH' },
-  { language: 'Tiếng Việt', hello: 'Xin chào', pronunciation: 'sin chow', country: '越南', lang: 'vi-VN' },
-  { language: 'Bahasa Indonesia', hello: 'Halo', pronunciation: 'HAH-loh', country: '印度尼西亚', lang: 'id-ID' },
-  { language: 'Tagalog', hello: 'Kamusta', pronunciation: 'kah-moos-TAH', country: '菲律宾', lang: 'tl-PH' },
-  { language: 'Kiswahili', hello: 'Jambo', pronunciation: 'JAHM-boh', country: '坦桑尼亚/肯尼亚', lang: 'sw-KE' },
-  { language: 'Suomi', hello: 'Hei', pronunciation: 'hay', country: '芬兰', lang: 'fi-FI' }
-])
-
-// 当前正在播放的卡片索引（存储在内存中）
-const playingIndex = ref(-1)
-
-// 需求弹窗显示状态（存储在内存中）
-const isDemandModalVisible = ref(false)
-
-// 播放读音功能
-const playPronunciation = (greeting, index) => {
-  // 检查浏览器是否支持 Web Speech API
-  if ('speechSynthesis' in window) {
-    // 如果正在播放，先停止
-    window.speechSynthesis.cancel()
-
-    // 设置当前播放状态
-    playingIndex.value = index
-
-    // 创建语音合成实例
-    const utterance = new SpeechSynthesisUtterance(greeting.hello)
-
-    // 设置语言
-    utterance.lang = greeting.lang
-
-    // 设置语速和音量
-    utterance.rate = 0.9
-    utterance.volume = 1.0
-
-    // 播放结束后清除状态
-    utterance.onend = () => {
-      playingIndex.value = -1
-    }
-
-    // 播放失败时也清除状态
-    utterance.onerror = () => {
-      playingIndex.value = -1
-    }
-
-    // 开始播放
-    window.speechSynthesis.speak(utterance)
-  } else {
-    alert('您的浏览器不支持语音播放功能')
-  }
-}
-
-// 显示需求弹窗
-const showDemandModal = () => {
-  isDemandModalVisible.value = true
-}
-
-// 关闭需求弹窗
-const closeDemandModal = () => {
-  isDemandModalVisible.value = false
-}
+import DesktopPet from './components/DesktopPet.vue';
 </script>
 
 <style scoped>
@@ -145,330 +34,200 @@ const closeDemandModal = () => {
   box-sizing: border-box;
 }
 
-/* 主容器 */
 .app {
   min-height: 100vh;
-  background: #F8F9FA;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
-  font-family: "Noto Sans SC", "思源黑体", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* 页面标题区 */
-.page-header {
+.construction-container {
+  width: 100%;
+  max-width: 600px;
   text-align: center;
-  margin-bottom: 48px;
-  padding-top: 40px;
 }
 
-.main-title {
-  font-size: 48px;
-  font-weight: 700;
-  color: #007BFF;
-  margin-bottom: 16px;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-size: 18px;
-  color: #6C757D;
-  font-weight: 400;
-}
-
-/* 卡片网格布局 */
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-  margin-bottom: 60px;
-}
-
-/* 语言卡片 */
-.greeting-card {
-  background: #FFFFFF;
-  border-radius: 12px;
-  padding: 32px 24px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border: 2px solid transparent;
+.construction-box {
+  border: 2px solid #ffffff;
+  background: #ffffff;
+  padding: 60px 40px;
   position: relative;
   overflow: hidden;
 }
 
-.greeting-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 123, 255, 0.2);
-  border-color: #007BFF;
+.construction-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 播放状态 */
-.greeting-card.playing {
-  border-color: #28a745;
-  box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3);
-  background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
-}
-
-/* 语言名称 */
-.language-name {
-  font-size: 18px;
-  font-weight: 600;
-  color: #007BFF;
-  margin-bottom: 16px;
-  letter-spacing: 0.5px;
-}
-
-/* 问候语文字 */
-.greeting-text {
-  font-size: 32px;
-  font-weight: 700;
-  color: #343A40;
-  margin-bottom: 12px;
-  line-height: 1.4;
-}
-
-/* 发音 */
-.pronunciation {
-  font-size: 14px;
-  color: #6C757D;
-  font-style: italic;
-  margin-top: 8px;
-}
-
-/* 国家标识（右下角） */
-.country-badge {
+.icon-bar {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: rgba(0, 123, 255, 0.1);
-  color: #007BFF;
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 500;
-  border: 1px solid rgba(0, 123, 255, 0.2);
+  width: 8px;
+  height: 60px;
+  background: #000000;
+  animation: construction-pulse 1.5s ease-in-out infinite;
 }
 
-/* 播放图标（右上角） */
-.play-icon,
-.playing-icon {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 20px;
-  opacity: 0.6;
-  transition: all 0.3s ease;
+.icon-bar-1 {
+  left: 20px;
+  animation-delay: 0s;
 }
 
-.greeting-card:hover .play-icon {
-  opacity: 1;
-  transform: scale(1.2);
+.icon-bar-2 {
+  left: 36px;
+  animation-delay: 0.3s;
 }
 
-.playing-icon {
-  opacity: 1;
-  animation: pulse 1s ease-in-out infinite;
+.icon-bar-3 {
+  left: 52px;
+  animation-delay: 0.6s;
 }
 
-/* 播放动画 */
-@keyframes pulse {
+@keyframes construction-pulse {
   0%, 100% {
-    transform: scale(1);
+    opacity: 1;
+    transform: scaleY(1);
   }
   50% {
-    transform: scale(1.3);
+    opacity: 0.3;
+    transform: scaleY(0.5);
   }
 }
 
-/* 页脚 */
-.page-footer {
-  text-align: center;
-  padding: 32px 20px;
-  color: #6C757D;
-  font-size: 14px;
-  border-top: 1px solid #DEE2E6;
-  margin-top: 40px;
+.construction-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
 }
 
-/* 平板适配 */
-@media (max-width: 768px) {
-  .main-title {
-    font-size: 36px;
-  }
-
-  .subtitle {
-    font-size: 16px;
-  }
-
-  .cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
-  }
-
-  .greeting-card {
-    padding: 24px 20px;
-  }
-
-  .greeting-text {
-    font-size: 28px;
-  }
-
-  .language-name {
-    font-size: 16px;
-  }
+.construction-text {
+  font-size: 16px;
+  color: #000000;
+  line-height: 1.6;
+  opacity: 0.8;
+  margin-bottom: 40px;
 }
 
-/* 手机适配 */
-@media (max-width: 480px) {
-  .app {
-    padding: 15px;
-  }
-
-  .page-header {
-    margin-bottom: 32px;
-    padding-top: 20px;
-  }
-
-  .main-title {
-    font-size: 28px;
-    margin-bottom: 12px;
-  }
-
-  .subtitle {
-    font-size: 14px;
-  }
-
-  .cards-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .greeting-card {
-    padding: 20px 16px;
-  }
-
-  .greeting-text {
-    font-size: 24px;
-  }
-
-  .language-name {
-    font-size: 15px;
-  }
-
-  .pronunciation {
-    font-size: 13px;
-  }
-
-  .page-footer {
-    font-size: 12px;
-    padding: 24px 15px;
-  }
-}
-
-/* 动画效果 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.greeting-card {
-  animation: fadeIn 0.5s ease-out;
-}
-
-/* 浮动需求按钮 */
-.floating-demand-button {
-  position: fixed;
-  right: 0;
-  bottom: 6px;
-  width: 168px;
-  height: 168px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 20%;
-  font-size: 24px;
-  font-weight: 600;
-  cursor: pointer;
-  z-index: 99999;
-  transition: none;
-  /* 移除所有交互效果 */
-  box-shadow: none;
-}
-
-/* 确保按钮在任何状态下都不改变外观 */
-.floating-demand-button:hover,
-.floating-demand-button:active,
-.floating-demand-button:focus {
-  background-color: #007bff;
-  transform: none;
-  box-shadow: none;
-  outline: none;
-}
-
-/* 模态框遮罩层 */
-.modal-overlay {
-  position: fixed;
+.construction-stripes {
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-/* 模态框内容 */
-.modal-content {
-  background: white;
-  border-radius: 12px;
-  padding: 32px;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  text-align: center;
+.stripe {
+  position: absolute;
+  width: 100%;
+  height: 20px;
+  background: repeating-linear-gradient(
+    90deg,
+    #000000 0px,
+    #000000 20px,
+    transparent 20px,
+    transparent 40px
+  );
+  opacity: 0.1;
+  animation: stripe-move 2s linear infinite;
 }
 
-/* 模态框主体 */
-.modal-body {
-  margin-bottom: 24px;
+.stripe-1 {
+  top: 0;
+  animation-delay: 0s;
 }
 
-.modal-body p {
-  font-size: 18px;
-  color: #343A40;
-  line-height: 1.6;
+.stripe-2 {
+  top: 25%;
+  animation-delay: 0.5s;
 }
 
-/* 模态框关闭按钮 */
-.modal-close-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 24px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.stripe-3 {
+  top: 50%;
+  animation-delay: 1s;
 }
 
-.modal-close-btn:hover {
-  background-color: #0056b3;
+.stripe-4 {
+  top: 75%;
+  animation-delay: 1.5s;
 }
 
-.modal-close-btn:active {
-  background-color: #004085;
+@keyframes stripe-move {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .construction-box {
+    padding: 40px 20px;
+  }
+
+  .construction-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 30px;
+  }
+
+  .icon-bar {
+    width: 6px;
+    height: 45px;
+  }
+
+  .icon-bar-1 {
+    left: 15px;
+  }
+
+  .icon-bar-2 {
+    left: 27px;
+  }
+
+  .icon-bar-3 {
+    left: 39px;
+  }
+
+  .construction-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  .construction-text {
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+
+  .stripe {
+    height: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .construction-box {
+    padding: 30px 15px;
+  }
+
+  .construction-title {
+    font-size: 20px;
+  }
+
+  .construction-text {
+    font-size: 13px;
+  }
 }
 </style>
+
