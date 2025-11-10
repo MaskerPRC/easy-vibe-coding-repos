@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -8,6 +9,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import os from 'os';
 import https from 'https';
+import axios from 'axios';
 
 const execPromise = promisify(exec);
 
@@ -589,8 +591,9 @@ app.get('/api/weather', async (req, res) => {
 // ==================== 搜索 API ====================
 
 /**
- * Bing 搜索 API (模拟)
- * 注意：这里使用模拟数据，实际使用需要 Bing Search API key
+ * Bing 搜索 API
+ * 使用真实的 Bing Web Search API 获取搜索结果
+ * 支持环境变量 BING_API_KEY，如果未设置则使用模拟数据
  */
 app.get('/api/search', async (req, res) => {
   try {
@@ -605,89 +608,151 @@ app.get('/api/search', async (req, res) => {
 
     console.log(`🔍 搜索关键词: ${q}`);
 
-    // 模拟Bing搜索结果（实际应该调用Bing Search API）
-    // 由于没有真实的Bing API key，这里生成模拟数据
-    const mockResults = [
-      {
-        title: `${q} - 百度百科`,
-        url: `https://baike.baidu.com/item/${encodeURIComponent(q)}`,
-        displayUrl: `baike.baidu.com/item/${q}`,
-        snippet: `${q}是一个多义词，可以指代多种不同的事物。本词条详细介绍了${q}的各种含义、历史背景、应用场景等相关信息...`,
-        priority: 95
-      },
-      {
-        title: `${q} - 维基百科，自由的百科全书`,
-        url: `https://zh.wikipedia.org/wiki/${encodeURIComponent(q)}`,
-        displayUrl: `zh.wikipedia.org/wiki/${q}`,
-        snippet: `${q}，在维基百科中有详细的介绍。维基百科是一个自由、开放的百科全书项目，由全球志愿者共同编辑...`,
-        priority: 92
-      },
-      {
-        title: `关于${q}的最新资讯 - 新浪新闻`,
-        url: `https://news.sina.com.cn/search?q=${encodeURIComponent(q)}`,
-        displayUrl: `news.sina.com.cn/search?q=${q}`,
-        snippet: `新浪新闻为您提供${q}的最新资讯、深度报道、独家评论等内容。第一时间了解${q}的最新动态...`,
-        priority: 88
-      },
-      {
-        title: `${q} - 知乎`,
-        url: `https://www.zhihu.com/search?q=${encodeURIComponent(q)}`,
-        displayUrl: `www.zhihu.com/search?q=${q}`,
-        snippet: `知乎，中文互联网高质量的问答社区。在这里可以找到关于${q}的各种问题和答案，了解不同的观点和见解...`,
-        priority: 85
-      },
-      {
-        title: `${q}相关视频_哔哩哔哩`,
-        url: `https://www.bilibili.com/search?keyword=${encodeURIComponent(q)}`,
-        displayUrl: `www.bilibili.com/search?keyword=${q}`,
-        snippet: `哔哩哔哩为您提供${q}相关的视频内容，包括教程、讲解、实践案例等。观看高质量的${q}视频内容...`,
-        priority: 82
-      },
-      {
-        title: `${q}的详细介绍和使用方法 - CSDN博客`,
-        url: `https://blog.csdn.net/search?q=${encodeURIComponent(q)}`,
-        displayUrl: `blog.csdn.net/search?q=${q}`,
-        snippet: `CSDN博客为您提供${q}的详细技术文档、使用教程、最佳实践等内容。帮助开发者快速掌握${q}的使用...`,
-        priority: 78
-      },
-      {
-        title: `${q} - 淘宝网`,
-        url: `https://s.taobao.com/search?q=${encodeURIComponent(q)}`,
-        displayUrl: `s.taobao.com/search?q=${q}`,
-        snippet: `淘宝网为您找到${q}相关的商品信息，提供丰富的${q}产品选择，价格实惠，质量保证...`,
-        priority: 75
-      },
-      {
-        title: `${q} - 京东商城`,
-        url: `https://search.jd.com/Search?keyword=${encodeURIComponent(q)}`,
-        displayUrl: `search.jd.com/Search?keyword=${q}`,
-        snippet: `京东商城为您提供${q}的正品行货，价格优惠，品质保证，配送快捷。在线购买${q}，享受优质服务...`,
-        priority: 72
-      },
-      {
-        title: `${q}的英文翻译 - 有道词典`,
-        url: `https://dict.youdao.com/search?q=${encodeURIComponent(q)}`,
-        displayUrl: `dict.youdao.com/search?q=${q}`,
-        snippet: `有道词典为您提供${q}的英文翻译、读音、例句等内容。帮助您更好地学习和使用${q}这个词汇...`,
-        priority: 68
-      },
-      {
-        title: `${q} - 豆瓣`,
-        url: `https://www.douban.com/search?q=${encodeURIComponent(q)}`,
-        displayUrl: `www.douban.com/search?q=${q}`,
-        snippet: `豆瓣为您提供${q}相关的书籍、电影、音乐等文化内容推荐。发现更多关于${q}的有趣内容...`,
-        priority: 65
-      }
-    ];
+    // Bing API 配置
+    const BING_API_KEY = process.env.BING_API_KEY;
+    const BING_ENDPOINT = 'https://api.bing.microsoft.com/v7.0/search';
 
-    // 按优先级倒序排序（从高到低）
-    mockResults.sort((a, b) => b.priority - a.priority);
+    let results = [];
+    let totalResults = 0;
+    let usedBingAPI = false;
+
+    // 如果有 Bing API Key，则调用真实的 Bing API
+    if (BING_API_KEY) {
+      try {
+        console.log('📡 调用 Bing Search API...');
+        const response = await axios.get(BING_ENDPOINT, {
+          params: {
+            q: q.trim(),
+            count: 20,
+            mkt: 'zh-CN',
+            safesearch: 'Moderate'
+          },
+          headers: {
+            'Ocp-Apim-Subscription-Key': BING_API_KEY
+          },
+          timeout: 5000
+        });
+
+        if (response.data && response.data.webPages && response.data.webPages.value) {
+          const bingResults = response.data.webPages.value;
+          totalResults = response.data.webPages.totalEstimatedMatches || bingResults.length;
+
+          // 转换 Bing 结果为我们的格式，并添加优先级
+          results = bingResults.map((item, index) => {
+            // 根据结果的排名计算优先级（排名越靠前，优先级越高）
+            // 第1名：100分，第2名：98分，第3名：96分，以此类推
+            const priority = Math.max(100 - (index * 2), 50);
+
+            return {
+              title: item.name || '无标题',
+              url: item.url || '#',
+              displayUrl: item.displayUrl || item.url || '#',
+              snippet: item.snippet || '暂无描述',
+              priority: priority,
+              dateLastCrawled: item.dateLastCrawled
+            };
+          });
+
+          // 按优先级倒序排序（从高到低）
+          results.sort((a, b) => b.priority - a.priority);
+          usedBingAPI = true;
+          console.log(`✅ Bing API 返回 ${results.length} 条结果`);
+        }
+      } catch (apiError) {
+        console.error('❌ Bing API 调用失败:', apiError.message);
+        console.log('⚠️ 降级使用模拟数据');
+      }
+    } else {
+      console.log('⚠️ 未配置 BING_API_KEY，使用模拟数据');
+    }
+
+    // 如果 Bing API 调用失败或未配置，使用模拟数据
+    if (results.length === 0) {
+      const mockResults = [
+        {
+          title: `${q} - 百度百科`,
+          url: `https://baike.baidu.com/item/${encodeURIComponent(q)}`,
+          displayUrl: `baike.baidu.com/item/${q}`,
+          snippet: `${q}是一个多义词，可以指代多种不同的事物。本词条详细介绍了${q}的各种含义、历史背景、应用场景等相关信息...`,
+          priority: 95
+        },
+        {
+          title: `${q} - 维基百科，自由的百科全书`,
+          url: `https://zh.wikipedia.org/wiki/${encodeURIComponent(q)}`,
+          displayUrl: `zh.wikipedia.org/wiki/${q}`,
+          snippet: `${q}，在维基百科中有详细的介绍。维基百科是一个自由、开放的百科全书项目，由全球志愿者共同编辑...`,
+          priority: 92
+        },
+        {
+          title: `关于${q}的最新资讯 - 新浪新闻`,
+          url: `https://news.sina.com.cn/search?q=${encodeURIComponent(q)}`,
+          displayUrl: `news.sina.com.cn/search?q=${q}`,
+          snippet: `新浪新闻为您提供${q}的最新资讯、深度报道、独家评论等内容。第一时间了解${q}的最新动态...`,
+          priority: 88
+        },
+        {
+          title: `${q} - 知乎`,
+          url: `https://www.zhihu.com/search?q=${encodeURIComponent(q)}`,
+          displayUrl: `www.zhihu.com/search?q=${q}`,
+          snippet: `知乎，中文互联网高质量的问答社区。在这里可以找到关于${q}的各种问题和答案，了解不同的观点和见解...`,
+          priority: 85
+        },
+        {
+          title: `${q}相关视频_哔哩哔哩`,
+          url: `https://www.bilibili.com/search?keyword=${encodeURIComponent(q)}`,
+          displayUrl: `www.bilibili.com/search?keyword=${q}`,
+          snippet: `哔哩哔哩为您提供${q}相关的视频内容，包括教程、讲解、实践案例等。观看高质量的${q}视频内容...`,
+          priority: 82
+        },
+        {
+          title: `${q}的详细介绍和使用方法 - CSDN博客`,
+          url: `https://blog.csdn.net/search?q=${encodeURIComponent(q)}`,
+          displayUrl: `blog.csdn.net/search?q=${q}`,
+          snippet: `CSDN博客为您提供${q}的详细技术文档、使用教程、最佳实践等内容。帮助开发者快速掌握${q}的使用...`,
+          priority: 78
+        },
+        {
+          title: `${q} - 淘宝网`,
+          url: `https://s.taobao.com/search?q=${encodeURIComponent(q)}`,
+          displayUrl: `s.taobao.com/search?q=${q}`,
+          snippet: `淘宝网为您找到${q}相关的商品信息，提供丰富的${q}产品选择，价格实惠，质量保证...`,
+          priority: 75
+        },
+        {
+          title: `${q} - 京东商城`,
+          url: `https://search.jd.com/Search?keyword=${encodeURIComponent(q)}`,
+          displayUrl: `search.jd.com/Search?keyword=${q}`,
+          snippet: `京东商城为您提供${q}的正品行货，价格优惠，品质保证，配送快捷。在线购买${q}，享受优质服务...`,
+          priority: 72
+        },
+        {
+          title: `${q}的英文翻译 - 有道词典`,
+          url: `https://dict.youdao.com/search?q=${encodeURIComponent(q)}`,
+          displayUrl: `dict.youdao.com/search?q=${q}`,
+          snippet: `有道词典为您提供${q}的英文翻译、读音、例句等内容。帮助您更好地学习和使用${q}这个词汇...`,
+          priority: 68
+        },
+        {
+          title: `${q} - 豆瓣`,
+          url: `https://www.douban.com/search?q=${encodeURIComponent(q)}`,
+          displayUrl: `www.douban.com/search?q=${q}`,
+          snippet: `豆瓣为您提供${q}相关的书籍、电影、音乐等文化内容推荐。发现更多关于${q}的有趣内容...`,
+          priority: 65
+        }
+      ];
+
+      // 按优先级倒序排序（从高到低）
+      mockResults.sort((a, b) => b.priority - a.priority);
+      results = mockResults;
+      totalResults = mockResults.length;
+    }
 
     res.json({
       success: true,
-      results: mockResults,
-      total: mockResults.length,
+      results: results,
+      total: totalResults,
       query: q,
+      source: usedBingAPI ? 'Bing API' : 'Mock Data',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
