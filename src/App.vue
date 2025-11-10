@@ -112,11 +112,11 @@ onMounted(async () => {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
+  font-family: 'Courier New', 'Fixedsys', 'Consolas', monospace;
+  -webkit-font-smoothing: none;
   -moz-osx-font-smoothing: grayscale;
+  background: #0000AA;
+  color: #FFFFFF;
 }
 
 .app-container {
@@ -124,27 +124,27 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #fff5f8;
+  background: #0000AA;
 }
 
-/* 导航栏样式 */
+/* 导航栏样式 - Windows 98 蓝屏风格 */
 .nav-bar {
-  background: linear-gradient(135deg, #ffc0e0 0%, #ffb3d9 100%);
+  background: #0000AA;
   padding: 15px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #ff69b4;
-  box-shadow: 0 4px 20px rgba(255, 105, 180, 0.2);
+  border-bottom: 2px solid #FFFFFF;
   z-index: 100;
 }
 
 .nav-title {
   font-size: 1.5em;
   font-weight: bold;
-  color: #d81b60;
+  color: #FFFFFF;
   text-shadow: none;
-  font-family: 'Courier New', monospace;
+  font-family: 'Courier New', 'Fixedsys', monospace;
+  letter-spacing: 2px;
 }
 
 .nav-buttons {
@@ -154,28 +154,29 @@ body {
 
 .nav-btn {
   padding: 10px 20px;
-  background: #ffe6f0;
-  border: 2px solid #ff99cc;
-  border-radius: 8px;
-  color: #d81b60;
+  background: #0000AA;
+  border: 2px solid #AAAAAA;
+  border-radius: 0;
+  color: #FFFFFF;
   font-size: 1em;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Courier New', monospace;
+  transition: all 0.1s ease;
+  font-family: 'Courier New', 'Fixedsys', monospace;
+  text-transform: uppercase;
 }
 
 .nav-btn:hover {
-  background: #ffd4e5;
-  border-color: #ff66b3;
-  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.3);
-  transform: translateY(-2px);
+  background: #0000CC;
+  border-color: #FFFFFF;
+  box-shadow: none;
+  transform: none;
 }
 
 .nav-btn.active {
-  background: #ffb3d9;
-  border-color: #ff1493;
-  box-shadow: 0 2px 10px rgba(255, 20, 147, 0.3);
+  background: #000088;
+  border-color: #FFFFFF;
+  box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
 /* 页面内容 */
@@ -183,6 +184,7 @@ body {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  background: #0000AA;
 }
 
 .page-content.fullscreen {
@@ -190,32 +192,33 @@ body {
   overflow: hidden;
 }
 
-/* 滚动条样式 */
+/* 滚动条样式 - 蓝屏风格 */
 .page-content::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
 }
 
 .page-content::-webkit-scrollbar-track {
-  background: #ffe6f0;
+  background: #000088;
 }
 
 .page-content::-webkit-scrollbar-thumb {
-  background: #ffb3d9;
-  border-radius: 5px;
+  background: #AAAAAA;
+  border-radius: 0;
+  border: 1px solid #FFFFFF;
 }
 
 .page-content::-webkit-scrollbar-thumb:hover {
-  background: #ff99cc;
+  background: #CCCCCC;
 }
 
-/* 源码显示区域 */
+/* 源码显示区域 - 蓝屏风格 */
 .source-display {
-  background: linear-gradient(135deg, #ffe6f0 0%, #fff0f5 100%);
+  background: #0000AA;
   margin: 15px 30px;
   padding: 15px;
-  border: 2px solid #ff99cc;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(255, 105, 180, 0.15);
+  border: 2px solid #FFFFFF;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .source-header {
@@ -224,38 +227,39 @@ body {
   align-items: center;
   margin-bottom: 10px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #ffb3d9;
+  border-bottom: 1px solid #AAAAAA;
 }
 
 .source-header h3 {
-  color: #d81b60;
-  font-family: 'Courier New', monospace;
+  color: #FFFFFF;
+  font-family: 'Courier New', 'Fixedsys', monospace;
   font-size: 1.2em;
   text-shadow: none;
+  letter-spacing: 1px;
 }
 
 .toggle-btn {
   padding: 8px 16px;
-  background: #ffe6f0;
-  border: 2px solid #ff99cc;
-  border-radius: 6px;
-  color: #d81b60;
+  background: #0000AA;
+  border: 2px solid #AAAAAA;
+  border-radius: 0;
+  color: #FFFFFF;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Courier New', monospace;
+  transition: all 0.1s ease;
+  font-family: 'Courier New', 'Fixedsys', monospace;
 }
 
 .toggle-btn:hover {
-  background: #ffd4e5;
-  border-color: #ff66b3;
-  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.2);
+  background: #0000CC;
+  border-color: #FFFFFF;
+  box-shadow: none;
 }
 
 .source-content {
-  background: #fff0f5;
-  border: 1px solid #ffb3d9;
-  border-radius: 6px;
+  background: #000088;
+  border: 1px solid #AAAAAA;
+  border-radius: 0;
   padding: 15px;
   max-height: 400px;
   overflow-y: auto;
@@ -264,45 +268,46 @@ body {
 
 .source-content pre {
   margin: 0;
-  color: #c2185b;
-  font-family: 'Courier New', monospace;
-  font-size: 0.85em;
+  color: #FFFFFF;
+  font-family: 'Courier New', 'Fixedsys', monospace;
+  font-size: 0.9em;
   line-height: 1.5;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
 
 .source-content code {
-  color: #c2185b;
+  color: #FFFFFF;
   text-shadow: none;
 }
 
 .source-error {
-  background: #ffe0e0;
-  border: 1px solid #ff9999;
-  border-radius: 6px;
+  background: #AA0000;
+  border: 1px solid #FFFFFF;
+  border-radius: 0;
   padding: 10px;
-  color: #cc0000;
-  font-family: 'Courier New', monospace;
+  color: #FFFFFF;
+  font-family: 'Courier New', 'Fixedsys', monospace;
   margin-top: 10px;
 }
 
 .source-content::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 .source-content::-webkit-scrollbar-track {
-  background: #ffe6f0;
+  background: #000066;
 }
 
 .source-content::-webkit-scrollbar-thumb {
-  background: #ffb3d9;
-  border-radius: 4px;
+  background: #AAAAAA;
+  border-radius: 0;
+  border: 1px solid #FFFFFF;
 }
 
 .source-content::-webkit-scrollbar-thumb:hover {
-  background: #ff99cc;
+  background: #CCCCCC;
 }
 
 /* 响应式设计 */
