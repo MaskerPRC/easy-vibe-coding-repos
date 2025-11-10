@@ -1,13 +1,13 @@
 <template>
-  <div class="baidu-page">
+  <div class="google-page">
     <header class="header">
       <div class="header-links">
-        <a href="https://www.baidu.com" target="_blank">关于</a>
-        <a href="https://www.baidu.com" target="_blank">商店</a>
+        <a href="https://about.google" target="_blank">关于</a>
+        <a href="https://store.google.com" target="_blank">商店</a>
       </div>
       <div class="header-right">
-        <a href="https://www.baidu.com" target="_blank">Gmail</a>
-        <a href="https://www.baidu.com" target="_blank">图片</a>
+        <a href="https://mail.google.com" target="_blank">Gmail</a>
+        <a href="https://images.google.com" target="_blank">图片</a>
         <button class="apps-btn">⋮⋮⋮</button>
         <button class="signin-btn">登录</button>
       </div>
@@ -15,8 +15,12 @@
 
     <main class="main-content">
       <div class="logo">
-        <span class="logo-bai">百</span>
-        <span class="logo-du">度</span>
+        <span class="logo-g">G</span>
+        <span class="logo-o1">o</span>
+        <span class="logo-o2">o</span>
+        <span class="logo-g2">g</span>
+        <span class="logo-l">l</span>
+        <span class="logo-e">e</span>
       </div>
 
       <div class="search-container">
@@ -40,13 +44,13 @@
         </div>
 
         <div class="search-buttons">
-          <button @click="handleSearch" class="search-btn">Baidu搜索</button>
-          <button @click="handleLucky" class="search-btn">手气不错</button>
+          <button @click="handleSearch" class="search-btn">Google 搜索</button>
+          <button @click="handleLucky" class="search-btn">I'm Feeling Lucky</button>
         </div>
       </div>
 
       <div class="language-offer">
-        Baidu提供: <a href="#">English</a>
+        Google 提供: <a href="#">English</a>
       </div>
     </main>
 
@@ -56,14 +60,14 @@
       </div>
       <div class="footer-bottom">
         <div class="footer-left">
-          <a href="https://www.baidu.com" target="_blank">广告</a>
-          <a href="https://www.baidu.com" target="_blank">商务</a>
-          <a href="https://www.baidu.com" target="_blank">Baidu的运作方式</a>
+          <a href="https://ads.google.com" target="_blank">广告</a>
+          <a href="https://www.google.com/services" target="_blank">商务</a>
+          <a href="https://www.google.com/search/howsearchworks" target="_blank">Google 的运作方式</a>
         </div>
         <div class="footer-right">
-          <a href="https://www.baidu.com" target="_blank">隐私权</a>
-          <a href="https://www.baidu.com" target="_blank">条款</a>
-          <a href="https://www.baidu.com" target="_blank">设置</a>
+          <a href="https://policies.google.com/privacy" target="_blank">隐私权</a>
+          <a href="https://policies.google.com/terms" target="_blank">条款</a>
+          <a href="https://www.google.com/preferences" target="_blank">设置</a>
         </div>
       </div>
     </footer>
@@ -81,15 +85,15 @@ const searchQuery = ref('');
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    // 实际上使用Baidu搜索
-    window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
+    // 实际上使用Google搜索
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery.value)}`, '_blank');
   }
 };
 
 const handleLucky = () => {
   if (searchQuery.value.trim()) {
-    // 手气不错也使用Baidu搜索
-    window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
+    // 手气不错也使用Google搜索
+    window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery.value)}`, '_blank');
   }
 };
 </script>
@@ -99,7 +103,7 @@ const handleLucky = () => {
   box-sizing: border-box;
 }
 
-.baidu-page {
+.google-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -203,12 +207,28 @@ const handleLucky = () => {
   filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
 }
 
-.logo-bai {
-  color: #2932E1;
+.logo-g {
+  color: #4285F4;
 }
 
-.logo-du {
-  color: #DE0F17;
+.logo-o1 {
+  color: #EA4335;
+}
+
+.logo-o2 {
+  color: #FBBC05;
+}
+
+.logo-g2 {
+  color: #4285F4;
+}
+
+.logo-l {
+  color: #34A853;
+}
+
+.logo-e {
+  color: #EA4335;
 }
 
 /* Search Container */
