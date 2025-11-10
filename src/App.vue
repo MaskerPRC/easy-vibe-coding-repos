@@ -95,6 +95,9 @@
 
     <!-- 桌宠组件 -->
     <DesktopPet />
+
+    <!-- 需求按钮 -->
+    <DemandButton />
   </div>
 </template>
 
@@ -102,6 +105,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import DesktopPet from './components/DesktopPet.vue';
+import DemandButton from './components/DemandButton.vue';
 
 const searchQuery = ref('');
 const platformInfo = ref(null);
