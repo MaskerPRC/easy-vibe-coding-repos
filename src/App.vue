@@ -1,10 +1,8 @@
 <template>
   <router-view />
-  <DesktopPet />
 </template>
 
 <script setup>
-import DesktopPet from './components/DesktopPet.vue';
 </script>
 
 <style>
@@ -15,11 +13,31 @@ import DesktopPet from './components/DesktopPet.vue';
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #app {
   min-height: 100vh;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #63408b 100%);
 }
 </style>
 
