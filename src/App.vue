@@ -47,6 +47,7 @@ import LOLAnalysis from './components/LOLAnalysis.vue';
 import LOLWorldChampionship from './components/LOLWorldChampionship.vue';
 import MathModel from './components/MathModel.vue';
 import Error502 from './components/Error502.vue';
+import Error592 from './components/Error592.vue';
 import HeroCarousel from './components/HeroCarousel.vue';
 import CatAsciiArt from './components/CatAsciiArt.vue';
 
@@ -66,7 +67,8 @@ const pages = [
   { name: 'fps', label: 'FPS游戏', component: FPSGame },
   { name: 'lol', label: 'LOL分析', component: LOLAnalysis },
   { name: 'math', label: '数学模型', component: MathModel },
-  { name: 'error502', label: '502错误', component: Error502 }
+  { name: 'error502', label: '502错误', component: Error502 },
+  { name: 'error592', label: '592错误', component: Error592 }
 ];
 
 // 当前组件
