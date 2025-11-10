@@ -40,13 +40,13 @@
         </div>
 
         <div class="search-buttons">
-          <button @click="handleSearch" class="search-btn">百度搜索</button>
+          <button @click="handleSearch" class="search-btn">Baidu搜索</button>
           <button @click="handleLucky" class="search-btn">手气不错</button>
         </div>
       </div>
 
       <div class="language-offer">
-        百度提供: <a href="#">English</a>
+        Baidu提供: <a href="#">English</a>
       </div>
     </main>
 
@@ -58,7 +58,7 @@
         <div class="footer-left">
           <a href="https://www.baidu.com" target="_blank">广告</a>
           <a href="https://www.baidu.com" target="_blank">商务</a>
-          <a href="https://www.baidu.com" target="_blank">百度的运作方式</a>
+          <a href="https://www.baidu.com" target="_blank">Baidu的运作方式</a>
         </div>
         <div class="footer-right">
           <a href="https://www.baidu.com" target="_blank">隐私权</a>
@@ -81,14 +81,14 @@ const searchQuery = ref('');
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    // 实际上使用百度搜索
+    // 实际上使用Baidu搜索
     window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
   }
 };
 
 const handleLucky = () => {
   if (searchQuery.value.trim()) {
-    // 手气不错也使用百度搜索
+    // 手气不错也使用Baidu搜索
     window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
   }
 };
