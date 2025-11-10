@@ -44,19 +44,21 @@ import XSSDemo from './components/XSSDemo.vue';
 import FPSGame from './components/FPSGame.vue';
 import DigitalCat from './components/DigitalCat.vue';
 import LOLAnalysis from './components/LOLAnalysis.vue';
+import LOLWorldChampionship from './components/LOLWorldChampionship.vue';
 import MathModel from './components/MathModel.vue';
 import Error502 from './components/Error502.vue';
 import HeroCarousel from './components/HeroCarousel.vue';
 import CatAsciiArt from './components/CatAsciiArt.vue';
 
 // 当前页面
-const currentPage = ref('xssdemo');
+const currentPage = ref('lolworlds');
 
 // 是否全屏模式（FPS游戏时）
 const isFullscreen = computed(() => currentPage.value === 'fps');
 
 // 页面列表
 const pages = [
+  { name: 'lolworlds', label: 'LOL世界赛', component: LOLWorldChampionship },
   { name: 'xssdemo', label: 'XSS靶场', component: XSSDemo },
   { name: 'digitalcat', label: '数码猫咪', component: DigitalCat },
   { name: 'catascii', label: '猫咪字符画', component: CatAsciiArt },

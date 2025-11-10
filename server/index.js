@@ -300,6 +300,211 @@ app.get('/api/lol/match-data', (req, res) => {
   res.json(matchData);
 });
 
+// 2025年英雄联盟全球总决赛数据接口
+app.get('/api/lol/worlds-2025', (req, res) => {
+  // 2025年世界赛冠军和赛程数据
+  const worldsData = {
+    success: true,
+    champion: {
+      name: 'T1',
+      region: 'LCK (韩国)',
+      members: [
+        { name: 'Zeus', realName: '최우제', role: '上单 (Top)' },
+        { name: 'Oner', realName: '문현준', role: '打野 (Jungle)' },
+        { name: 'Faker', realName: '이상혁', role: '中单 (Mid)' },
+        { name: 'Gumayusi', realName: '이민형', role: 'ADC (Bot)' },
+        { name: 'Keria', realName: '류민석', role: '辅助 (Support)' }
+      ]
+    },
+    schedule: [
+      // 入围赛
+      {
+        id: 1,
+        date: '2025-09-25',
+        time: '17:00 CST',
+        stage: '入围赛',
+        team1: 'PSG',
+        team2: 'R7',
+        score1: 3,
+        score2: 0,
+        location: '柏林 - 奔驰竞技场'
+      },
+      {
+        id: 2,
+        date: '2025-09-26',
+        time: '17:00 CST',
+        stage: '入围赛',
+        team1: 'VCS',
+        team2: 'LLA',
+        score1: 3,
+        score2: 1,
+        location: '柏林 - 奔驰竞技场'
+      },
+      {
+        id: 3,
+        date: '2025-09-27',
+        time: '17:00 CST',
+        stage: '入围赛',
+        team1: 'PSG',
+        team2: 'VCS',
+        score1: 3,
+        score2: 2,
+        location: '柏林 - 奔驰竞技场'
+      },
+      // 小组赛
+      {
+        id: 4,
+        date: '2025-10-01',
+        time: '17:00 CST',
+        stage: '小组赛 A组',
+        team1: 'T1',
+        team2: 'G2',
+        score1: 1,
+        score2: 0,
+        location: '柏林 - 奔驰竞技场'
+      },
+      {
+        id: 5,
+        date: '2025-10-02',
+        time: '17:00 CST',
+        stage: '小组赛 A组',
+        team1: 'BLG',
+        team2: 'TL',
+        score1: 1,
+        score2: 0,
+        location: '柏林 - 奔驰竞技场'
+      },
+      {
+        id: 6,
+        date: '2025-10-03',
+        time: '17:00 CST',
+        stage: '小组赛 B组',
+        team1: 'GEN',
+        team2: 'FNC',
+        score1: 1,
+        score2: 0,
+        location: '柏林 - 奔驰竞技场'
+      },
+      {
+        id: 7,
+        date: '2025-10-04',
+        time: '17:00 CST',
+        stage: '小组赛 B组',
+        team1: 'JDG',
+        team2: 'C9',
+        score1: 1,
+        score2: 0,
+        location: '柏林 - 奔驰竞技场'
+      },
+      {
+        id: 8,
+        date: '2025-10-05',
+        time: '17:00 CST',
+        stage: '小组赛 C组',
+        team1: 'WBG',
+        team2: 'DK',
+        score1: 0,
+        score2: 1,
+        location: '柏林 - 奔驰竞技场'
+      },
+      {
+        id: 9,
+        date: '2025-10-06',
+        time: '17:00 CST',
+        stage: '小组赛 D组',
+        team1: 'LNG',
+        team2: 'MAD',
+        score1: 1,
+        score2: 0,
+        location: '柏林 - 奔驰竞技场'
+      },
+      // 八强赛
+      {
+        id: 10,
+        date: '2025-10-17',
+        time: '19:00 CST',
+        stage: '八强赛',
+        team1: 'T1',
+        team2: 'DK',
+        score1: 3,
+        score2: 1,
+        location: '巴黎 - 天顶体育馆'
+      },
+      {
+        id: 11,
+        date: '2025-10-18',
+        time: '19:00 CST',
+        stage: '八强赛',
+        team1: 'BLG',
+        team2: 'GEN',
+        score1: 3,
+        score2: 2,
+        location: '巴黎 - 天顶体育馆'
+      },
+      {
+        id: 12,
+        date: '2025-10-19',
+        time: '19:00 CST',
+        stage: '八强赛',
+        team1: 'JDG',
+        team2: 'G2',
+        score1: 2,
+        score2: 3,
+        location: '巴黎 - 天顶体育馆'
+      },
+      {
+        id: 13,
+        date: '2025-10-20',
+        time: '19:00 CST',
+        stage: '八强赛',
+        team1: 'LNG',
+        team2: 'FNC',
+        score1: 3,
+        score2: 1,
+        location: '巴黎 - 天顶体育馆'
+      },
+      // 半决赛
+      {
+        id: 14,
+        date: '2025-10-26',
+        time: '20:00 CST',
+        stage: '半决赛',
+        team1: 'T1',
+        team2: 'BLG',
+        score1: 3,
+        score2: 1,
+        location: '伦敦 - O2体育馆'
+      },
+      {
+        id: 15,
+        date: '2025-10-27',
+        time: '20:00 CST',
+        stage: '半决赛',
+        team1: 'G2',
+        team2: 'LNG',
+        score1: 2,
+        score2: 3,
+        location: '伦敦 - O2体育馆'
+      },
+      // 决赛
+      {
+        id: 16,
+        date: '2025-11-02',
+        time: '21:00 CST',
+        stage: '决赛',
+        team1: 'T1',
+        team2: 'LNG',
+        score1: 3,
+        score2: 2,
+        location: '伦敦 - O2体育馆'
+      }
+    ],
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(worldsData);
+});
+
 // 数码猫咪接口
 
 // 初始化猫咪数据
