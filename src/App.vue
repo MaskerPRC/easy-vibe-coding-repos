@@ -3,7 +3,7 @@
     <div class="container">
       <!-- 页面标题 -->
       <header class="page-header">
-        <h1 class="main-title">Hello, World!</h1>
+        <h1 class="main-title">你好，世界！</h1>
         <p class="subtitle">探索世界各地的问候方式</p>
       </header>
 
@@ -24,7 +24,7 @@
 
       <!-- 页脚 -->
       <footer class="page-footer">
-        <p>&copy; 2025 Hello World. 让世界更加互联互通</p>
+        <p>&copy; 2025 你好，世界！让世界更加互联互通</p>
       </footer>
     </div>
   </div>
