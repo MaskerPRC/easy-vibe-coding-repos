@@ -848,6 +848,22 @@ app.get('/api/math/questions', (req, res) => {
   });
 });
 
+// 重启服务器接口
+app.post('/api/restart', (req, res) => {
+  console.log('收到重启服务器请求');
+  res.json({
+    success: true,
+    message: '服务器正在重启...',
+    timestamp: new Date().toISOString()
+  });
+
+  // 延迟1秒后退出进程，让响应有时间发送给客户端
+  setTimeout(() => {
+    console.log('服务器即将重启...');
+    process.exit(0);
+  }, 1000);
+});
+
 // 结婚纪念帖接口
 
 // 初始化留言数据

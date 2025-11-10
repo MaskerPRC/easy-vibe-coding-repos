@@ -12,6 +12,13 @@
         >
           {{ page.label }}
         </button>
+        <button
+          @click="restartServer"
+          class="nav-btn restart-btn"
+          :disabled="isRestarting"
+        >
+          {{ isRestarting ? '重启中...' : '重启服务器' }}
+        </button>
       </div>
     </nav>
 
@@ -86,6 +93,50 @@ const sourceCode = ref('');
 const sourceUrl = ref('');
 const sourceError = ref('');
 const showSource = ref(true);
+
+// 重启服务器状态
+const isRestarting = ref(false);
+
+// 重启服务器方法
+const restartServer = async () => {
+  if (isRestarting.value) return;
+
+  const confirmRestart = confirm('确定要重启服务器吗？');
+  if (!confirmRestart) return;
+
+  isRestarting.value = true;
+
+  try {
+    console.log('正在请求重启服务器...');
+    const response = await fetch('/api/restart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert('服务器正在重启，页面将在3秒后自动刷新');
+
+      // 3秒后刷新页面
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    } else {
+      alert('重启失败: ' + (data.message || '未知错误'));
+      isRestarting.value = false;
+    }
+  } catch (error) {
+    console.error('重启请求失败:', error);
+    // 如果请求失败，可能是服务器已经开始重启
+    alert('服务器正在重启，页面将在3秒后自动刷新');
+    setTimeout(() => {
+      window.location.reload();
+    }, 3000);
+  }
+};
 
 // 页面加载时自动获取源码
 onMounted(async () => {
@@ -189,6 +240,25 @@ body {
   background: #000088;
   border-color: #FFFFFF;
   box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* 重启按钮特殊样式 */
+.restart-btn {
+  background: #AA0000;
+  border-color: #FFFFFF;
+  margin-left: 10px;
+}
+
+.restart-btn:hover:not(:disabled) {
+  background: #CC0000;
+  border-color: #FFFF00;
+}
+
+.restart-btn:disabled {
+  background: #880000;
+  border-color: #888888;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* 页面内容 */
