@@ -1,339 +1,258 @@
 <template>
   <div class="app">
-    <div class="timer-container">
-      <div class="timer-box">
-        <!-- 计时器显示 -->
-        <div class="timer-display">{{ formattedTime }}</div>
+    <div class="container">
+      <!-- 页面标题 -->
+      <header class="page-header">
+        <h1 class="main-title">Hello, World!</h1>
+        <p class="subtitle">探索世界各地的问候方式</p>
+      </header>
 
-        <!-- 开始时间提示 -->
-        <div class="timer-info" v-if="startTime">
-          开始时间: {{ formatStartTime }}
-        </div>
-
-        <!-- 操作按钮 -->
-        <div class="button-group">
-          <button
-            v-if="!isRunning"
-            @click="startTimer"
-            class="btn btn-start"
-            :disabled="loading"
-          >
-            {{ startTime ? '继续' : '开始' }}
-          </button>
-          <button
-            v-if="isRunning"
-            @click="pauseTimer"
-            class="btn btn-pause"
-            :disabled="loading"
-          >
-            暂停
-          </button>
-          <button
-            @click="resetTimer"
-            class="btn btn-reset"
-            :disabled="loading"
-          >
-            重置
-          </button>
+      <!-- 语言卡片网格 -->
+      <div class="cards-grid">
+        <div
+          v-for="(greeting, index) in greetings"
+          :key="index"
+          class="greeting-card"
+        >
+          <div class="language-name">{{ greeting.language }}</div>
+          <div class="greeting-text">{{ greeting.hello }}</div>
+          <div class="pronunciation" v-if="greeting.pronunciation">
+            {{ greeting.pronunciation }}
+          </div>
         </div>
       </div>
+
+      <!-- 页脚 -->
+      <footer class="page-footer">
+        <p>&copy; 2025 Hello World. 让世界更加互联互通</p>
+      </footer>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import axios from 'axios';
+import { ref } from 'vue'
 
-// 状态
-const isRunning = ref(false);
-const startTime = ref(null);
-const elapsedTime = ref(0);
-const loading = ref(false);
-let intervalId = null;
-
-// 格式化时间显示（HH:MM:SS）
-const formattedTime = computed(() => {
-  const totalSeconds = Math.floor(elapsedTime.value / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-});
-
-// 格式化开始时间
-const formatStartTime = computed(() => {
-  if (!startTime.value) return '';
-  const date = new Date(startTime.value);
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  });
-});
-
-// 获取计时器状态
-const fetchStatus = async () => {
-  try {
-    const response = await axios.get('/api/timer/status');
-    isRunning.value = response.data.isRunning;
-    startTime.value = response.data.startTime;
-    elapsedTime.value = response.data.elapsedTime;
-  } catch (error) {
-    console.error('获取状态失败:', error);
-  }
-};
-
-// 开始计时
-const startTimer = async () => {
-  loading.value = true;
-  try {
-    await axios.post('/api/timer/start');
-    await fetchStatus();
-    startInterval();
-  } catch (error) {
-    console.error('开始计时失败:', error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 暂停计时
-const pauseTimer = async () => {
-  loading.value = true;
-  try {
-    await axios.post('/api/timer/pause');
-    await fetchStatus();
-    stopInterval();
-  } catch (error) {
-    console.error('暂停计时失败:', error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 重置计时
-const resetTimer = async () => {
-  loading.value = true;
-  try {
-    await axios.post('/api/timer/reset');
-    await fetchStatus();
-    stopInterval();
-  } catch (error) {
-    console.error('重置计时失败:', error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 启动定时更新
-const startInterval = () => {
-  if (intervalId) return;
-  intervalId = setInterval(() => {
-    fetchStatus();
-  }, 100); // 每100毫秒更新一次
-};
-
-// 停止定时更新
-const stopInterval = () => {
-  if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = null;
-  }
-};
-
-// 组件挂载时获取初始状态
-onMounted(async () => {
-  await fetchStatus();
-  if (isRunning.value) {
-    startInterval();
-  }
-});
-
-// 组件卸载时清理定时器
-onUnmounted(() => {
-  stopInterval();
-});
+// 万国语言数据（存储在内存中）
+const greetings = ref([
+  { language: '中文', hello: '你好', pronunciation: 'Nǐ hǎo' },
+  { language: 'English', hello: 'Hello', pronunciation: 'hə-ˈlō' },
+  { language: '日本語', hello: 'こんにちは', pronunciation: 'Konnichiwa' },
+  { language: '한국어', hello: '안녕하세요', pronunciation: 'Annyeonghaseyo' },
+  { language: 'Español', hello: 'Hola', pronunciation: 'OH-lah' },
+  { language: 'Français', hello: 'Bonjour', pronunciation: 'bohn-ZHOOR' },
+  { language: 'Deutsch', hello: 'Guten Tag', pronunciation: 'GOO-ten tahk' },
+  { language: 'Italiano', hello: 'Ciao', pronunciation: 'chow' },
+  { language: 'Português', hello: 'Olá', pronunciation: 'oh-LAH' },
+  { language: 'Русский', hello: 'Здравствуйте', pronunciation: 'ZDRAH-stvooy-tye' },
+  { language: 'العربية', hello: 'مرحبا', pronunciation: 'Marhaba' },
+  { language: 'हिन्दी', hello: 'नमस्ते', pronunciation: 'Namaste' },
+  { language: 'Türkçe', hello: 'Merhaba', pronunciation: 'mer-ha-BAH' },
+  { language: 'Nederlands', hello: 'Hallo', pronunciation: 'HAH-loh' },
+  { language: 'Svenska', hello: 'Hej', pronunciation: 'hey' },
+  { language: 'Polski', hello: 'Cześć', pronunciation: 'cheshch' },
+  { language: 'Ελληνικά', hello: 'Γεια σας', pronunciation: 'YAH-sas' },
+  { language: 'עברית', hello: 'שלום', pronunciation: 'Shalom' },
+  { language: 'ไทย', hello: 'สวัสดี', pronunciation: 'Sawatdee' },
+  { language: 'Tiếng Việt', hello: 'Xin chào', pronunciation: 'sin chow' },
+  { language: 'Bahasa Indonesia', hello: 'Halo', pronunciation: 'HAH-loh' },
+  { language: 'Tagalog', hello: 'Kamusta', pronunciation: 'kah-moos-TAH' },
+  { language: 'Kiswahili', hello: 'Jambo', pronunciation: 'JAHM-boh' },
+  { language: 'Suomi', hello: 'Hei', pronunciation: 'hay' }
+])
 </script>
 
 <style scoped>
-/* 导入字体 */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* 主容器 */
 .app {
   min-height: 100vh;
-  background: #F5F5F5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  font-family: 'Roboto', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #F8F9FA;
+  padding: 20px;
+  font-family: "Noto Sans SC", "思源黑体", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 }
 
-.timer-container {
-  width: 100%;
-  max-width: 500px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 页面标题区 */
+.page-header {
   text-align: center;
+  margin-bottom: 48px;
+  padding-top: 40px;
 }
 
-.timer-box {
-  background: #FFFFFF;
-  padding: 48px 32px;
-  border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-/* 计时器显示 */
-.timer-display {
-  font-size: 64px;
+.main-title {
+  font-size: 48px;
   font-weight: 700;
-  color: #4CAF50;
-  margin-bottom: 24px;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.05em;
-  font-family: 'Roboto', monospace;
+  color: #007BFF;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
 }
 
-/* 开始时间提示 */
-.timer-info {
-  font-size: 14px;
-  color: #666666;
-  margin-bottom: 32px;
+.subtitle {
+  font-size: 18px;
+  color: #6C757D;
   font-weight: 400;
 }
 
-/* 按钮组 */
-.button-group {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  flex-wrap: wrap;
+/* 卡片网格布局 */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 60px;
 }
 
-/* 按钮通用样式 */
-.btn {
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
-  border: none;
-  border-radius: 6px;
+/* 语言卡片 */
+.greeting-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Roboto', sans-serif;
-  min-width: 100px;
+  border: 2px solid transparent;
 }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.greeting-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 123, 255, 0.2);
+  border-color: #007BFF;
 }
 
-/* 开始按钮 */
-.btn-start {
-  background: #4CAF50;
-  color: #FFFFFF;
+/* 语言名称 */
+.language-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #007BFF;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
 }
 
-.btn-start:hover:not(:disabled) {
-  background: #45a049;
-  transform: translateY(-1px);
-  box-shadow: 0px 4px 8px rgba(76, 175, 80, 0.3);
+/* 问候语文字 */
+.greeting-text {
+  font-size: 32px;
+  font-weight: 700;
+  color: #343A40;
+  margin-bottom: 12px;
+  line-height: 1.4;
 }
 
-.btn-start:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0px 2px 4px rgba(76, 175, 80, 0.3);
+/* 发音 */
+.pronunciation {
+  font-size: 14px;
+  color: #6C757D;
+  font-style: italic;
+  margin-top: 8px;
 }
 
-/* 暂停按钮 */
-.btn-pause {
-  background: #FFC107;
-  color: #333333;
+/* 页脚 */
+.page-footer {
+  text-align: center;
+  padding: 32px 20px;
+  color: #6C757D;
+  font-size: 14px;
+  border-top: 1px solid #DEE2E6;
+  margin-top: 40px;
 }
 
-.btn-pause:hover:not(:disabled) {
-  background: #ffb300;
-  transform: translateY(-1px);
-  box-shadow: 0px 4px 8px rgba(255, 193, 7, 0.3);
-}
-
-.btn-pause:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0px 2px 4px rgba(255, 193, 7, 0.3);
-}
-
-/* 重置按钮 */
-.btn-reset {
-  background: #E0E0E0;
-  color: #333333;
-}
-
-.btn-reset:hover:not(:disabled) {
-  background: #d5d5d5;
-  transform: translateY(-1px);
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-reset:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* 响应式设计 */
+/* 平板适配 */
 @media (max-width: 768px) {
-  .timer-box {
-    padding: 40px 24px;
+  .main-title {
+    font-size: 36px;
   }
 
-  .timer-display {
-    font-size: 56px;
+  .subtitle {
+    font-size: 16px;
   }
 
-  .btn {
-    padding: 10px 20px;
-    font-size: 15px;
-    min-width: 90px;
+  .cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .greeting-card {
+    padding: 24px 20px;
+  }
+
+  .greeting-text {
+    font-size: 28px;
+  }
+
+  .language-name {
+    font-size: 16px;
   }
 }
 
+/* 手机适配 */
 @media (max-width: 480px) {
   .app {
-    padding: 16px;
+    padding: 15px;
   }
 
-  .timer-box {
-    padding: 32px 20px;
+  .page-header {
+    margin-bottom: 32px;
+    padding-top: 20px;
   }
 
-  .timer-display {
-    font-size: 48px;
-    margin-bottom: 20px;
+  .main-title {
+    font-size: 28px;
+    margin-bottom: 12px;
   }
 
-  .timer-info {
-    font-size: 13px;
-    margin-bottom: 24px;
-  }
-
-  .button-group {
-    gap: 12px;
-  }
-
-  .btn {
-    padding: 10px 18px;
+  .subtitle {
     font-size: 14px;
-    min-width: 80px;
   }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .greeting-card {
+    padding: 20px 16px;
+  }
+
+  .greeting-text {
+    font-size: 24px;
+  }
+
+  .language-name {
+    font-size: 15px;
+  }
+
+  .pronunciation {
+    font-size: 13px;
+  }
+
+  .page-footer {
+    font-size: 12px;
+    padding: 24px 15px;
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.greeting-card {
+  animation: fadeIn 0.5s ease-out;
 }
 </style>
