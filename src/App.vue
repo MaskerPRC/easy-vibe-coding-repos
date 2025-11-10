@@ -14,7 +14,12 @@
       </div>
     </header>
 
-    <main class="main-content">
+    <div class="page-body">
+      <aside class="sidebar">
+        <FileExplorer />
+      </aside>
+
+      <main class="main-content">
       <div class="logo">360搜索</div>
 
       <div class="search-container">
@@ -100,7 +105,8 @@
       <div class="language-offer">
         360搜索 - 安全、精准、可信赖
       </div>
-    </main>
+      </main>
+    </div>
 
     <footer class="footer">
       <div class="footer-top">
@@ -130,6 +136,7 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import DesktopPet from './components/DesktopPet.vue';
 import UziChampion from './components/UziChampion.vue';
+import FileExplorer from './components/FileExplorer.vue';
 
 const searchQuery = ref('');
 const platformInfo = ref(null);
@@ -207,6 +214,22 @@ onMounted(() => {
   color: black;
 }
 
+.page-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 250px;
+  min-width: 250px;
+  max-width: 250px;
+  height: calc(100vh - 51px);
+  overflow-y: auto;
+  background: white;
+  border-right: 1px solid black;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -254,6 +277,8 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overflow-y: auto;
+  height: calc(100vh - 51px);
 }
 
 .logo {
@@ -493,6 +518,22 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
+  .page-body {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
+    height: 200px;
+    border-right: none;
+    border-bottom: 1px solid black;
+  }
+
+  .main-content {
+    height: auto;
+  }
+
   .logo {
     font-size: 40px;
   }

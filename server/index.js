@@ -220,6 +220,127 @@ app.get('/api/ping', async (req, res) => {
   }
 });
 
+// 获取文件树
+app.get('/api/filetree', async (req, res) => {
+  try {
+    // 获取工作目录（当前项目根目录）
+    const workingDir = path.resolve(__dirname, '..');
+    console.log('获取文件树，工作目录:', workingDir);
+
+    // 尝试使用 tree 命令，如果不存在则使用 find 命令
+    let fileTreeCommand;
+    const platform = os.platform();
+
+    if (platform === 'win32') {
+      // Windows 系统使用 tree 命令
+      fileTreeCommand = `tree /F /A "${workingDir}"`;
+    } else {
+      // Linux/Mac 系统，尝试使用 tree 命令，如果失败则使用 find
+      try {
+        await execPromise('which tree');
+        fileTreeCommand = `tree -a -I 'node_modules|.git' "${workingDir}"`;
+      } catch {
+        // tree 命令不存在，使用 find 命令
+        fileTreeCommand = `find "${workingDir}" -not -path "*/node_modules/*" -not -path "*/.git/*" | head -n 1000`;
+      }
+    }
+
+    console.log('执行文件树命令:', fileTreeCommand);
+    const { stdout, stderr } = await execPromise(fileTreeCommand, { maxBuffer: 1024 * 1024 * 10 });
+
+    // 将输出转换为树形结构
+    const fileTree = buildFileTree(workingDir, stdout);
+
+    res.json({
+      success: true,
+      data: {
+        tree: fileTree,
+        rawOutput: stdout,
+        workingDir: workingDir,
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('获取文件树失败:', error);
+    res.json({
+      success: false,
+      message: '获取文件树失败: ' + error.message,
+      data: {
+        error: error.stderr || error.message,
+        timestamp: new Date().toISOString()
+      }
+    });
+  }
+});
+
+// 构建文件树结构的辅助函数
+function buildFileTree(rootDir, output) {
+  try {
+    const lines = output.split('\n').filter(line => line.trim());
+    const tree = {
+      name: path.basename(rootDir),
+      path: rootDir,
+      type: 'directory',
+      children: []
+    };
+
+    // 读取目录内容
+    function readDirRecursive(dirPath, maxDepth = 3, currentDepth = 0) {
+      if (currentDepth >= maxDepth) return null;
+
+      try {
+        const entries = require('fs').readdirSync(dirPath, { withFileTypes: true });
+        const children = [];
+
+        for (const entry of entries) {
+          // 忽略 node_modules 和 .git
+          if (entry.name === 'node_modules' || entry.name === '.git') {
+            continue;
+          }
+
+          const fullPath = path.join(dirPath, entry.name);
+          const node = {
+            name: entry.name,
+            path: fullPath,
+            type: entry.isDirectory() ? 'directory' : 'file'
+          };
+
+          if (entry.isDirectory()) {
+            const subChildren = readDirRecursive(fullPath, maxDepth, currentDepth + 1);
+            if (subChildren) {
+              node.children = subChildren;
+            }
+          }
+
+          children.push(node);
+        }
+
+        return children.sort((a, b) => {
+          // 目录排在前面
+          if (a.type === 'directory' && b.type === 'file') return -1;
+          if (a.type === 'file' && b.type === 'directory') return 1;
+          return a.name.localeCompare(b.name);
+        });
+      } catch (error) {
+        console.error('读取目录失败:', dirPath, error);
+        return null;
+      }
+    }
+
+    tree.children = readDirRecursive(rootDir);
+    return tree;
+  } catch (error) {
+    console.error('构建文件树失败:', error);
+    return {
+      name: path.basename(rootDir),
+      path: rootDir,
+      type: 'directory',
+      children: [],
+      error: error.message
+    };
+  }
+}
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);
