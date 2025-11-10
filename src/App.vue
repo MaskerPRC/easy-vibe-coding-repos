@@ -121,7 +121,6 @@
     </footer>
 
     <DesktopPet />
-    <DemandButton />
     <UziChampion :show="showUziChampion" @close="showUziChampion = false" />
   </div>
 </template>
@@ -130,7 +129,6 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import DesktopPet from './components/DesktopPet.vue';
-import DemandButton from './components/DemandButton.vue';
 import UziChampion from './components/UziChampion.vue';
 
 const searchQuery = ref('');
