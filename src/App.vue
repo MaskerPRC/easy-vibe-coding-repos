@@ -19,6 +19,12 @@
             :class="{ active: currentView === 'detector' }">
             📊 项目检测
           </button>
+          <button
+            @click="currentView = 'birthday'"
+            class="tab-btn"
+            :class="{ active: currentView === 'birthday' }">
+            🎂 生日快乐
+          </button>
         </div>
       </div>
       <div class="header-right">
@@ -150,6 +156,11 @@
     <div class="detector-view" v-show="currentView === 'detector'">
       <ProjectDetector />
     </div>
+
+    <!-- 生日快乐视图 -->
+    <div class="birthday-view" v-show="currentView === 'birthday'">
+      <BirthdayWish />
+    </div>
   </div>
 </template>
 
@@ -157,9 +168,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import jspspy from './utils/jspspy.js';
 import ProjectDetector from './components/ProjectDetector.vue';
+import BirthdayWish from './components/BirthdayWish.vue';
 
 // 视图状态
-const currentView = ref('monitor'); // 'monitor' 或 'detector'
+const currentView = ref('monitor'); // 'monitor', 'detector', 或 'birthday'
 
 // 状态
 const hooks = ref({});
@@ -920,6 +932,13 @@ input:checked + .slider:before {
 
 /* Detector View */
 .detector-view {
+  width: 100%;
+  height: calc(100vh - 150px);
+  overflow: hidden;
+}
+
+/* Birthday View */
+.birthday-view {
   width: 100%;
   height: calc(100vh - 150px);
   overflow: hidden;
