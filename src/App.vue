@@ -29,11 +29,19 @@
       >
         💬 聊天室
       </button>
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'shadow' }"
+        @click="currentTab = 'shadow'"
+      >
+        🔐 Shadow文件
+      </button>
     </nav>
 
     <main class="app-body">
       <ScreenCapture v-if="currentTab === 'screen'" />
       <ChatRoom v-if="currentTab === 'chat'" />
+      <ShadowViewer v-if="currentTab === 'shadow'" />
     </main>
 
     <footer class="app-footer">
@@ -52,6 +60,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import ScreenCapture from './components/ScreenCapture.vue';
 import ChatRoom from './components/ChatRoom.vue';
+import ShadowViewer from './components/ShadowViewer.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);

