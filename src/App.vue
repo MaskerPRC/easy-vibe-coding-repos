@@ -1,16 +1,16 @@
 <template>
   <div class="screen-share-app">
-    <!-- 刘亦菲照片展示区域 -->
+    <!-- 蔡徐坤照片展示区域 -->
     <div class="hero-section">
       <div class="photo-container">
         <img
-          src="https://img2.baidu.com/it/u=2778571465,3409239746&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=750"
-          alt="刘亦菲"
+          src="https://img1.baidu.com/it/u=3823064048,3738063826&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=667"
+          alt="蔡徐坤"
           class="hero-photo"
         />
         <div class="photo-caption">
-          <h2>刘亦菲</h2>
-          <p>中国著名女演员</p>
+          <h2>蔡徐坤</h2>
+          <p>中国偶像歌手、演员</p>
         </div>
       </div>
     </div>
@@ -153,7 +153,7 @@ onUnmounted(() => {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
-/* 刘亦菲照片展示区域 */
+/* 蔡徐坤照片展示区域 */
 .hero-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 40px 20px;
