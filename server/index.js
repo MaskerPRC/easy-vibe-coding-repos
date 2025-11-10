@@ -848,6 +848,84 @@ app.get('/api/math/questions', (req, res) => {
   });
 });
 
+// 结婚纪念帖接口
+
+// 初始化留言数据
+let weddingMessages = [
+  {
+    id: 1,
+    name: '张三',
+    content: '祝新婚快乐，白头偕老！',
+    timestamp: Date.now() - 3600000 // 1小时前
+  },
+  {
+    id: 2,
+    name: '李四',
+    content: '愿你们的爱情永远甜蜜，幸福美满！',
+    timestamp: Date.now() - 7200000 // 2小时前
+  },
+  {
+    id: 3,
+    name: '王五',
+    content: '祝福这对新人，百年好合，早生贵子！',
+    timestamp: Date.now() - 10800000 // 3小时前
+  }
+];
+let nextMessageId = 4;
+
+// 获取留言列表
+app.get('/api/wedding/messages', (req, res) => {
+  res.json({
+    success: true,
+    messages: weddingMessages.sort((a, b) => b.timestamp - a.timestamp), // 按时间倒序
+    timestamp: new Date().toISOString()
+  });
+});
+
+// 提交留言
+app.post('/api/wedding/messages', (req, res) => {
+  const { name, content } = req.body;
+
+  // 验证输入
+  if (!name || !content) {
+    return res.status(400).json({
+      success: false,
+      message: '姓名和内容不能为空'
+    });
+  }
+
+  if (name.length > 20) {
+    return res.status(400).json({
+      success: false,
+      message: '姓名长度不能超过20个字符'
+    });
+  }
+
+  if (content.length > 200) {
+    return res.status(400).json({
+      success: false,
+      message: '留言内容不能超过200个字符'
+    });
+  }
+
+  // 创建新留言
+  const newMessage = {
+    id: nextMessageId++,
+    name: name.trim(),
+    content: content.trim(),
+    timestamp: Date.now()
+  };
+
+  weddingMessages.push(newMessage);
+
+  res.json({
+    success: true,
+    message: '留言提交成功',
+    messages: weddingMessages.sort((a, b) => b.timestamp - a.timestamp),
+    timestamp: new Date().toISOString()
+  });
+});
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);

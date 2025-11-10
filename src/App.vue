@@ -51,15 +51,17 @@ import Error502 from './components/Error502.vue';
 import Error592 from './components/Error592.vue';
 import HeroCarousel from './components/HeroCarousel.vue';
 import CatAsciiArt from './components/CatAsciiArt.vue';
+import WeddingMemorial from './components/WeddingMemorial.vue';
 
 // 当前页面
-const currentPage = ref('lolworlds');
+const currentPage = ref('wedding');
 
 // 是否全屏模式（FPS游戏时）
 const isFullscreen = computed(() => currentPage.value === 'fps');
 
 // 页面列表
 const pages = [
+  { name: 'wedding', label: '结婚纪念帖', component: WeddingMemorial },
   { name: 'mathquestions', label: '小学数学题', component: MathQuestions },
   { name: 'lolworlds', label: 'LOL世界赛', component: LOLWorldChampionship },
   { name: 'xssdemo', label: 'XSS靶场', component: XSSDemo },
