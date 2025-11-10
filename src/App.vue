@@ -2,25 +2,21 @@
   <div class="google-page">
     <header class="header">
       <div class="header-links">
-        <a href="https://about.google" target="_blank">关于</a>
-        <a href="https://store.google.com" target="_blank">商店</a>
+        <a href="https://www.360.cn" target="_blank">360首页</a>
+        <a href="https://www.360.cn/about/" target="_blank">关于360</a>
       </div>
       <div class="header-right">
-        <a href="https://mail.google.com" target="_blank">Gmail</a>
-        <a href="https://images.google.com" target="_blank">图片</a>
-        <button class="apps-btn">⋮⋮⋮</button>
+        <a href="https://mail.360.cn" target="_blank">邮箱</a>
+        <a href="https://image.so.com" target="_blank">图片</a>
+        <a href="https://www.so.com/map/" target="_blank">地图</a>
         <button class="signin-btn">登录</button>
       </div>
     </header>
 
     <main class="main-content">
       <div class="logo">
-        <span class="logo-g">G</span>
-        <span class="logo-o1">o</span>
-        <span class="logo-o2">o</span>
-        <span class="logo-g2">g</span>
-        <span class="logo-l">l</span>
-        <span class="logo-e">e</span>
+        <span class="logo-360">360</span>
+        <span class="logo-search">搜索</span>
       </div>
 
       <div class="search-container">
@@ -44,30 +40,29 @@
         </div>
 
         <div class="search-buttons">
-          <button @click="handleSearch" class="search-btn">Google 搜索</button>
-          <button @click="handleLucky" class="search-btn">I'm Feeling Lucky</button>
+          <button @click="handleSearch" class="search-btn">搜索一下</button>
         </div>
       </div>
 
       <div class="language-offer">
-        Google 提供: <a href="#">English</a>
+        360搜索 - 安全、精准、可信赖
       </div>
     </main>
 
     <footer class="footer">
       <div class="footer-top">
-        中国
+        北京奇虎科技有限公司
       </div>
       <div class="footer-bottom">
         <div class="footer-left">
-          <a href="https://ads.google.com" target="_blank">广告</a>
-          <a href="https://www.google.com/services" target="_blank">商务</a>
-          <a href="https://www.google.com/search/howsearchworks" target="_blank">Google 的运作方式</a>
+          <a href="https://www.360.cn" target="_blank">关于360</a>
+          <a href="https://www.360.cn/about/contactus.html" target="_blank">联系我们</a>
+          <a href="https://www.so.com/help.html" target="_blank">帮助中心</a>
         </div>
         <div class="footer-right">
-          <a href="https://policies.google.com/privacy" target="_blank">隐私权</a>
-          <a href="https://policies.google.com/terms" target="_blank">条款</a>
-          <a href="https://www.google.com/preferences" target="_blank">设置</a>
+          <a href="https://www.360.cn/xuzhi/" target="_blank">免责声明</a>
+          <a href="https://www.360.cn/privacy/" target="_blank">隐私保护</a>
+          <a href="https://www.so.com/s?q=意见反馈" target="_blank">意见反馈</a>
         </div>
       </div>
     </footer>
@@ -85,15 +80,8 @@ const searchQuery = ref('');
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    // 实际上使用Google搜索
-    window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery.value)}`, '_blank');
-  }
-};
-
-const handleLucky = () => {
-  if (searchQuery.value.trim()) {
-    // 手气不错也使用Google搜索
-    window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery.value)}`, '_blank');
+    // 使用360搜索
+    window.open(`https://www.so.com/s?q=${encodeURIComponent(searchQuery.value)}`, '_blank');
   }
 };
 </script>
@@ -108,7 +96,7 @@ const handleLucky = () => {
   display: flex;
   flex-direction: column;
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background: linear-gradient(135deg, #4CAF50 0%, #60b359 25%, #81C784 50%, #66BB6A 75%, #4DB6AC 100%);
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
 }
@@ -149,23 +137,6 @@ const handleLucky = () => {
   text-decoration: underline;
 }
 
-.apps-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.95);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  transition: all 0.3s;
-  backdrop-filter: blur(5px);
-}
-
-.apps-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
 .signin-btn {
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -199,36 +170,23 @@ const handleLucky = () => {
 /* Logo */
 .logo {
   font-size: 90px;
-  font-weight: 400;
+  font-weight: 700;
   margin-bottom: 30px;
-  font-family: 'Product Sans', Arial, sans-serif;
+  font-family: 'Microsoft YaHei', Arial, sans-serif;
   user-select: none;
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(255, 255, 255, 0.3);
   filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
 }
 
-.logo-g {
-  color: #4285F4;
+.logo-360 {
+  color: #60b359;
+  font-weight: 900;
+  margin-right: 10px;
 }
 
-.logo-o1 {
-  color: #EA4335;
-}
-
-.logo-o2 {
-  color: #FBBC05;
-}
-
-.logo-g2 {
-  color: #4285F4;
-}
-
-.logo-l {
-  color: #34A853;
-}
-
-.logo-e {
-  color: #EA4335;
+.logo-search {
+  color: #ffffff;
+  font-weight: 400;
 }
 
 /* Search Container */
