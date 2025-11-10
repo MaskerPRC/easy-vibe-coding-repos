@@ -5,7 +5,7 @@ const routes = [
     path: '/',
     name: 'StarGallery',
     component: () => import('../views/StarGallery.vue'),
-    meta: { title: '明星写真展示 - Star Gallery' }
+    meta: { title: '狗' }
   }
 ];
 
@@ -15,7 +15,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title || '明星写真展示';
+  document.title = to.meta.title || '狗';
   next();
 });
 
