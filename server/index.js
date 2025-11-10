@@ -4,7 +4,9 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
+import fsSync from 'fs';
 import axios from 'axios';
+import os from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +29,156 @@ app.get('/api/health', (req, res) => {
     port: PORT,
     timestamp: new Date().toISOString()
   });
+});
+
+// 文件浏览器API - 列出目录内容
+app.get('/api/files', async (req, res) => {
+  try {
+    // 获取查询参数中的路径，默认为用户home目录
+    let requestedPath = req.query.path || os.homedir();
+
+    console.log('请求路径:', requestedPath);
+
+    // 安全检查：解析真实路径
+    const realPath = path.resolve(requestedPath);
+    console.log('真实路径:', realPath);
+
+    // 检查路径是否存在
+    try {
+      await fs.access(realPath);
+    } catch (error) {
+      return res.status(404).json({
+        success: false,
+        error: '路径不存在',
+        path: requestedPath
+      });
+    }
+
+    // 获取路径信息
+    const stats = await fs.stat(realPath);
+
+    // 如果是文件，返回文件信息
+    if (stats.isFile()) {
+      return res.json({
+        success: true,
+        type: 'file',
+        path: realPath,
+        name: path.basename(realPath),
+        size: stats.size,
+        modified: stats.mtime,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // 如果是目录，列出内容
+    const files = await fs.readdir(realPath);
+    const fileList = [];
+
+    for (const file of files) {
+      try {
+        const filePath = path.join(realPath, file);
+        const fileStats = await fs.stat(filePath);
+
+        fileList.push({
+          name: file,
+          path: filePath,
+          type: fileStats.isDirectory() ? 'directory' : 'file',
+          size: fileStats.size,
+          modified: fileStats.mtime,
+          isHidden: file.startsWith('.')
+        });
+      } catch (error) {
+        // 跳过无法访问的文件
+        console.log('无法访问文件:', file, error.message);
+      }
+    }
+
+    // 排序：目录在前，然后按名称排序
+    fileList.sort((a, b) => {
+      if (a.type === 'directory' && b.type !== 'directory') return -1;
+      if (a.type !== 'directory' && b.type === 'directory') return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    res.json({
+      success: true,
+      type: 'directory',
+      path: realPath,
+      parent: path.dirname(realPath),
+      files: fileList,
+      totalFiles: fileList.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('读取目录失败:', error);
+    res.status(500).json({
+      success: false,
+      error: '读取目录失败',
+      message: error.message
+    });
+  }
+});
+
+// 读取文件内容API
+app.get('/api/files/read', async (req, res) => {
+  try {
+    const requestedPath = req.query.path;
+
+    if (!requestedPath) {
+      return res.status(400).json({
+        success: false,
+        error: '未提供文件路径'
+      });
+    }
+
+    const realPath = path.resolve(requestedPath);
+
+    // 检查文件是否存在
+    try {
+      await fs.access(realPath);
+    } catch (error) {
+      return res.status(404).json({
+        success: false,
+        error: '文件不存在',
+        path: requestedPath
+      });
+    }
+
+    const stats = await fs.stat(realPath);
+
+    if (!stats.isFile()) {
+      return res.status(400).json({
+        success: false,
+        error: '路径不是文件'
+      });
+    }
+
+    // 限制文件大小为1MB
+    if (stats.size > 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        error: '文件太大，无法读取（限制1MB）'
+      });
+    }
+
+    const content = await fs.readFile(realPath, 'utf-8');
+
+    res.json({
+      success: true,
+      path: realPath,
+      name: path.basename(realPath),
+      content: content,
+      size: stats.size,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('读取文件失败:', error);
+    res.status(500).json({
+      success: false,
+      error: '读取文件失败',
+      message: error.message
+    });
+  }
 });
 
 // 获取外部网站源码

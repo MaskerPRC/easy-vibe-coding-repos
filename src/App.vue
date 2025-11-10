@@ -22,21 +22,6 @@
       </div>
     </nav>
 
-    <!-- 源码显示区域 -->
-    <div class="source-display" v-if="!isFullscreen && sourceCode">
-      <div class="source-header">
-        <h3>网站源码 ({{ sourceUrl }})</h3>
-        <button @click="showSource = !showSource" class="toggle-btn">
-          {{ showSource ? '隐藏' : '显示' }}
-        </button>
-      </div>
-      <div v-if="showSource" class="source-content">
-        <pre><code>{{ sourceCode }}</code></pre>
-      </div>
-      <div v-if="sourceError" class="source-error">
-        错误: {{ sourceError }}
-      </div>
-    </div>
 
     <!-- 页面内容 -->
     <div class="page-content" :class="{ fullscreen: isFullscreen }">
@@ -46,7 +31,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
+import FileBrowser from './components/FileBrowser.vue';
 import XSSDemo from './components/XSSDemo.vue';
 import FPSGame from './components/FPSGame.vue';
 import DigitalCat from './components/DigitalCat.vue';
@@ -61,13 +47,14 @@ import CatAsciiArt from './components/CatAsciiArt.vue';
 import WeddingMemorial from './components/WeddingMemorial.vue';
 
 // 当前页面
-const currentPage = ref('wedding');
+const currentPage = ref('filebrowser');
 
 // 是否全屏模式（FPS游戏时）
 const isFullscreen = computed(() => currentPage.value === 'fps');
 
 // 页面列表
 const pages = [
+  { name: 'filebrowser', label: '文件浏览器', component: FileBrowser },
   { name: 'wedding', label: '结婚纪念帖', component: WeddingMemorial },
   { name: 'mathquestions', label: '小学数学题', component: MathQuestions },
   { name: 'lolworlds', label: 'LOL世界赛', component: LOLWorldChampionship },
@@ -85,14 +72,8 @@ const pages = [
 // 当前组件
 const currentComponent = computed(() => {
   const page = pages.find(p => p.name === currentPage.value);
-  return page ? page.component : DigitalCat;
+  return page ? page.component : FileBrowser;
 });
-
-// 源码相关状态
-const sourceCode = ref('');
-const sourceUrl = ref('');
-const sourceError = ref('');
-const showSource = ref(true);
 
 // 重启服务器状态
 const isRestarting = ref(false);
@@ -138,33 +119,6 @@ const restartServer = async () => {
   }
 };
 
-// 页面加载时自动获取源码
-onMounted(async () => {
-  try {
-    console.log('正在获取外部网站源码...');
-    const response = await fetch('/api/fetch-source');
-    const data = await response.json();
-
-    if (data.success) {
-      // 只取前100个字符
-      sourceCode.value = data.source.substring(0, 100);
-      sourceUrl.value = data.url;
-      console.log('源码获取成功，显示前100字');
-
-      // 3秒后自动跳转 - 已禁用
-      // setTimeout(() => {
-      //   console.log('即将跳转到:', data.url);
-      //   window.location.href = data.url;
-      // }, 3000);
-    } else {
-      sourceError.value = data.message || '获取源码失败';
-      console.error('获取源码失败:', data.message);
-    }
-  } catch (error) {
-    sourceError.value = error.message;
-    console.error('请求失败:', error);
-  }
-});
 </script>
 
 <style>
@@ -293,105 +247,6 @@ body {
   background: #CCCCCC;
 }
 
-/* 源码显示区域 - 蓝屏风格 */
-.source-display {
-  background: #0000AA;
-  margin: 15px 30px;
-  padding: 15px;
-  border: 2px solid #FFFFFF;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-.source-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #AAAAAA;
-}
-
-.source-header h3 {
-  color: #FFFFFF;
-  font-family: 'Courier New', 'Fixedsys', monospace;
-  font-size: 1.2em;
-  text-shadow: none;
-  letter-spacing: 1px;
-}
-
-.toggle-btn {
-  padding: 8px 16px;
-  background: #0000AA;
-  border: 2px solid #AAAAAA;
-  border-radius: 0;
-  color: #FFFFFF;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.1s ease;
-  font-family: 'Courier New', 'Fixedsys', monospace;
-}
-
-.toggle-btn:hover {
-  background: #0000CC;
-  border-color: #FFFFFF;
-  box-shadow: none;
-}
-
-.source-content {
-  background: #000088;
-  border: 1px solid #AAAAAA;
-  border-radius: 0;
-  padding: 15px;
-  max-height: 400px;
-  overflow-y: auto;
-  overflow-x: auto;
-}
-
-.source-content pre {
-  margin: 0;
-  color: #FFFFFF;
-  font-family: 'Courier New', 'Fixedsys', monospace;
-  font-size: 0.9em;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.source-content code {
-  color: #FFFFFF;
-  text-shadow: none;
-}
-
-.source-error {
-  background: #AA0000;
-  border: 1px solid #FFFFFF;
-  border-radius: 0;
-  padding: 10px;
-  color: #FFFFFF;
-  font-family: 'Courier New', 'Fixedsys', monospace;
-  margin-top: 10px;
-}
-
-.source-content::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-.source-content::-webkit-scrollbar-track {
-  background: #000066;
-}
-
-.source-content::-webkit-scrollbar-thumb {
-  background: #AAAAAA;
-  border-radius: 0;
-  border: 1px solid #FFFFFF;
-}
-
-.source-content::-webkit-scrollbar-thumb:hover {
-  background: #CCCCCC;
-}
-
 /* 响应式设计 */
 @media (max-width: 768px) {
   .nav-bar {
@@ -408,21 +263,6 @@ body {
   .nav-btn {
     padding: 8px 15px;
     font-size: 0.9em;
-  }
-
-  .source-display {
-    margin: 10px 15px;
-    padding: 10px;
-  }
-
-  .source-header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-  }
-
-  .source-content {
-    max-height: 300px;
   }
 }
 </style>
