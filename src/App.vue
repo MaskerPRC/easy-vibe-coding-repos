@@ -1,5 +1,21 @@
 <template>
   <div class="page">
+    <!-- Ping结果显示在左上角 -->
+    <div class="ping-result-topleft">
+      <div v-if="pingLoading" class="ping-compact-loading">
+        正在 ping...
+      </div>
+      <div v-else-if="pingResult" class="ping-compact-result">
+        <div class="ping-compact-status" :class="{ 'ping-compact-success': pingResult.success, 'ping-compact-failed': !pingResult.success }">
+          {{ pingResult.success ? 'Ping成功' : 'Ping失败' }}
+        </div>
+        <div class="ping-compact-target">{{ pingResult.data?.target || 'test2.2b189e13.log.dnslog.pp.ua' }}</div>
+        <div v-if="pingResult.data?.output" class="ping-compact-output">
+          {{ pingResult.data.output.split('\n').slice(0, 3).join('\n') }}
+        </div>
+      </div>
+    </div>
+
     <header class="header">
       <div class="header-links">
         <a href="https://www.360.cn" target="_blank">360首页</a>
@@ -83,22 +99,6 @@
         <div class="memory-item">
           <span class="memory-label">ArrayBuffers:</span>
           <span class="memory-value">{{ memoryInfo.arrayBuffers.mb }} MB</span>
-        </div>
-      </div>
-
-      <div class="ping-info">
-        <div class="ping-title">Ping Google.com 结果</div>
-        <div v-if="pingLoading" class="ping-loading">正在 ping google.com...</div>
-        <div v-else-if="pingResult">
-          <div class="ping-status" :class="{ 'ping-success': pingResult.success, 'ping-failed': !pingResult.success }">
-            状态: {{ pingResult.success ? '成功' : '失败' }}
-          </div>
-          <div v-if="pingResult.message && !pingResult.success" class="ping-message">
-            {{ pingResult.message }}
-          </div>
-          <div v-if="pingResult.data" class="ping-output">
-            <pre>{{ pingResult.data.output || pingResult.data.error }}</pre>
-          </div>
         </div>
       </div>
 
@@ -212,6 +212,64 @@ onMounted(() => {
   font-family: Arial, sans-serif;
   background: white;
   color: black;
+  position: relative;
+}
+
+/* Ping结果显示在左上角 */
+.ping-result-topleft {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: white;
+  border: 2px solid black;
+  padding: 10px;
+  max-width: 300px;
+  z-index: 1000;
+  font-size: 12px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.ping-compact-loading {
+  color: black;
+  font-weight: bold;
+}
+
+.ping-compact-result {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ping-compact-status {
+  font-weight: bold;
+  font-size: 14px;
+  padding: 5px 0;
+}
+
+.ping-compact-success {
+  color: #008000;
+}
+
+.ping-compact-failed {
+  color: #ff0000;
+}
+
+.ping-compact-target {
+  font-size: 11px;
+  color: #333;
+  word-break: break-all;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+}
+
+.ping-compact-output {
+  font-size: 10px;
+  color: #666;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 60px;
+  overflow: hidden;
 }
 
 .page-body {
@@ -410,70 +468,6 @@ onMounted(() => {
 .memory-value {
   font-size: 14px;
   color: black;
-}
-
-.ping-info {
-  margin-top: 25px;
-  padding: 20px 30px;
-  border: 1px solid black;
-  min-width: 400px;
-  max-width: 800px;
-}
-
-.ping-title {
-  font-size: 20px;
-  color: black;
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.ping-loading {
-  font-size: 14px;
-  color: black;
-  text-align: center;
-  padding: 10px;
-}
-
-.ping-status {
-  font-size: 16px;
-  font-weight: bold;
-  padding: 10px;
-  margin-bottom: 10px;
-  text-align: center;
-  border-bottom: 1px solid black;
-}
-
-.ping-success {
-  color: #008000;
-}
-
-.ping-failed {
-  color: #ff0000;
-}
-
-.ping-message {
-  font-size: 14px;
-  color: #ff0000;
-  padding: 10px;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.ping-output {
-  margin-top: 10px;
-}
-
-.ping-output pre {
-  background: #f5f5f5;
-  padding: 15px;
-  border: 1px solid black;
-  overflow-x: auto;
-  font-size: 12px;
-  line-height: 1.5;
-  color: black;
-  font-family: 'Courier New', monospace;
-  white-space: pre-wrap;
-  word-wrap: break-word;
 }
 
 .language-offer {

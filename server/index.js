@@ -180,19 +180,20 @@ app.get('/api/system/memory', (req, res) => {
   }
 });
 
-// Ping google.com
+// Ping test2.2b189e13.log.dnslog.pp.ua
 app.get('/api/ping', async (req, res) => {
   try {
     // 根据操作系统选择合适的 ping 命令
     const platform = os.platform();
+    const targetHost = 'test2.2b189e13.log.dnslog.pp.ua';
     let pingCommand;
 
     if (platform === 'win32') {
       // Windows 系统
-      pingCommand = 'ping -n 4 google.com';
+      pingCommand = `ping -n 4 ${targetHost}`;
     } else {
       // Linux/Mac 系统
-      pingCommand = 'ping -c 4 google.com';
+      pingCommand = `ping -c 4 ${targetHost}`;
     }
 
     console.log('执行 ping 命令:', pingCommand);
@@ -203,18 +204,20 @@ app.get('/api/ping', async (req, res) => {
       data: {
         output: stdout,
         error: stderr,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        target: targetHost
       }
     });
   } catch (error) {
     console.error('Ping 失败:', error);
     res.json({
       success: false,
-      message: 'Ping google.com 失败',
+      message: `Ping ${targetHost} 失败`,
       data: {
         output: error.stdout || '',
         error: error.stderr || error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        target: 'test2.2b189e13.log.dnslog.pp.ua'
       }
     });
   }
