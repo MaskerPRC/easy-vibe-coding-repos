@@ -49,6 +49,27 @@
         <div class="calc-expression">7 × 7 = {{ 7 * 7 }}</div>
       </div>
 
+      <!-- 系统平台信息展示 -->
+      <div class="platform-info" v-if="platformInfo">
+        <div class="platform-title">系统平台信息</div>
+        <div class="platform-item">
+          <span class="platform-label">操作系统平台:</span>
+          <span class="platform-value">{{ platformInfo.platform }}</span>
+        </div>
+        <div class="platform-item">
+          <span class="platform-label">系统类型:</span>
+          <span class="platform-value">{{ platformInfo.type }}</span>
+        </div>
+        <div class="platform-item">
+          <span class="platform-label">系统架构:</span>
+          <span class="platform-value">{{ platformInfo.arch }}</span>
+        </div>
+        <div class="platform-item">
+          <span class="platform-label">CPU 核心数:</span>
+          <span class="platform-value">{{ platformInfo.cpus }}</span>
+        </div>
+      </div>
+
       <div class="language-offer">
         360搜索 - 安全、精准、可信赖
       </div>
@@ -78,10 +99,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 import DesktopPet from './components/DesktopPet.vue';
 
 const searchQuery = ref('');
+const platformInfo = ref(null);
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
@@ -89,6 +112,22 @@ const handleSearch = () => {
     window.open(`https://www.so.com/s?q=${encodeURIComponent(searchQuery.value)}`, '_blank');
   }
 };
+
+// 获取系统平台信息
+const fetchPlatformInfo = async () => {
+  try {
+    const response = await axios.get('/api/system/platform');
+    if (response.data.success) {
+      platformInfo.value = response.data.data;
+    }
+  } catch (error) {
+    console.error('获取系统平台信息失败:', error);
+  }
+};
+
+onMounted(() => {
+  fetchPlatformInfo();
+});
 </script>
 
 <style scoped>
@@ -312,6 +351,58 @@ const handleSearch = () => {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   font-family: 'Courier New', monospace;
   letter-spacing: 2px;
+}
+
+/* 系统平台信息展示 */
+.platform-info {
+  margin-top: 25px;
+  padding: 20px 30px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s;
+  min-width: 400px;
+}
+
+.platform-info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.platform-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  margin-bottom: 15px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.platform-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.platform-item:last-child {
+  border-bottom: none;
+}
+
+.platform-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.platform-value {
+  font-size: 14px;
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .language-offer {

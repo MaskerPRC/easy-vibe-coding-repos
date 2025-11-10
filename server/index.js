@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
+import os from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -101,6 +102,32 @@ app.get('/api/config', (req, res) => {
     version: '1.0.0',
     features: ['前端', '后端', 'API']
   });
+});
+
+// 获取系统平台信息
+app.get('/api/system/platform', (req, res) => {
+  try {
+    const platformInfo = {
+      platform: os.platform(),
+      type: os.type(),
+      release: os.release(),
+      arch: os.arch(),
+      hostname: os.hostname(),
+      totalMemory: os.totalmem(),
+      freeMemory: os.freemem(),
+      cpus: os.cpus().length
+    };
+    res.json({
+      success: true,
+      data: platformInfo
+    });
+  } catch (error) {
+    console.error('获取系统信息失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取系统信息失败: ' + error.message
+    });
+  }
 });
 
 // 错误处理
