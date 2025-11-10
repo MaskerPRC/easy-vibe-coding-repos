@@ -200,7 +200,7 @@ onUnmounted(() => {
 /* 蔡徐坤背景 Banner */
 .hero-section {
   position: relative;
-  height: 400px;
+  height: 200px;
   /* 使用渐变背景 - 如需使用蔡徐坤图片，请替换下面的background为: background-image: url('你的图片URL'); */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
   background-size: cover;
@@ -236,17 +236,17 @@ onUnmounted(() => {
 
 .hero-title {
   margin: 0;
-  font-size: 56px;
+  font-size: 36px;
   font-weight: 800;
   color: white;
   text-shadow: 3px 3px 12px rgba(0, 0, 0, 0.8);
-  letter-spacing: 4px;
-  margin-bottom: 15px;
+  letter-spacing: 3px;
+  margin-bottom: 10px;
 }
 
 .hero-subtitle {
   margin: 0;
-  font-size: 22px;
+  font-size: 16px;
   color: rgba(255, 255, 255, 0.95);
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
   font-weight: 300;
@@ -409,15 +409,15 @@ onUnmounted(() => {
 /* Responsive */
 @media (max-width: 1024px) {
   .hero-section {
-    height: 350px;
+    height: 180px;
   }
 
   .hero-title {
-    font-size: 48px;
+    font-size: 32px;
   }
 
   .hero-subtitle {
-    font-size: 20px;
+    font-size: 15px;
   }
 
   .app-header {
@@ -437,16 +437,16 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .hero-section {
-    height: 300px;
+    height: 150px;
   }
 
   .hero-title {
-    font-size: 40px;
+    font-size: 28px;
     letter-spacing: 2px;
   }
 
   .hero-subtitle {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .app-title {
@@ -471,15 +471,15 @@ onUnmounted(() => {
 
 @media (max-width: 480px) {
   .hero-section {
-    height: 250px;
+    height: 120px;
   }
 
   .hero-title {
-    font-size: 32px;
+    font-size: 24px;
   }
 
   .hero-subtitle {
-    font-size: 14px;
+    font-size: 12px;
   }
 }
 </style>
