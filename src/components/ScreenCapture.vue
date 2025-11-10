@@ -3,7 +3,7 @@
     <div class="capture-header">
       <div class="header-info">
         <h2 class="section-title">屏幕分享墙</h2>
-        <p class="section-desc">捕获并分享你的屏幕内容</p>
+        <p class="section-desc">使用 getDisplayMedia() 捕获并分享你的屏幕内容</p>
       </div>
       <div class="header-actions">
         <input
@@ -31,6 +31,13 @@
       {{ statusMessage }}
     </div>
 
+    <!-- 截图统计 -->
+    <div class="stats-bar">
+      <span class="stat-item">📊 总共 {{ screenshots.length }} 张截图</span>
+      <span class="stat-item">👥 来自多位用户</span>
+      <span class="stat-item">🔄 自动刷新中</span>
+    </div>
+
     <!-- 截图网格 -->
     <div class="screenshots-container">
       <div v-if="isLoading && screenshots.length === 0" class="loading-state">
@@ -41,7 +48,8 @@
       <div v-else-if="screenshots.length === 0" class="empty-state">
         <div class="empty-icon">📸</div>
         <p class="empty-text">还没有截图</p>
-        <p class="empty-hint">点击"捕获屏幕"按钮开始分享</p>
+        <p class="empty-hint">点击"捕获屏幕"按钮开始分享你的屏幕</p>
+        <p class="empty-hint">支持多用户同时上传和查看</p>
       </div>
 
       <div v-else class="screenshots-grid">
@@ -85,8 +93,8 @@
         <button class="close-btn" @click="closeFullscreen">✕</button>
         <img :src="fullscreenImage.imageData" :alt="`${fullscreenImage.username}的截图`" class="fullscreen-image" />
         <div class="fullscreen-info">
-          <span class="fullscreen-user">{{ fullscreenImage.username }}</span>
-          <span class="fullscreen-time">{{ fullscreenImage.uploadTime }}</span>
+          <span class="fullscreen-user">👤 {{ fullscreenImage.username }}</span>
+          <span class="fullscreen-time">🕐 {{ fullscreenImage.uploadTime }}</span>
         </div>
       </div>
     </div>
@@ -126,7 +134,7 @@ const captureScreen = async () => {
       return;
     }
 
-    // 请求屏幕捕获权限
+    // 请求屏幕捕获权限 - 使用 Web API 的 getDisplayMedia()
     const stream = await navigator.mediaDevices.getDisplayMedia({
       video: {
         mediaSource: 'screen',
@@ -151,7 +159,7 @@ const captureScreen = async () => {
     // 等待一帧以确保视频已渲染
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // 创建 Canvas 并捕获画面
+    // 创建 Canvas 并捕获画面 - 通过 Canvas 转换为图像数据
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -161,7 +169,7 @@ const captureScreen = async () => {
     // 停止视频流
     stream.getTracks().forEach(track => track.stop());
 
-    // 转换为 Base64
+    // 转换为 Base64 图像数据
     const imageData = canvas.toDataURL('image/png', 0.8);
 
     // 上传到服务器
@@ -259,7 +267,7 @@ const closeFullscreen = () => {
 // 组件挂载
 onMounted(() => {
   refreshScreenshots();
-  // 每10秒自动刷新一次
+  // 每10秒自动刷新一次，展示其他用户上传的截图
   refreshInterval = setInterval(refreshScreenshots, 10000);
 });
 
@@ -421,6 +429,21 @@ onUnmounted(() => {
 .status-message.error {
   background: #e74c3c;
   color: white;
+}
+
+/* Stats Bar */
+.stats-bar {
+  padding: 10px 30px;
+  background: #242424;
+  border-bottom: 1px solid #444;
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  font-size: 13px;
+  color: #999;
 }
 
 /* Screenshots Container */
@@ -731,6 +754,11 @@ onUnmounted(() => {
   .refresh-btn,
   .clear-btn {
     width: 100%;
+  }
+
+  .stats-bar {
+    flex-direction: column;
+    gap: 5px;
   }
 }
 </style>

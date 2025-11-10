@@ -1,86 +1,30 @@
 <template>
-  <div class="webshell-app">
+  <div class="screen-share-app">
     <header class="app-header">
       <div class="header-left">
-        <h1 class="app-title">WebShell Manager</h1>
-        <p class="app-subtitle">文件管理 & 命令执行工具</p>
-      </div>
-      <div class="header-center">
-        <div class="view-tabs">
-          <button
-            @click="currentView = 'screenshots'"
-            class="tab-btn"
-            :class="{ active: currentView === 'screenshots' }">
-            📸 屏幕分享
-          </button>
-          <button
-            @click="currentView = 'files'"
-            class="tab-btn"
-            :class="{ active: currentView === 'files' }">
-            📁 文件管理
-          </button>
-          <button
-            @click="currentView = 'terminal'"
-            class="tab-btn"
-            :class="{ active: currentView === 'terminal' }">
-            💻 命令执行
-          </button>
-          <button
-            @click="currentView = 'system'"
-            class="tab-btn"
-            :class="{ active: currentView === 'system' }">
-            ⚙️ 系统信息
-          </button>
-          <button
-            @click="currentView = 'chat'"
-            class="tab-btn"
-            :class="{ active: currentView === 'chat' }">
-            💬 AI聊天
-          </button>
-        </div>
+        <h1 class="app-title">屏幕分享平台</h1>
+        <p class="app-subtitle">多人实时屏幕分享</p>
       </div>
       <div class="header-right">
         <div class="status-indicator" :class="{ online: serverOnline }">
           <span class="status-dot"></span>
-          {{ serverOnline ? '在线' : '离线' }}
+          {{ serverOnline ? '服务在线' : '服务离线' }}
         </div>
+        <div class="time-display">{{ currentTime }}</div>
       </div>
     </header>
 
     <main class="app-body">
-      <!-- 屏幕分享视图 -->
-      <div v-show="currentView === 'screenshots'" class="view-content">
-        <ScreenCapture />
-      </div>
-
-      <!-- 文件管理视图 -->
-      <div v-show="currentView === 'files'" class="view-content">
-        <FileManager />
-      </div>
-
-      <!-- 命令执行视图 -->
-      <div v-show="currentView === 'terminal'" class="view-content">
-        <CommandExecutor />
-      </div>
-
-      <!-- 系统信息视图 -->
-      <div v-show="currentView === 'system'" class="view-content">
-        <SystemInfo />
-      </div>
-
-      <!-- AI聊天视图 -->
-      <div v-show="currentView === 'chat'" class="view-content">
-        <ChatAI />
-      </div>
+      <ScreenCapture />
     </main>
 
     <footer class="app-footer">
       <div class="footer-content">
-        <span>WebShell Manager v1.0.0</span>
+        <span>屏幕分享平台 v1.0.0</span>
         <span class="separator">|</span>
-        <span>当前时间: {{ currentTime }}</span>
+        <span>基于 getDisplayMedia() API</span>
         <span class="separator">|</span>
-        <span>仅供授权使用</span>
+        <span>支持多用户实时分享</span>
       </div>
     </footer>
   </div>
@@ -89,17 +33,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import ScreenCapture from './components/ScreenCapture.vue';
-import FileManager from './components/FileManager.vue';
-import CommandExecutor from './components/CommandExecutor.vue';
-import SystemInfo from './components/SystemInfo.vue';
-import ChatAI from './components/ChatAI.vue';
 import axios from 'axios';
 
-const currentView = ref('screenshots');
 const serverOnline = ref(false);
 const currentTime = ref('');
 
 let timeInterval;
+let statusInterval;
 
 // 检查服务器状态
 const checkServerStatus = async () => {
@@ -130,7 +70,7 @@ onMounted(() => {
   updateTime();
 
   // 每5秒检查一次服务器状态
-  setInterval(checkServerStatus, 5000);
+  statusInterval = setInterval(checkServerStatus, 5000);
 
   // 每秒更新时间
   timeInterval = setInterval(updateTime, 1000);
@@ -140,6 +80,9 @@ onUnmounted(() => {
   if (timeInterval) {
     clearInterval(timeInterval);
   }
+  if (statusInterval) {
+    clearInterval(statusInterval);
+  }
 });
 </script>
 
@@ -148,7 +91,7 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-.webshell-app {
+.screen-share-app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -184,48 +127,10 @@ onUnmounted(() => {
   color: #999;
 }
 
-.header-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.view-tabs {
-  display: flex;
-  gap: 10px;
-  background: #1a1a1a;
-  padding: 5px;
-  border-radius: 8px;
-}
-
-.tab-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  background: transparent;
-  color: #999;
-  transition: all 0.3s ease;
-}
-
-.tab-btn:hover {
-  background: #2d2d2d;
-  color: #e0e0e0;
-}
-
-.tab-btn.active {
-  background: #00ff88;
-  color: #1a1a1a;
-  font-weight: 600;
-}
-
 .header-right {
-  flex: 1;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
 }
 
 .status-indicator {
@@ -266,15 +171,20 @@ onUnmounted(() => {
   }
 }
 
+.time-display {
+  padding: 8px 16px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #999;
+  font-family: 'Courier New', monospace;
+}
+
 /* Body */
 .app-body {
   flex: 1;
   display: flex;
-  overflow: hidden;
-}
-
-.view-content {
-  flex: 1;
   overflow: hidden;
 }
 
@@ -306,13 +216,8 @@ onUnmounted(() => {
   }
 
   .header-left,
-  .header-center,
   .header-right {
     flex: 1 1 100%;
-  }
-
-  .header-center {
-    justify-content: flex-start;
   }
 
   .header-right {
@@ -325,13 +230,19 @@ onUnmounted(() => {
     font-size: 22px;
   }
 
-  .view-tabs {
+  .header-right {
     flex-direction: column;
-    width: 100%;
+    align-items: flex-start;
+    gap: 10px;
   }
 
-  .tab-btn {
-    width: 100%;
+  .footer-content {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .separator {
+    display: none;
   }
 }
 </style>
