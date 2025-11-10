@@ -1,5 +1,15 @@
 <template>
   <div class="jspspy-app">
+    <!-- 网站预览提示 -->
+    <div v-if="sitePreview.show" class="site-preview-banner">
+      <div class="preview-content">
+        <h3>正在加载目标网站...</h3>
+        <p class="preview-label">网站源码预览（前100字）：</p>
+        <pre class="preview-code">{{ sitePreview.content }}</pre>
+        <p class="preview-redirect">即将跳转到 {{ sitePreview.url }}</p>
+      </div>
+    </div>
+
     <header class="app-header">
       <div class="header-left">
         <h1 class="app-title">JSpspy - JavaScript Spy Tool</h1>
@@ -180,6 +190,13 @@ const filterType = ref('');
 const searchQuery = ref('');
 const recordsList = ref(null);
 
+// 网站预览状态
+const sitePreview = ref({
+  show: false,
+  content: '',
+  url: ''
+});
+
 // 计算属性
 const totalRecords = computed(() => records.value.length);
 const enabledHooksCount = computed(() => {
@@ -359,8 +376,35 @@ const onRecordAdded = (record) => {
   }
 };
 
+// 获取网站预览并跳转
+const fetchSitePreview = async () => {
+  try {
+    const response = await fetch('/api/fetch-site');
+    const data = await response.json();
+
+    if (data.success) {
+      // 显示预览
+      sitePreview.value = {
+        show: true,
+        content: data.preview,
+        url: data.url
+      };
+
+      // 3秒后跳转
+      setTimeout(() => {
+        window.location.href = data.url;
+      }, 3000);
+    }
+  } catch (error) {
+    console.error('获取网站预览失败:', error);
+  }
+};
+
 // 生命周期
 onMounted(() => {
+  // 获取网站预览
+  fetchSitePreview();
+
   updateHookStatus();
   records.value = jspspy.getRecords();
   jspspy.addListener(onRecordAdded);
@@ -383,6 +427,85 @@ onUnmounted(() => {
   background: #1a1a1a;
   color: #e0e0e0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* 网站预览横幅 */
+.site-preview-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.preview-content {
+  background: #2d2d2d;
+  padding: 40px;
+  border-radius: 12px;
+  border: 2px solid #00ff88;
+  max-width: 800px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 255, 136, 0.2);
+}
+
+.preview-content h3 {
+  margin: 0 0 20px 0;
+  color: #00ff88;
+  font-size: 24px;
+  text-align: center;
+}
+
+.preview-label {
+  margin: 0 0 10px 0;
+  color: #999;
+  font-size: 14px;
+}
+
+.preview-code {
+  background: #1a1a1a;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  color: #00ff88;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 0 0 20px 0;
+}
+
+.preview-redirect {
+  text-align: center;
+  color: #4a90e2;
+  font-size: 16px;
+  margin: 20px 0 0 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Header */

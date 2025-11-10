@@ -251,6 +251,33 @@ app.post('/api/spy/save', async (req, res) => {
 // ==================== 其他API ====================
 
 /**
+ * 获取目标网站源码
+ */
+app.get('/api/fetch-site', async (req, res) => {
+  try {
+    const targetUrl = 'https://play.apexstone.ai/';
+
+    // 使用 fetch 请求目标网站
+    const response = await fetch(targetUrl);
+    const html = await response.text();
+
+    // 获取前100个字符
+    const preview = html.substring(0, 100);
+
+    res.json({
+      success: true,
+      preview: preview,
+      url: targetUrl
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: '请求失败: ' + error.message
+    });
+  }
+});
+
+/**
  * 健康检查
  */
 app.get('/api/health', (req, res) => {
