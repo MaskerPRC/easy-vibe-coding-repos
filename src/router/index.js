@@ -3,9 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
   {
     path: '/',
-    name: 'DevArsenal',
-    component: () => import('../views/DevArsenal.vue'),
-    meta: { title: '独立开发者工具库 - Dev Arsenal' }
+    name: 'StarGallery',
+    component: () => import('../views/StarGallery.vue'),
+    meta: { title: '明星写真展示 - Star Gallery' }
   }
 ];
 
@@ -15,7 +15,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title || '独立开发者工具库';
+  document.title = to.meta.title || '明星写真展示';
   next();
 });
 
