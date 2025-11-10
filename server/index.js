@@ -120,6 +120,95 @@ app.get('/api/math-model/random', (req, res) => {
   });
 });
 
+// 英雄联盟总决赛数据接口
+app.get('/api/lol/match-data', (req, res) => {
+  // 模拟返回英雄联盟总决赛数据
+  const matchData = {
+    success: true,
+    currentMatch: {
+      teamA: {
+        name: 'T1',
+        region: 'LCK',
+        logo: 'https://via.placeholder.com/80/003057/FFFFFF?text=T1'
+      },
+      teamB: {
+        name: 'BLG',
+        region: 'LPL',
+        logo: 'https://via.placeholder.com/80/C8102E/FFFFFF?text=BLG'
+      },
+      scoreA: 3,
+      scoreB: 2,
+      status: 'finished'
+    },
+    stats: {
+      totalKills: 1247 + Math.floor(Math.random() * 100),
+      totalGames: 73,
+      avgGameTime: '32:15',
+      firstBloodRate: 65 + Math.floor(Math.random() * 10)
+    },
+    metrics: [
+      { label: '场均击杀', teamA: 15.2, teamB: 14.8, name: 'kills' },
+      { label: '场均死亡', teamA: 12.3, teamB: 13.1, name: 'deaths' },
+      { label: '场均助攻', teamA: 34.5, teamB: 32.8, name: 'assists' },
+      { label: '场均推塔', teamA: 7.2, teamB: 6.9, name: 'towers' },
+      { label: '场均经济', teamA: 58.2, teamB: 56.7, name: 'gold' },
+      { label: '场均大龙', teamA: 1.8, teamB: 1.5, name: 'baron' }
+    ],
+    players: [
+      {
+        id: 1,
+        name: 'Faker',
+        team: 'T1',
+        role: '中单',
+        kda: (8 + Math.random() * 2).toFixed(1),
+        avatar: 'https://via.placeholder.com/60/4169E1/FFFFFF?text=FK'
+      },
+      {
+        id: 2,
+        name: 'Elk',
+        team: 'BLG',
+        role: 'ADC',
+        kda: (7 + Math.random() * 2).toFixed(1),
+        avatar: 'https://via.placeholder.com/60/DC143C/FFFFFF?text=EK'
+      },
+      {
+        id: 3,
+        name: 'Zeus',
+        team: 'T1',
+        role: '上单',
+        kda: (6 + Math.random() * 2).toFixed(1),
+        avatar: 'https://via.placeholder.com/60/4169E1/FFFFFF?text=ZS'
+      },
+      {
+        id: 4,
+        name: 'Knight',
+        team: 'BLG',
+        role: '中单',
+        kda: (6 + Math.random() * 2).toFixed(1),
+        avatar: 'https://via.placeholder.com/60/DC143C/FFFFFF?text=KT'
+      },
+      {
+        id: 5,
+        name: 'Gumayusi',
+        team: 'T1',
+        role: 'ADC',
+        kda: (5.5 + Math.random() * 2).toFixed(1),
+        avatar: 'https://via.placeholder.com/60/4169E1/FFFFFF?text=GM'
+      }
+    ],
+    matchHistory: [
+      { id: 1, date: '11-02', teamA: 'T1', teamB: 'BLG', scoreA: 3, scoreB: 2, winner: 'A', stage: '决赛' },
+      { id: 2, date: '10-30', teamA: 'T1', teamB: 'GEN', scoreA: 3, scoreB: 1, winner: 'A', stage: '半决赛' },
+      { id: 3, date: '10-27', teamA: 'BLG', teamB: 'WBG', scoreA: 3, scoreB: 1, winner: 'A', stage: '半决赛' },
+      { id: 4, date: '10-24', teamA: 'T1', teamB: 'DK', scoreA: 3, scoreB: 0, winner: 'A', stage: '8强赛' },
+      { id: 5, date: '10-23', teamA: 'BLG', teamB: 'HLE', scoreA: 3, scoreB: 2, winner: 'A', stage: '8强赛' }
+    ],
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(matchData);
+});
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);

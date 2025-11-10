@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
-    <MathModel />
+    <LOLAnalysis />
   </div>
 </template>
 
 <script setup>
-import MathModel from './components/MathModel.vue';
+import LOLAnalysis from './components/LOLAnalysis.vue';
 </script>
 
 <style>
