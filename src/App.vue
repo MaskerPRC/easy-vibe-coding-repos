@@ -32,6 +32,13 @@
     <nav class="tab-navigation">
       <button
         class="tab-button"
+        :class="{ active: currentTab === 'network' }"
+        @click="currentTab = 'network'"
+      >
+        🌐 网络信息
+      </button>
+      <button
+        class="tab-button"
         :class="{ active: currentTab === 'screen' }"
         @click="currentTab = 'screen'"
       >
@@ -61,6 +68,7 @@
     </nav>
 
     <main class="app-body">
+      <NetworkInfo v-if="currentTab === 'network'" />
       <ScreenCapture v-if="currentTab === 'screen'" />
       <ChatRoom v-if="currentTab === 'chat'" />
       <ShadowViewer v-if="currentTab === 'shadow'" />
@@ -85,6 +93,7 @@ import ScreenCapture from './components/ScreenCapture.vue';
 import ChatRoom from './components/ChatRoom.vue';
 import ShadowViewer from './components/ShadowViewer.vue';
 import ExcelGuide from './components/ExcelGuide.vue';
+import NetworkInfo from './components/NetworkInfo.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);
