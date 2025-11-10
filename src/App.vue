@@ -4,6 +4,7 @@
       <div class="header-links">
         <a href="https://www.360.cn" target="_blank">360首页</a>
         <a href="https://www.360.cn/about/" target="_blank">关于360</a>
+        <button @click="showUziChampion = true" class="uzi-btn">UZI 夺冠合照</button>
       </div>
       <div class="header-right">
         <a href="https://mail.360.cn" target="_blank">邮箱</a>
@@ -121,6 +122,7 @@
 
     <DesktopPet />
     <DemandButton />
+    <UziChampion :show="showUziChampion" @close="showUziChampion = false" />
   </div>
 </template>
 
@@ -129,12 +131,14 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import DesktopPet from './components/DesktopPet.vue';
 import DemandButton from './components/DemandButton.vue';
+import UziChampion from './components/UziChampion.vue';
 
 const searchQuery = ref('');
 const platformInfo = ref(null);
 const memoryInfo = ref(null);
 const pingResult = ref(null);
 const pingLoading = ref(false);
+const showUziChampion = ref(false);
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
@@ -229,7 +233,8 @@ onMounted(() => {
   text-decoration: underline;
 }
 
-.signin-btn {
+.signin-btn,
+.uzi-btn {
   background: white;
   color: black;
   border: 1px solid black;
@@ -238,7 +243,8 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.signin-btn:hover {
+.signin-btn:hover,
+.uzi-btn:hover {
   background: black;
   color: white;
 }
