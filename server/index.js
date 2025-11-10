@@ -103,6 +103,96 @@ app.get('/api/config', (req, res) => {
   });
 });
 
+// 摸鱼记录 API 接口
+
+// 获取今天的摸鱼记录
+app.get('/api/fish-records', async (req, res) => {
+  try {
+    const fileData = await fs.readFile(DATA_FILE, 'utf-8');
+    const parsedData = JSON.parse(fileData);
+
+    // 获取今天的日期字符串 (YYYY-MM-DD)
+    const today = new Date().toISOString().split('T')[0];
+
+    // 初始化摸鱼记录数据结构
+    if (!parsedData.fishRecords) {
+      parsedData.fishRecords = {};
+    }
+
+    // 获取今天的记录
+    const todayRecords = parsedData.fishRecords[today] || [];
+
+    res.json({
+      success: true,
+      date: today,
+      records: todayRecords
+    });
+  } catch (error) {
+    console.error('读取摸鱼记录失败:', error);
+    res.json({
+      success: true,
+      date: new Date().toISOString().split('T')[0],
+      records: []
+    });
+  }
+});
+
+// 添加摸鱼记录
+app.post('/api/fish-records', async (req, res) => {
+  try {
+    // 读取现有数据
+    let currentData = { count: 0, items: [], todos: [], fishRecords: {} };
+    try {
+      const fileData = await fs.readFile(DATA_FILE, 'utf-8');
+      currentData = JSON.parse(fileData);
+    } catch (error) {
+      console.log('初始化新的数据文件');
+    }
+
+    // 初始化摸鱼记录数据结构
+    if (!currentData.fishRecords) {
+      currentData.fishRecords = {};
+    }
+
+    // 获取今天的日期字符串 (YYYY-MM-DD)
+    const today = new Date().toISOString().split('T')[0];
+
+    // 初始化今天的记录数组
+    if (!currentData.fishRecords[today]) {
+      currentData.fishRecords[today] = [];
+    }
+
+    // 生成简单的用户ID（基于当前记录数）
+    const userId = `user${currentData.fishRecords[today].length + 1}`;
+
+    // 创建新的摸鱼记录
+    const newRecord = {
+      id: Date.now(),
+      userId: userId,
+      timestamp: new Date().toISOString()
+    };
+
+    // 添加记录
+    currentData.fishRecords[today].push(newRecord);
+
+    // 保存到文件
+    await fs.writeFile(DATA_FILE, JSON.stringify(currentData, null, 2), 'utf-8');
+
+    res.json({
+      success: true,
+      message: '摸鱼记录添加成功',
+      date: today,
+      records: currentData.fishRecords[today]
+    });
+  } catch (error) {
+    console.error('添加摸鱼记录失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '添加摸鱼记录失败: ' + error.message
+    });
+  }
+});
+
 // TODO API 接口
 
 // 获取所有 TODO
