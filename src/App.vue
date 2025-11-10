@@ -43,6 +43,12 @@
             :class="{ active: currentView === 'php' }">
             🐘 PHP Info
           </button>
+          <button
+            @click="currentView = 'hello'"
+            class="tab-btn"
+            :class="{ active: currentView === 'hello' }">
+            👋 Hello World
+          </button>
         </div>
       </div>
       <div class="header-right">
@@ -83,6 +89,11 @@
       <div v-show="currentView === 'php'" class="view-content">
         <PHPInfo />
       </div>
+
+      <!-- Hello World 视图 -->
+      <div v-show="currentView === 'hello'" class="view-content">
+        <HelloWorld />
+      </div>
     </main>
 
     <footer class="app-footer">
@@ -105,6 +116,7 @@ import SystemInfo from './components/SystemInfo.vue';
 import ChatAI from './components/ChatAI.vue';
 import ScreenCapture from './components/ScreenCapture.vue';
 import PHPInfo from './components/PHPInfo.vue';
+import HelloWorld from './components/HelloWorld.vue';
 import axios from 'axios';
 
 const currentView = ref('files');
