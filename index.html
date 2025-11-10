@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Claude AI 对话助手 - 由 Anthropic Claude 3.5 Sonnet 提供支持" />
-    <title>Claude AI 对话助手</title>
+    <meta name="description" content="多人实时屏幕分享平台 - 基于 getDisplayMedia() API" />
+    <title>屏幕分享平台 - 多人实时分享</title>
     <style>
       * {
         margin: 0;
@@ -19,6 +19,8 @@
           sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        background: #1a1a1a;
+        color: #e0e0e0;
       }
 
       #app {
@@ -33,7 +35,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #1a1a1a;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -44,8 +46,8 @@
       .loading-spinner {
         width: 60px;
         height: 60px;
-        border: 4px solid rgba(255, 255, 255, 0.3);
-        border-top-color: white;
+        border: 4px solid #444;
+        border-top-color: #00ff88;
         border-radius: 50%;
         animation: spin 1s linear infinite;
       }
@@ -59,8 +61,7 @@
       .loading-text {
         margin-top: 20px;
         font-size: 18px;
-        color: white;
-        font-weight: 600;
+        color: #00ff88;
       }
     </style>
   </head>
@@ -68,7 +69,7 @@
     <div id="app">
       <div class="loading-screen">
         <div class="loading-spinner"></div>
-        <div class="loading-text">正在加载 Claude AI...</div>
+        <div class="loading-text">加载中...</div>
       </div>
     </div>
     <script type="module" src="/src/main.js"></script>

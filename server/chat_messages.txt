@@ -34,6 +34,3 @@
 {"userId":"user_h9jmix67t","username":"https://play.apexsto","avatar":"😎","content":"有需求按鈕。https://playapp.apexstone.ai/沒需求按鈕","timestamp":1762761532190}
 {"userId":"user_kf38v8o23","username":"友善的小龙","avatar":"🚀","content":"你好","timestamp":1762761854648}
 {"userId":"user_kf38v8o23","username":"神秘的小熊","avatar":"🚀","content":"已经没有人了","timestamp":1762761889810}
-{"userId":"user_p8phxiane","username":"聪明的小猫","avatar":"🐼","content":"123","timestamp":1762765427860}
-{"userId":"user_h9jmix67t","username":"456","avatar":"😎","content":"345","timestamp":1762765440439}
-{"userId":"user_8lj5zsqzx","username":"爷爷","avatar":"🚀","content":"耶耶耶耶耶~","timestamp":1762765734403}

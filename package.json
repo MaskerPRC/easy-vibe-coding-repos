@@ -12,13 +12,15 @@
     "postinstall": "node scripts/setup-hooks.js"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.30.0",
     "axios": "^1.6.2",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "vue": "^3.3.4"
+    "socket.io": "^4.6.1",
+    "socket.io-client": "^4.6.1",
+    "vue": "^3.3.4",
+    "vue-router": "^4.6.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.4.0",
