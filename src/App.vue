@@ -420,6 +420,15 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
+/* 全局禁用 iframe 元素 */
+:global(iframe) {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  pointer-events: none !important;
+}
+
 .jspspy-app {
   min-height: 100vh;
   display: flex;

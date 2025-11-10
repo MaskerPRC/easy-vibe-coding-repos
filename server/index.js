@@ -18,6 +18,15 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.json({ limit: '50mb' }));
 
+// 安全中间件：禁用 iframe 嵌入
+app.use((req, res, next) => {
+  // 防止页面被嵌入到 iframe 中
+  res.setHeader('X-Frame-Options', 'DENY');
+  // CSP 策略：禁止任何来源将此页面嵌入到 frame/iframe 中
+  res.setHeader('Content-Security-Policy', "frame-ancestors 'none'; frame-src 'none'");
+  next();
+});
+
 // Spy记录存储（内存）
 let spyRecords = [];
 const MAX_RECORDS = 10000;
