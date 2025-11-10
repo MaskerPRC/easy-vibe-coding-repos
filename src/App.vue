@@ -1,16 +1,11 @@
 <template>
   <div class="screen-share-app">
-    <!-- 蔡徐坤照片展示区域 -->
+    <!-- 蔡徐坤背景 Banner -->
     <div class="hero-section">
-      <div class="photo-container">
-        <img
-          src="https://img1.baidu.com/it/u=3823064048,3738063826&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=667"
-          alt="蔡徐坤"
-          class="hero-photo"
-        />
-        <div class="photo-caption">
-          <h2>蔡徐坤</h2>
-          <p>中国偶像歌手、演员</p>
+      <div class="hero-overlay">
+        <div class="hero-content">
+          <h1 class="hero-title">蔡徐坤</h1>
+          <p class="hero-subtitle">中国偶像歌手、演员、制作人</p>
         </div>
       </div>
     </div>
@@ -162,57 +157,70 @@ onUnmounted(() => {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
-/* 蔡徐坤照片展示区域 */
+/* 蔡徐坤背景 Banner */
 .hero-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 40px 20px;
+  position: relative;
+  height: 400px;
+  background-image: url('https://img1.baidu.com/it/u=3823064048,3738063826&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=667');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
 
-.photo-container {
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.7) 0%, rgba(118, 75, 162, 0.7) 100%);
+  z-index: 1;
+}
+
+.hero-overlay {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.hero-photo {
-  width: 400px;
-  height: auto;
-  max-height: 600px;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  object-fit: cover;
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.hero-photo:hover {
-  transform: scale(1.05);
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7);
-}
-
-.photo-caption {
+  z-index: 2;
   text-align: center;
-  color: white;
+  padding: 20px;
 }
 
-.photo-caption h2 {
+.hero-content {
+  animation: fadeInUp 1s ease-out;
+}
+
+.hero-title {
   margin: 0;
-  font-size: 36px;
-  font-weight: 700;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-  letter-spacing: 2px;
+  font-size: 56px;
+  font-weight: 800;
+  color: white;
+  text-shadow: 3px 3px 12px rgba(0, 0, 0, 0.8);
+  letter-spacing: 4px;
+  margin-bottom: 15px;
 }
 
-.photo-caption p {
-  margin: 10px 0 0 0;
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+.hero-subtitle {
+  margin: 0;
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  font-weight: 300;
+  letter-spacing: 1px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Header */
@@ -359,12 +367,16 @@ onUnmounted(() => {
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .hero-photo {
-    width: 350px;
+  .hero-section {
+    height: 350px;
   }
 
-  .photo-caption h2 {
-    font-size: 32px;
+  .hero-title {
+    font-size: 48px;
+  }
+
+  .hero-subtitle {
+    font-size: 20px;
   }
 
   .app-header {
@@ -384,19 +396,15 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .hero-section {
-    padding: 30px 15px;
+    height: 300px;
   }
 
-  .hero-photo {
-    width: 280px;
-    max-height: 420px;
+  .hero-title {
+    font-size: 40px;
+    letter-spacing: 2px;
   }
 
-  .photo-caption h2 {
-    font-size: 28px;
-  }
-
-  .photo-caption p {
+  .hero-subtitle {
     font-size: 16px;
   }
 
@@ -417,6 +425,20 @@ onUnmounted(() => {
 
   .separator {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    height: 250px;
+  }
+
+  .hero-title {
+    font-size: 32px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
   }
 }
 </style>
