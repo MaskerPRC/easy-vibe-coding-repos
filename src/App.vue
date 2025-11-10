@@ -13,12 +13,20 @@
           v-for="(greeting, index) in greetings"
           :key="index"
           class="greeting-card"
+          :class="{ 'playing': playingIndex === index }"
+          @click="playPronunciation(greeting, index)"
+          :title="'点击播放 ' + greeting.hello"
         >
           <div class="language-name">{{ greeting.language }}</div>
           <div class="greeting-text">{{ greeting.hello }}</div>
           <div class="pronunciation" v-if="greeting.pronunciation">
             {{ greeting.pronunciation }}
           </div>
+          <!-- 国家标识（右下角） -->
+          <div class="country-badge">{{ greeting.country }}</div>
+          <!-- 播放图标提示 -->
+          <div class="play-icon" v-if="playingIndex !== index">🔊</div>
+          <div class="playing-icon" v-else>🎵</div>
         </div>
       </div>
 
@@ -35,31 +43,71 @@ import { ref } from 'vue'
 
 // 万国语言数据（存储在内存中）
 const greetings = ref([
-  { language: '中文', hello: '你好', pronunciation: 'Nǐ hǎo' },
-  { language: 'English', hello: 'Hello', pronunciation: 'hə-ˈlō' },
-  { language: '日本語', hello: 'こんにちは', pronunciation: 'Konnichiwa' },
-  { language: '한국어', hello: '안녕하세요', pronunciation: 'Annyeonghaseyo' },
-  { language: 'Español', hello: 'Hola', pronunciation: 'OH-lah' },
-  { language: 'Français', hello: 'Bonjour', pronunciation: 'bohn-ZHOOR' },
-  { language: 'Deutsch', hello: 'Guten Tag', pronunciation: 'GOO-ten tahk' },
-  { language: 'Italiano', hello: 'Ciao', pronunciation: 'chow' },
-  { language: 'Português', hello: 'Olá', pronunciation: 'oh-LAH' },
-  { language: 'Русский', hello: 'Здравствуйте', pronunciation: 'ZDRAH-stvooy-tye' },
-  { language: 'العربية', hello: 'مرحبا', pronunciation: 'Marhaba' },
-  { language: 'हिन्दी', hello: 'नमस्ते', pronunciation: 'Namaste' },
-  { language: 'Türkçe', hello: 'Merhaba', pronunciation: 'mer-ha-BAH' },
-  { language: 'Nederlands', hello: 'Hallo', pronunciation: 'HAH-loh' },
-  { language: 'Svenska', hello: 'Hej', pronunciation: 'hey' },
-  { language: 'Polski', hello: 'Cześć', pronunciation: 'cheshch' },
-  { language: 'Ελληνικά', hello: 'Γεια σας', pronunciation: 'YAH-sas' },
-  { language: 'עברית', hello: 'שלום', pronunciation: 'Shalom' },
-  { language: 'ไทย', hello: 'สวัสดี', pronunciation: 'Sawatdee' },
-  { language: 'Tiếng Việt', hello: 'Xin chào', pronunciation: 'sin chow' },
-  { language: 'Bahasa Indonesia', hello: 'Halo', pronunciation: 'HAH-loh' },
-  { language: 'Tagalog', hello: 'Kamusta', pronunciation: 'kah-moos-TAH' },
-  { language: 'Kiswahili', hello: 'Jambo', pronunciation: 'JAHM-boh' },
-  { language: 'Suomi', hello: 'Hei', pronunciation: 'hay' }
+  { language: '中文', hello: '你好', pronunciation: 'Nǐ hǎo', country: '中国', lang: 'zh-CN' },
+  { language: 'English', hello: 'Hello', pronunciation: 'hə-ˈlō', country: '英国/美国', lang: 'en-US' },
+  { language: '日本語', hello: 'こんにちは', pronunciation: 'Konnichiwa', country: '日本', lang: 'ja-JP' },
+  { language: '한국어', hello: '안녕하세요', pronunciation: 'Annyeonghaseyo', country: '韩国', lang: 'ko-KR' },
+  { language: 'Español', hello: 'Hola', pronunciation: 'OH-lah', country: '西班牙', lang: 'es-ES' },
+  { language: 'Français', hello: 'Bonjour', pronunciation: 'bohn-ZHOOR', country: '法国', lang: 'fr-FR' },
+  { language: 'Deutsch', hello: 'Guten Tag', pronunciation: 'GOO-ten tahk', country: '德国', lang: 'de-DE' },
+  { language: 'Italiano', hello: 'Ciao', pronunciation: 'chow', country: '意大利', lang: 'it-IT' },
+  { language: 'Português', hello: 'Olá', pronunciation: 'oh-LAH', country: '葡萄牙/巴西', lang: 'pt-PT' },
+  { language: 'Русский', hello: 'Здравствуйте', pronunciation: 'ZDRAH-stvooy-tye', country: '俄罗斯', lang: 'ru-RU' },
+  { language: 'العربية', hello: 'مرحبا', pronunciation: 'Marhaba', country: '阿拉伯地区', lang: 'ar-SA' },
+  { language: 'हिन्दी', hello: 'नमस्ते', pronunciation: 'Namaste', country: '印度', lang: 'hi-IN' },
+  { language: 'Türkçe', hello: 'Merhaba', pronunciation: 'mer-ha-BAH', country: '土耳其', lang: 'tr-TR' },
+  { language: 'Nederlands', hello: 'Hallo', pronunciation: 'HAH-loh', country: '荷兰', lang: 'nl-NL' },
+  { language: 'Svenska', hello: 'Hej', pronunciation: 'hey', country: '瑞典', lang: 'sv-SE' },
+  { language: 'Polski', hello: 'Cześć', pronunciation: 'cheshch', country: '波兰', lang: 'pl-PL' },
+  { language: 'Ελληνικά', hello: 'Γεια σας', pronunciation: 'YAH-sas', country: '希腊', lang: 'el-GR' },
+  { language: 'עברית', hello: 'שלום', pronunciation: 'Shalom', country: '以色列', lang: 'he-IL' },
+  { language: 'ไทย', hello: 'สวัสดี', pronunciation: 'Sawatdee', country: '泰国', lang: 'th-TH' },
+  { language: 'Tiếng Việt', hello: 'Xin chào', pronunciation: 'sin chow', country: '越南', lang: 'vi-VN' },
+  { language: 'Bahasa Indonesia', hello: 'Halo', pronunciation: 'HAH-loh', country: '印度尼西亚', lang: 'id-ID' },
+  { language: 'Tagalog', hello: 'Kamusta', pronunciation: 'kah-moos-TAH', country: '菲律宾', lang: 'tl-PH' },
+  { language: 'Kiswahili', hello: 'Jambo', pronunciation: 'JAHM-boh', country: '坦桑尼亚/肯尼亚', lang: 'sw-KE' },
+  { language: 'Suomi', hello: 'Hei', pronunciation: 'hay', country: '芬兰', lang: 'fi-FI' }
 ])
+
+// 当前正在播放的卡片索引（存储在内存中）
+const playingIndex = ref(-1)
+
+// 播放读音功能
+const playPronunciation = (greeting, index) => {
+  // 检查浏览器是否支持 Web Speech API
+  if ('speechSynthesis' in window) {
+    // 如果正在播放，先停止
+    window.speechSynthesis.cancel()
+
+    // 设置当前播放状态
+    playingIndex.value = index
+
+    // 创建语音合成实例
+    const utterance = new SpeechSynthesisUtterance(greeting.hello)
+
+    // 设置语言
+    utterance.lang = greeting.lang
+
+    // 设置语速和音量
+    utterance.rate = 0.9
+    utterance.volume = 1.0
+
+    // 播放结束后清除状态
+    utterance.onend = () => {
+      playingIndex.value = -1
+    }
+
+    // 播放失败时也清除状态
+    utterance.onerror = () => {
+      playingIndex.value = -1
+    }
+
+    // 开始播放
+    window.speechSynthesis.speak(utterance)
+  } else {
+    alert('您的浏览器不支持语音播放功能')
+  }
+}
 </script>
 
 <style scoped>
@@ -121,12 +169,21 @@ const greetings = ref([
   transition: all 0.3s ease;
   cursor: pointer;
   border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
 }
 
 .greeting-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 16px rgba(0, 123, 255, 0.2);
   border-color: #007BFF;
+}
+
+/* 播放状态 */
+.greeting-card.playing {
+  border-color: #28a745;
+  box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3);
+  background: linear-gradient(135deg, #ffffff 0%, #f0fff4 100%);
 }
 
 /* 语言名称 */
@@ -153,6 +210,51 @@ const greetings = ref([
   color: #6C757D;
   font-style: italic;
   margin-top: 8px;
+}
+
+/* 国家标识（右下角） */
+.country-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 123, 255, 0.1);
+  color: #007BFF;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(0, 123, 255, 0.2);
+}
+
+/* 播放图标（右上角） */
+.play-icon,
+.playing-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 20px;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.greeting-card:hover .play-icon {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.playing-icon {
+  opacity: 1;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+/* 播放动画 */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
 }
 
 /* 页脚 */
