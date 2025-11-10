@@ -45,7 +45,7 @@ const closeModal = () => {
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
-  z-index: 9998;
+  z-index: 10001;
   user-select: none;
 }
 
@@ -56,7 +56,7 @@ const closeModal = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
