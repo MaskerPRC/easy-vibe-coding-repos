@@ -267,6 +267,294 @@ app.get('/api/lol/match-data', (req, res) => {
   res.json(matchData);
 });
 
+// 数码猫咪接口
+
+// 初始化猫咪数据
+let digitalCats = [
+  {
+    id: 1,
+    name: 'CyberNeko',
+    level: 5,
+    hp: 85,
+    maxHp: 100,
+    energy: 70,
+    maxEnergy: 100,
+    exp: 320,
+    maxExp: 500,
+    type: 'cyber',
+    color: '#00ffff',
+    skills: ['数据冲击', '电磁护盾', '量子跳跃'],
+    lastFeedTime: null,
+    lastPlayTime: null,
+    lastTrainTime: null
+  },
+  {
+    id: 2,
+    name: 'CodeKitty',
+    level: 3,
+    hp: 95,
+    maxHp: 100,
+    energy: 60,
+    maxEnergy: 100,
+    exp: 150,
+    maxExp: 300,
+    type: 'code',
+    color: '#ff00ff',
+    skills: ['代码生成', '调试模式', 'Git跳跃'],
+    lastFeedTime: null,
+    lastPlayTime: null,
+    lastTrainTime: null
+  },
+  {
+    id: 3,
+    name: 'NeonPaw',
+    level: 7,
+    hp: 90,
+    maxHp: 100,
+    energy: 80,
+    maxEnergy: 100,
+    exp: 580,
+    maxExp: 700,
+    type: 'neon',
+    color: '#00ff00',
+    skills: ['霓虹闪烁', '光速移动', '能量脉冲'],
+    lastFeedTime: null,
+    lastPlayTime: null,
+    lastTrainTime: null
+  },
+  {
+    id: 4,
+    name: 'PixelMeow',
+    level: 4,
+    hp: 100,
+    maxHp: 100,
+    energy: 50,
+    maxEnergy: 100,
+    exp: 240,
+    maxExp: 400,
+    type: 'pixel',
+    color: '#ffff00',
+    skills: ['像素化', '8位跳跃', '复古冲刺'],
+    lastFeedTime: null,
+    lastPlayTime: null,
+    lastTrainTime: null
+  }
+];
+
+// 获取所有数码猫咪
+app.get('/api/cats', (req, res) => {
+  res.json({
+    success: true,
+    cats: digitalCats,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// 获取单只猫咪
+app.get('/api/cats/:id', (req, res) => {
+  const catId = parseInt(req.params.id);
+  const cat = digitalCats.find(c => c.id === catId);
+
+  if (!cat) {
+    return res.status(404).json({
+      success: false,
+      message: '猫咪不存在'
+    });
+  }
+
+  res.json({
+    success: true,
+    cat: cat,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// 喂食猫咪
+app.post('/api/cats/:id/feed', (req, res) => {
+  const catId = parseInt(req.params.id);
+  const cat = digitalCats.find(c => c.id === catId);
+
+  if (!cat) {
+    return res.status(404).json({
+      success: false,
+      message: '猫咪不存在'
+    });
+  }
+
+  // 检查冷却时间（30秒）
+  const now = Date.now();
+  if (cat.lastFeedTime && (now - cat.lastFeedTime) < 30000) {
+    const remainingTime = Math.ceil((30000 - (now - cat.lastFeedTime)) / 1000);
+    return res.json({
+      success: false,
+      message: `猫咪还不饿，请等待${remainingTime}秒`,
+      cat: cat
+    });
+  }
+
+  // 恢复HP
+  const hpGain = Math.floor(Math.random() * 15) + 10;
+  cat.hp = Math.min(cat.hp + hpGain, cat.maxHp);
+  cat.lastFeedTime = now;
+
+  res.json({
+    success: true,
+    message: `喂食成功！恢复了${hpGain}点HP`,
+    hpGain: hpGain,
+    cat: cat,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// 与猫咪玩耍
+app.post('/api/cats/:id/play', (req, res) => {
+  const catId = parseInt(req.params.id);
+  const cat = digitalCats.find(c => c.id === catId);
+
+  if (!cat) {
+    return res.status(404).json({
+      success: false,
+      message: '猫咪不存在'
+    });
+  }
+
+  // 检查能量
+  if (cat.energy < 20) {
+    return res.json({
+      success: false,
+      message: '猫咪能量不足，需要休息',
+      cat: cat
+    });
+  }
+
+  // 检查冷却时间（20秒）
+  const now = Date.now();
+  if (cat.lastPlayTime && (now - cat.lastPlayTime) < 20000) {
+    const remainingTime = Math.ceil((20000 - (now - cat.lastPlayTime)) / 1000);
+    return res.json({
+      success: false,
+      message: `猫咪需要休息，请等待${remainingTime}秒`,
+      cat: cat
+    });
+  }
+
+  // 消耗能量，增加经验
+  const energyCost = 15;
+  const expGain = Math.floor(Math.random() * 30) + 20;
+  cat.energy = Math.max(0, cat.energy - energyCost);
+  cat.exp += expGain;
+  cat.lastPlayTime = now;
+
+  // 检查升级
+  let levelUp = false;
+  if (cat.exp >= cat.maxExp) {
+    cat.level += 1;
+    cat.exp = cat.exp - cat.maxExp;
+    cat.maxExp = Math.floor(cat.maxExp * 1.5);
+    cat.maxHp += 10;
+    cat.maxEnergy += 10;
+    cat.hp = cat.maxHp;
+    cat.energy = cat.maxEnergy;
+    levelUp = true;
+  }
+
+  res.json({
+    success: true,
+    message: levelUp ? `玩耍成功！获得${expGain}经验，升级到${cat.level}级！` : `玩耍成功！获得${expGain}经验`,
+    expGain: expGain,
+    levelUp: levelUp,
+    cat: cat,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// 训练猫咪
+app.post('/api/cats/:id/train', (req, res) => {
+  const catId = parseInt(req.params.id);
+  const cat = digitalCats.find(c => c.id === catId);
+
+  if (!cat) {
+    return res.status(404).json({
+      success: false,
+      message: '猫咪不存在'
+    });
+  }
+
+  // 检查能量
+  if (cat.energy < 30) {
+    return res.json({
+      success: false,
+      message: '猫咪能量不足，需要至少30点能量',
+      cat: cat
+    });
+  }
+
+  // 检查冷却时间（40秒）
+  const now = Date.now();
+  if (cat.lastTrainTime && (now - cat.lastTrainTime) < 40000) {
+    const remainingTime = Math.ceil((40000 - (now - cat.lastTrainTime)) / 1000);
+    return res.json({
+      success: false,
+      message: `训练需要冷却，请等待${remainingTime}秒`,
+      cat: cat
+    });
+  }
+
+  // 消耗能量，增加大量经验
+  const energyCost = 30;
+  const expGain = Math.floor(Math.random() * 60) + 50;
+  cat.energy = Math.max(0, cat.energy - energyCost);
+  cat.exp += expGain;
+  cat.lastTrainTime = now;
+
+  // 检查升级
+  let levelUp = false;
+  if (cat.exp >= cat.maxExp) {
+    cat.level += 1;
+    cat.exp = cat.exp - cat.maxExp;
+    cat.maxExp = Math.floor(cat.maxExp * 1.5);
+    cat.maxHp += 10;
+    cat.maxEnergy += 10;
+    cat.hp = cat.maxHp;
+    cat.energy = cat.maxEnergy;
+    levelUp = true;
+  }
+
+  res.json({
+    success: true,
+    message: levelUp ? `训练成功！获得${expGain}经验，升级到${cat.level}级！` : `训练成功！获得${expGain}经验`,
+    expGain: expGain,
+    levelUp: levelUp,
+    cat: cat,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// 恢复猫咪能量（自动恢复接口）
+app.post('/api/cats/:id/recover', (req, res) => {
+  const catId = parseInt(req.params.id);
+  const cat = digitalCats.find(c => c.id === catId);
+
+  if (!cat) {
+    return res.status(404).json({
+      success: false,
+      message: '猫咪不存在'
+    });
+  }
+
+  // 每次恢复5点能量
+  const energyGain = 5;
+  cat.energy = Math.min(cat.energy + energyGain, cat.maxEnergy);
+
+  res.json({
+    success: true,
+    message: `恢复${energyGain}点能量`,
+    energyGain: energyGain,
+    cat: cat,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);
