@@ -691,6 +691,101 @@ app.delete('/api/screenshots/:id', (req, res) => {
   }
 });
 
+// ==================== PHP API ====================
+
+/**
+ * 获取 PHP 信息
+ */
+app.get('/api/php/info', async (req, res) => {
+  try {
+    // 首先检查 PHP 是否安装
+    try {
+      await execAsync('which php', { timeout: 5000 });
+    } catch (error) {
+      return res.json({
+        success: false,
+        installed: false,
+        message: 'PHP 未安装。请运行以下命令安装 PHP：\nsudo apt update && sudo apt install -y php php-cli',
+        html: '<div style="color: #e74c3c; padding: 20px; font-family: monospace;">⚠️ PHP 未安装<br><br>请在终端执行以下命令安装：<br><br><code style="background: #2d2d2d; padding: 10px; display: block; border-radius: 5px;">sudo apt update && sudo apt install -y php php-cli</code></div>'
+      });
+    }
+
+    // 获取 PHP 版本信息
+    const { stdout: versionOutput } = await execAsync('php -v', {
+      timeout: 10000,
+      maxBuffer: 5 * 1024 * 1024
+    });
+
+    // 获取 phpinfo() 的 HTML 输出
+    const { stdout: phpinfoOutput } = await execAsync('php -r "phpinfo();"', {
+      timeout: 10000,
+      maxBuffer: 10 * 1024 * 1024
+    });
+
+    res.json({
+      success: true,
+      installed: true,
+      version: versionOutput.trim(),
+      html: phpinfoOutput,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      installed: true,
+      message: error.message,
+      error: error.stderr || error.message
+    });
+  }
+});
+
+/**
+ * 执行 PHP 代码
+ */
+app.post('/api/php/exec', async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({
+        success: false,
+        message: 'PHP 代码不能为空'
+      });
+    }
+
+    // 检查 PHP 是否安装
+    try {
+      await execAsync('which php', { timeout: 5000 });
+    } catch (error) {
+      return res.json({
+        success: false,
+        installed: false,
+        message: 'PHP 未安装'
+      });
+    }
+
+    // 执行 PHP 代码
+    const { stdout, stderr } = await execAsync(`php -r ${JSON.stringify(code)}`, {
+      timeout: 30000,
+      maxBuffer: 10 * 1024 * 1024
+    });
+
+    res.json({
+      success: true,
+      output: stdout,
+      error: stderr,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      output: error.stdout || '',
+      error: error.stderr || error.message,
+      message: '执行失败'
+    });
+  }
+});
+
 // ==================== 其他工具 API ====================
 
 /**

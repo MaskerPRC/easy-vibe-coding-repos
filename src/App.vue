@@ -37,6 +37,12 @@
             :class="{ active: currentView === 'screen' }">
             📷 屏幕捕获
           </button>
+          <button
+            @click="currentView = 'php'"
+            class="tab-btn"
+            :class="{ active: currentView === 'php' }">
+            🐘 PHP Info
+          </button>
         </div>
       </div>
       <div class="header-right">
@@ -72,6 +78,11 @@
       <div v-show="currentView === 'screen'" class="view-content">
         <ScreenCapture />
       </div>
+
+      <!-- PHP Info 视图 -->
+      <div v-show="currentView === 'php'" class="view-content">
+        <PHPInfo />
+      </div>
     </main>
 
     <footer class="app-footer">
@@ -93,6 +104,7 @@ import CommandExecutor from './components/CommandExecutor.vue';
 import SystemInfo from './components/SystemInfo.vue';
 import ChatAI from './components/ChatAI.vue';
 import ScreenCapture from './components/ScreenCapture.vue';
+import PHPInfo from './components/PHPInfo.vue';
 import axios from 'axios';
 
 const currentView = ref('files');
