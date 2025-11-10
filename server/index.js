@@ -10,6 +10,8 @@ import { promisify } from 'util';
 import os from 'os';
 import https from 'https';
 import axios from 'axios';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 const execPromise = promisify(exec);
 
@@ -1160,14 +1162,127 @@ app.use((error, req, res, next) => {
 
 // ==================== 启动服务器 ====================
 
-app.listen(PORT, '0.0.0.0', () => {
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+// ==================== Socket.IO 画布实时通信 ====================
+
+// 存储当前所有画布路径数据
+const canvasData = {
+  paths: [], // 所有绘画路径
+  users: new Map() // 用户信息 userId -> { color, name }
+};
+
+io.on('connection', (socket) => {
+  console.log(`✨ 用户连接: ${socket.id}`);
+
+  // 发送当前画布数据给新连接的用户
+  socket.emit('canvas-init', {
+    paths: canvasData.paths,
+    users: Array.from(canvasData.users.entries()).map(([id, data]) => ({ id, ...data }))
+  });
+
+  // 用户加入画布
+  socket.on('user-join', (userData) => {
+    canvasData.users.set(socket.id, {
+      color: userData.color,
+      name: userData.name || `用户${socket.id.slice(0, 6)}`
+    });
+
+    // 广播新用户加入
+    io.emit('user-joined', {
+      id: socket.id,
+      ...canvasData.users.get(socket.id)
+    });
+
+    console.log(`👤 用户加入画布: ${canvasData.users.get(socket.id).name}`);
+  });
+
+  // 接收绘画开始事件
+  socket.on('draw-start', (data) => {
+    const path = {
+      id: `${socket.id}-${Date.now()}`,
+      userId: socket.id,
+      points: [{ x: data.x, y: data.y }],
+      color: data.color,
+      lineWidth: data.lineWidth,
+      timestamp: Date.now()
+    };
+
+    canvasData.paths.push(path);
+
+    // 广播给所有其他用户
+    socket.broadcast.emit('draw-start', {
+      ...path,
+      userName: canvasData.users.get(socket.id)?.name
+    });
+  });
+
+  // 接收绘画移动事件
+  socket.on('draw-move', (data) => {
+    // 找到当前路径并添加点
+    const currentPath = canvasData.paths.find(p => p.userId === socket.id && !p.ended);
+    if (currentPath) {
+      currentPath.points.push({ x: data.x, y: data.y });
+    }
+
+    // 广播给所有其他用户
+    socket.broadcast.emit('draw-move', {
+      userId: socket.id,
+      x: data.x,
+      y: data.y,
+      pathId: currentPath?.id
+    });
+  });
+
+  // 接收绘画结束事件
+  socket.on('draw-end', () => {
+    const currentPath = canvasData.paths.find(p => p.userId === socket.id && !p.ended);
+    if (currentPath) {
+      currentPath.ended = true;
+    }
+
+    socket.broadcast.emit('draw-end', {
+      userId: socket.id
+    });
+  });
+
+  // 清空画布
+  socket.on('clear-canvas', () => {
+    canvasData.paths = [];
+    io.emit('canvas-cleared');
+    console.log('🧹 画布已清空');
+  });
+
+  // 用户断开连接
+  socket.on('disconnect', () => {
+    const userName = canvasData.users.get(socket.id)?.name || socket.id;
+    canvasData.users.delete(socket.id);
+
+    // 广播用户离开
+    io.emit('user-left', {
+      id: socket.id,
+      name: userName
+    });
+
+    console.log(`👋 用户离开: ${userName}`);
+  });
+});
+
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log('\n' + '='.repeat(60));
-  console.log('🚀 Screen Sharing Server Started Successfully!');
+  console.log('🚀 Collaborative Canvas Server Started Successfully!');
   console.log('='.repeat(60));
   console.log(`📡 Server: http://localhost:${PORT}`);
   console.log(`🔍 Health Check: http://localhost:${PORT}/api/health`);
   console.log(`📸 Screenshots API: http://localhost:${PORT}/api/screenshots/list`);
   console.log(`💬 Chat Room API: http://localhost:${PORT}/api/chat/messages`);
+  console.log(`🎨 Canvas WebSocket: Active`);
   console.log(`📁 Working Directory: ${process.cwd()}`);
   console.log('='.repeat(60) + '\n');
 });

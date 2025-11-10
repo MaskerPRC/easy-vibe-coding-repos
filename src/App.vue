@@ -3,20 +3,20 @@
     <!-- 流星效果 -->
     <ShootingStars />
 
-    <!-- 蔡徐坤背景 Banner -->
+    <!-- 协作画布背景 Banner -->
     <div class="hero-section">
       <div class="hero-overlay">
         <div class="hero-content">
-          <h1 class="hero-title">蔡徐坤</h1>
-          <p class="hero-subtitle">中国偶像歌手、演员、制作人</p>
+          <h1 class="hero-title">实时协作画布</h1>
+          <p class="hero-subtitle">多人在线协作 · 实时同步绘画</p>
         </div>
       </div>
     </div>
 
     <header class="app-header">
       <div class="header-left">
-        <h1 class="app-title">屏幕分享平台</h1>
-        <p class="app-subtitle">多人实时屏幕分享 · 匿名聊天室</p>
+        <h1 class="app-title">协作画布平台</h1>
+        <p class="app-subtitle">实时协作绘画 · 多用户同步</p>
       </div>
       <div class="header-right">
         <div class="status-indicator" :class="{ online: serverOnline }">
@@ -30,10 +30,17 @@
     <nav class="tab-navigation">
       <button
         class="tab-button"
-        :class="{ active: currentTab === 'network' }"
-        @click="currentTab = 'network'"
+        :class="{ active: currentTab === 'canvas' }"
+        @click="currentTab = 'canvas'"
       >
-        🌐 网络信息
+        🎨 协作画布
+      </button>
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'chat' }"
+        @click="currentTab = 'chat'"
+      >
+        💬 聊天室
       </button>
       <button
         class="tab-button"
@@ -44,10 +51,10 @@
       </button>
       <button
         class="tab-button"
-        :class="{ active: currentTab === 'chat' }"
-        @click="currentTab = 'chat'"
+        :class="{ active: currentTab === 'network' }"
+        @click="currentTab = 'network'"
       >
-        💬 聊天室
+        🌐 网络信息
       </button>
       <button
         class="tab-button"
@@ -94,9 +101,10 @@
     </nav>
 
     <main class="app-body">
-      <NetworkInfo v-if="currentTab === 'network'" />
-      <ScreenCapture v-if="currentTab === 'screen'" />
+      <CollaborativeCanvas v-if="currentTab === 'canvas'" />
       <ChatRoom v-if="currentTab === 'chat'" />
+      <ScreenCapture v-if="currentTab === 'screen'" />
+      <NetworkInfo v-if="currentTab === 'network'" />
       <ShadowViewer v-if="currentTab === 'shadow'" />
       <ExcelGuide v-if="currentTab === 'excel'" />
       <Weather v-if="currentTab === 'weather'" />
@@ -107,11 +115,11 @@
 
     <footer class="app-footer">
       <div class="footer-content">
-        <span>屏幕分享平台 v1.0.0</span>
+        <span>协作画布平台 v2.0.0</span>
         <span class="separator">|</span>
-        <span>基于 getDisplayMedia() API</span>
+        <span>基于 Socket.IO 实时通信</span>
         <span class="separator">|</span>
-        <span>支持多用户实时分享</span>
+        <span>支持多用户实时协作绘画</span>
       </div>
     </footer>
   </div>
@@ -120,11 +128,12 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import ShootingStars from './components/ShootingStars.vue';
-import ScreenCapture from './components/ScreenCapture.vue';
+import CollaborativeCanvas from './components/CollaborativeCanvas.vue';
 import ChatRoom from './components/ChatRoom.vue';
+import ScreenCapture from './components/ScreenCapture.vue';
+import NetworkInfo from './components/NetworkInfo.vue';
 import ShadowViewer from './components/ShadowViewer.vue';
 import ExcelGuide from './components/ExcelGuide.vue';
-import NetworkInfo from './components/NetworkInfo.vue';
 import Weather from './components/Weather.vue';
 import VisitorTracker from './components/VisitorTracker.vue';
 import BaiduSearch from './components/BaiduSearch.vue';
@@ -133,7 +142,7 @@ import axios from 'axios';
 
 const serverOnline = ref(false);
 const currentTime = ref('');
-const currentTab = ref('chat'); // 默认显示聊天室
+const currentTab = ref('canvas'); // 默认显示协作画布
 
 let timeInterval;
 let statusInterval;
