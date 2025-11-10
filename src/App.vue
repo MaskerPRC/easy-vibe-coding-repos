@@ -40,6 +40,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import XSSDemo from './components/XSSDemo.vue';
 import FPSGame from './components/FPSGame.vue';
 import DigitalCat from './components/DigitalCat.vue';
 import LOLAnalysis from './components/LOLAnalysis.vue';
@@ -48,13 +49,14 @@ import Error502 from './components/Error502.vue';
 import HeroCarousel from './components/HeroCarousel.vue';
 
 // 当前页面
-const currentPage = ref('digitalcat');
+const currentPage = ref('xssdemo');
 
 // 是否全屏模式（FPS游戏时）
 const isFullscreen = computed(() => currentPage.value === 'fps');
 
 // 页面列表
 const pages = [
+  { name: 'xssdemo', label: 'XSS靶场', component: XSSDemo },
   { name: 'digitalcat', label: '数码猫咪', component: DigitalCat },
   { name: 'hero', label: '王者荣耀', component: HeroCarousel },
   { name: 'fps', label: 'FPS游戏', component: FPSGame },
