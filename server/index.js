@@ -586,6 +586,120 @@ app.get('/api/weather', async (req, res) => {
   }
 });
 
+// ==================== 搜索 API ====================
+
+/**
+ * Bing 搜索 API (模拟)
+ * 注意：这里使用模拟数据，实际使用需要 Bing Search API key
+ */
+app.get('/api/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || !q.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: '搜索关键词不能为空'
+      });
+    }
+
+    console.log(`🔍 搜索关键词: ${q}`);
+
+    // 模拟Bing搜索结果（实际应该调用Bing Search API）
+    // 由于没有真实的Bing API key，这里生成模拟数据
+    const mockResults = [
+      {
+        title: `${q} - 百度百科`,
+        url: `https://baike.baidu.com/item/${encodeURIComponent(q)}`,
+        displayUrl: `baike.baidu.com/item/${q}`,
+        snippet: `${q}是一个多义词，可以指代多种不同的事物。本词条详细介绍了${q}的各种含义、历史背景、应用场景等相关信息...`,
+        priority: 95
+      },
+      {
+        title: `${q} - 维基百科，自由的百科全书`,
+        url: `https://zh.wikipedia.org/wiki/${encodeURIComponent(q)}`,
+        displayUrl: `zh.wikipedia.org/wiki/${q}`,
+        snippet: `${q}，在维基百科中有详细的介绍。维基百科是一个自由、开放的百科全书项目，由全球志愿者共同编辑...`,
+        priority: 92
+      },
+      {
+        title: `关于${q}的最新资讯 - 新浪新闻`,
+        url: `https://news.sina.com.cn/search?q=${encodeURIComponent(q)}`,
+        displayUrl: `news.sina.com.cn/search?q=${q}`,
+        snippet: `新浪新闻为您提供${q}的最新资讯、深度报道、独家评论等内容。第一时间了解${q}的最新动态...`,
+        priority: 88
+      },
+      {
+        title: `${q} - 知乎`,
+        url: `https://www.zhihu.com/search?q=${encodeURIComponent(q)}`,
+        displayUrl: `www.zhihu.com/search?q=${q}`,
+        snippet: `知乎，中文互联网高质量的问答社区。在这里可以找到关于${q}的各种问题和答案，了解不同的观点和见解...`,
+        priority: 85
+      },
+      {
+        title: `${q}相关视频_哔哩哔哩`,
+        url: `https://www.bilibili.com/search?keyword=${encodeURIComponent(q)}`,
+        displayUrl: `www.bilibili.com/search?keyword=${q}`,
+        snippet: `哔哩哔哩为您提供${q}相关的视频内容，包括教程、讲解、实践案例等。观看高质量的${q}视频内容...`,
+        priority: 82
+      },
+      {
+        title: `${q}的详细介绍和使用方法 - CSDN博客`,
+        url: `https://blog.csdn.net/search?q=${encodeURIComponent(q)}`,
+        displayUrl: `blog.csdn.net/search?q=${q}`,
+        snippet: `CSDN博客为您提供${q}的详细技术文档、使用教程、最佳实践等内容。帮助开发者快速掌握${q}的使用...`,
+        priority: 78
+      },
+      {
+        title: `${q} - 淘宝网`,
+        url: `https://s.taobao.com/search?q=${encodeURIComponent(q)}`,
+        displayUrl: `s.taobao.com/search?q=${q}`,
+        snippet: `淘宝网为您找到${q}相关的商品信息，提供丰富的${q}产品选择，价格实惠，质量保证...`,
+        priority: 75
+      },
+      {
+        title: `${q} - 京东商城`,
+        url: `https://search.jd.com/Search?keyword=${encodeURIComponent(q)}`,
+        displayUrl: `search.jd.com/Search?keyword=${q}`,
+        snippet: `京东商城为您提供${q}的正品行货，价格优惠，品质保证，配送快捷。在线购买${q}，享受优质服务...`,
+        priority: 72
+      },
+      {
+        title: `${q}的英文翻译 - 有道词典`,
+        url: `https://dict.youdao.com/search?q=${encodeURIComponent(q)}`,
+        displayUrl: `dict.youdao.com/search?q=${q}`,
+        snippet: `有道词典为您提供${q}的英文翻译、读音、例句等内容。帮助您更好地学习和使用${q}这个词汇...`,
+        priority: 68
+      },
+      {
+        title: `${q} - 豆瓣`,
+        url: `https://www.douban.com/search?q=${encodeURIComponent(q)}`,
+        displayUrl: `www.douban.com/search?q=${q}`,
+        snippet: `豆瓣为您提供${q}相关的书籍、电影、音乐等文化内容推荐。发现更多关于${q}的有趣内容...`,
+        priority: 65
+      }
+    ];
+
+    // 按优先级倒序排序（从高到低）
+    mockResults.sort((a, b) => b.priority - a.priority);
+
+    res.json({
+      success: true,
+      results: mockResults,
+      total: mockResults.length,
+      query: q,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('搜索失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '搜索服务暂时不可用，请稍后重试',
+      error: error.message
+    });
+  }
+});
+
 // ==================== 健康检查 ====================
 
 /**

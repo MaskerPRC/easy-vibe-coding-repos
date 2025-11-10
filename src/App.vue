@@ -74,6 +74,13 @@
       >
         👥 访客追踪
       </button>
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'search' }"
+        @click="currentTab = 'search'"
+      >
+        🔍 百度搜索
+      </button>
     </nav>
 
     <main class="app-body">
@@ -84,6 +91,7 @@
       <ExcelGuide v-if="currentTab === 'excel'" />
       <Weather v-if="currentTab === 'weather'" />
       <VisitorTracker v-if="currentTab === 'visitor'" />
+      <BaiduSearch v-if="currentTab === 'search'" />
     </main>
 
     <footer class="app-footer">
@@ -107,6 +115,7 @@ import ExcelGuide from './components/ExcelGuide.vue';
 import NetworkInfo from './components/NetworkInfo.vue';
 import Weather from './components/Weather.vue';
 import VisitorTracker from './components/VisitorTracker.vue';
+import BaiduSearch from './components/BaiduSearch.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);
