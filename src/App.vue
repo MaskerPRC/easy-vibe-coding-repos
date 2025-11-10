@@ -1,5 +1,8 @@
 <template>
   <div class="screen-share-app">
+    <!-- 流星效果 -->
+    <ShootingStars />
+
     <!-- 蔡徐坤背景 Banner -->
     <div class="hero-section">
       <div class="hero-overlay">
@@ -108,6 +111,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import ShootingStars from './components/ShootingStars.vue';
 import ScreenCapture from './components/ScreenCapture.vue';
 import ChatRoom from './components/ChatRoom.vue';
 import ShadowViewer from './components/ShadowViewer.vue';
