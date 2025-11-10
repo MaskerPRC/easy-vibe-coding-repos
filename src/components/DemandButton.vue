@@ -31,13 +31,13 @@ const closeModal = () => {
 <style scoped>
 .demand-button {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 68px;
-  height: 68px;
+  bottom: 0px;
+  right: 0px;
+  width: 168px;
+  height: 168px;
   background-color: #007bff;
   color: white;
-  border-radius: 50%;
+  border-radius: 20%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,19 +45,8 @@ const closeModal = () => {
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
-  transition: all 0.3s ease;
   z-index: 9998;
   user-select: none;
-}
-
-.demand-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
-  background-color: #0069d9;
-}
-
-.demand-button:active {
-  transform: scale(0.95);
 }
 
 /* 弹窗遮罩 */
@@ -150,11 +139,11 @@ const closeModal = () => {
 /* 响应式 */
 @media (max-width: 768px) {
   .demand-button {
-    width: 60px;
-    height: 60px;
+    width: 168px;
+    height: 168px;
     font-size: 14px;
-    bottom: 15px;
-    right: 15px;
+    bottom: 0px;
+    right: 0px;
   }
 
   .modal-content {
