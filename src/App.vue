@@ -124,26 +124,26 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #0a0e27;
+  background: #ffffff;
 }
 
 /* 导航栏样式 */
 .nav-bar {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   padding: 15px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid rgba(0, 255, 255, 0.3);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   z-index: 100;
 }
 
 .nav-title {
   font-size: 1.5em;
   font-weight: bold;
-  color: #00ffff;
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  color: #333333;
+  text-shadow: none;
   font-family: 'Courier New', monospace;
 }
 
@@ -154,10 +154,10 @@ body {
 
 .nav-btn {
   padding: 10px 20px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(0, 255, 255, 0.3);
+  background: #ffffff;
+  border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  color: #00ffff;
+  color: #333333;
   font-size: 1em;
   font-weight: bold;
   cursor: pointer;
@@ -166,16 +166,16 @@ body {
 }
 
 .nav-btn:hover {
-  background: rgba(0, 255, 255, 0.2);
-  border-color: #00ffff;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+  background: #f0f0f0;
+  border-color: #666666;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
 .nav-btn.active {
-  background: rgba(0, 255, 255, 0.3);
-  border-color: #00ffff;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+  background: #e8e8e8;
+  border-color: #333333;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 /* 页面内容 */
@@ -196,26 +196,26 @@ body {
 }
 
 .page-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
+  background: #f0f0f0;
 }
 
 .page-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 255, 0.5);
+  background: #cccccc;
   border-radius: 5px;
 }
 
 .page-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 255, 0.7);
+  background: #999999;
 }
 
 /* 源码显示区域 */
 .source-display {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   margin: 15px 30px;
   padding: 15px;
-  border: 2px solid rgba(0, 255, 255, 0.3);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .source-header {
@@ -224,22 +224,22 @@ body {
   align-items: center;
   margin-bottom: 10px;
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .source-header h3 {
-  color: #00ffff;
+  color: #333333;
   font-family: 'Courier New', monospace;
   font-size: 1.2em;
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  text-shadow: none;
 }
 
 .toggle-btn {
   padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(0, 255, 255, 0.3);
+  background: #ffffff;
+  border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 6px;
-  color: #00ffff;
+  color: #333333;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -247,14 +247,14 @@ body {
 }
 
 .toggle-btn:hover {
-  background: rgba(0, 255, 255, 0.2);
-  border-color: #00ffff;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+  background: #f0f0f0;
+  border-color: #666666;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .source-content {
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(0, 255, 255, 0.2);
+  background: #f8f9fa;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 6px;
   padding: 15px;
   max-height: 400px;
@@ -264,7 +264,7 @@ body {
 
 .source-content pre {
   margin: 0;
-  color: #00ff00;
+  color: #2c7a2c;
   font-family: 'Courier New', monospace;
   font-size: 0.85em;
   line-height: 1.5;
@@ -273,16 +273,16 @@ body {
 }
 
 .source-content code {
-  color: #00ff00;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  color: #2c7a2c;
+  text-shadow: none;
 }
 
 .source-error {
-  background: rgba(255, 0, 0, 0.2);
-  border: 1px solid rgba(255, 0, 0, 0.5);
+  background: #ffe0e0;
+  border: 1px solid #ff9999;
   border-radius: 6px;
   padding: 10px;
-  color: #ff6b6b;
+  color: #cc0000;
   font-family: 'Courier New', monospace;
   margin-top: 10px;
 }
@@ -293,16 +293,16 @@ body {
 }
 
 .source-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
+  background: #f0f0f0;
 }
 
 .source-content::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 255, 0.5);
+  background: #cccccc;
   border-radius: 4px;
 }
 
 .source-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 255, 0.7);
+  background: #999999;
 }
 
 /* 响应式设计 */
