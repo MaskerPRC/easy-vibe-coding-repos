@@ -46,6 +46,7 @@ import DigitalCat from './components/DigitalCat.vue';
 import LOLAnalysis from './components/LOLAnalysis.vue';
 import LOLWorldChampionship from './components/LOLWorldChampionship.vue';
 import MathModel from './components/MathModel.vue';
+import MathQuestions from './components/MathQuestions.vue';
 import Error502 from './components/Error502.vue';
 import Error592 from './components/Error592.vue';
 import HeroCarousel from './components/HeroCarousel.vue';
@@ -59,6 +60,7 @@ const isFullscreen = computed(() => currentPage.value === 'fps');
 
 // 页面列表
 const pages = [
+  { name: 'mathquestions', label: '小学数学题', component: MathQuestions },
   { name: 'lolworlds', label: 'LOL世界赛', component: LOLWorldChampionship },
   { name: 'xssdemo', label: 'XSS靶场', component: XSSDemo },
   { name: 'digitalcat', label: '数码猫咪', component: DigitalCat },

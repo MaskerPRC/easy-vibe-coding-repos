@@ -793,6 +793,61 @@ app.post('/api/cats/:id/recover', (req, res) => {
   });
 });
 
+// 生成小学数学题接口
+app.get('/api/math/questions', (req, res) => {
+  // 运算符类型
+  const operators = ['+', '-', '×', '÷'];
+  const questions = [];
+
+  // 生成10道题
+  for (let i = 0; i < 10; i++) {
+    const operator = operators[Math.floor(Math.random() * operators.length)];
+    let num1, num2, answer;
+
+    switch (operator) {
+      case '+':
+        // 加法：1-100之间的数字
+        num1 = Math.floor(Math.random() * 100) + 1;
+        num2 = Math.floor(Math.random() * 100) + 1;
+        answer = num1 + num2;
+        break;
+      case '-':
+        // 减法：确保结果为正数
+        num1 = Math.floor(Math.random() * 100) + 1;
+        num2 = Math.floor(Math.random() * num1) + 1;
+        answer = num1 - num2;
+        break;
+      case '×':
+        // 乘法：1-12之间的数字（乘法口诀表）
+        num1 = Math.floor(Math.random() * 12) + 1;
+        num2 = Math.floor(Math.random() * 12) + 1;
+        answer = num1 * num2;
+        break;
+      case '÷':
+        // 除法：确保整除
+        num2 = Math.floor(Math.random() * 12) + 1;
+        answer = Math.floor(Math.random() * 12) + 1;
+        num1 = num2 * answer;
+        break;
+    }
+
+    questions.push({
+      id: i + 1,
+      question: `${num1} ${operator} ${num2} = ?`,
+      num1: num1,
+      num2: num2,
+      operator: operator,
+      answer: answer
+    });
+  }
+
+  res.json({
+    success: true,
+    questions: questions,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);
