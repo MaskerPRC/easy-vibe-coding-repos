@@ -84,6 +84,13 @@
       >
         🔍 百度搜索
       </button>
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'task' }"
+        @click="currentTab = 'task'"
+      >
+        📋 任务管理
+      </button>
     </nav>
 
     <main class="app-body">
@@ -95,6 +102,7 @@
       <Weather v-if="currentTab === 'weather'" />
       <VisitorTracker v-if="currentTab === 'visitor'" />
       <BaiduSearch v-if="currentTab === 'search'" />
+      <TaskManager v-if="currentTab === 'task'" />
     </main>
 
     <footer class="app-footer">
@@ -120,6 +128,7 @@ import NetworkInfo from './components/NetworkInfo.vue';
 import Weather from './components/Weather.vue';
 import VisitorTracker from './components/VisitorTracker.vue';
 import BaiduSearch from './components/BaiduSearch.vue';
+import TaskManager from './components/TaskManager.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);

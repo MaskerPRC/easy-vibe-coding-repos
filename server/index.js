@@ -29,6 +29,9 @@ const CHAT_MESSAGES_FILE = path.join(__dirname, 'chat_messages.txt');
 // 访客IP记录存储路径
 const VISITOR_IPS_FILE = path.join(__dirname, 'visitor_ips.txt');
 
+// 任务数据存储路径
+const TASKS_FILE = path.join(__dirname, 'tasks.json');
+
 // 中间件
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -86,6 +89,38 @@ async function readVisitorIPs() {
 async function writeVisitorIP(record) {
   const recordStr = JSON.stringify(record) + '\n';
   await fs.appendFile(VISITOR_IPS_FILE, recordStr, 'utf-8');
+}
+
+// ==================== 任务管理辅助函数 ====================
+
+/**
+ * 读取任务列表
+ */
+async function readTasks() {
+  try {
+    const data = await fs.readFile(TASKS_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // 文件不存在，返回空数组
+      return [];
+    }
+    throw error;
+  }
+}
+
+/**
+ * 写入任务列表
+ */
+async function writeTasks(tasks) {
+  await fs.writeFile(TASKS_FILE, JSON.stringify(tasks, null, 2), 'utf-8');
+}
+
+/**
+ * 生成唯一任务ID
+ */
+function generateTaskId() {
+  return `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 // IP记录中间件 - 记录所有访问者的IP地址
@@ -584,6 +619,329 @@ app.get('/api/weather', async (req, res) => {
       message: '获取天气信息失败，请稍后重试',
       error: error.message,
       timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// ==================== 任务管理 API ====================
+
+/**
+ * 获取所有任务
+ */
+app.get('/api/tasks', async (req, res) => {
+  try {
+    const tasks = await readTasks();
+    res.json({
+      success: true,
+      tasks: tasks
+    });
+  } catch (error) {
+    console.error('获取任务列表失败:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 创建新任务
+ */
+app.post('/api/tasks', async (req, res) => {
+  try {
+    const { name, type, content, priority, description } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: '任务名称不能为空'
+      });
+    }
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: '任务内容不能为空'
+      });
+    }
+
+    const tasks = await readTasks();
+
+    const newTask = {
+      id: generateTaskId(),
+      name: name.trim(),
+      type: type || 'custom',
+      content: content.trim(),
+      priority: priority || 'medium',
+      description: description || '',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      executedAt: null,
+      completedAt: null,
+      result: null,
+      error: null
+    };
+
+    tasks.push(newTask);
+    await writeTasks(tasks);
+
+    console.log(`📋 新任务创建 - ID: ${newTask.id}, 名称: ${newTask.name}`);
+
+    res.json({
+      success: true,
+      task: newTask
+    });
+  } catch (error) {
+    console.error('创建任务失败:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 获取单个任务
+ */
+app.get('/api/tasks/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tasks = await readTasks();
+    const task = tasks.find(t => t.id === id);
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        error: '任务不存在'
+      });
+    }
+
+    res.json({
+      success: true,
+      task: task
+    });
+  } catch (error) {
+    console.error('获取任务失败:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 更新任务
+ */
+app.put('/api/tasks/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const tasks = await readTasks();
+    const taskIndex = tasks.findIndex(t => t.id === id);
+
+    if (taskIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: '任务不存在'
+      });
+    }
+
+    // 更新任务
+    tasks[taskIndex] = {
+      ...tasks[taskIndex],
+      ...updates,
+      id: id // 确保ID不被修改
+    };
+
+    await writeTasks(tasks);
+
+    console.log(`✏️ 任务更新 - ID: ${id}`);
+
+    res.json({
+      success: true,
+      task: tasks[taskIndex]
+    });
+  } catch (error) {
+    console.error('更新任务失败:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 删除任务
+ */
+app.delete('/api/tasks/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tasks = await readTasks();
+    const taskIndex = tasks.findIndex(t => t.id === id);
+
+    if (taskIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: '任务不存在'
+      });
+    }
+
+    tasks.splice(taskIndex, 1);
+    await writeTasks(tasks);
+
+    console.log(`🗑️ 任务删除 - ID: ${id}`);
+
+    res.json({
+      success: true,
+      message: '任务删除成功'
+    });
+  } catch (error) {
+    console.error('删除任务失败:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 执行任务
+ */
+app.post('/api/tasks/:id/execute', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tasks = await readTasks();
+    const taskIndex = tasks.findIndex(t => t.id === id);
+
+    if (taskIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: '任务不存在'
+      });
+    }
+
+    const task = tasks[taskIndex];
+
+    // 检查任务状态
+    if (task.status === 'running') {
+      return res.status(400).json({
+        success: false,
+        error: '任务正在执行中'
+      });
+    }
+
+    // 更新任务状态为执行中
+    task.status = 'running';
+    task.executedAt = new Date().toISOString();
+    task.result = null;
+    task.error = null;
+
+    await writeTasks(tasks);
+
+    console.log(`⚡ 开始执行任务 - ID: ${id}, 类型: ${task.type}`);
+
+    // 根据任务类型执行不同的操作
+    let result = null;
+    let error = null;
+
+    try {
+      if (task.type === 'command') {
+        // 执行命令
+        const { stdout, stderr } = await execPromise(task.content, {
+          timeout: 30000, // 30秒超时
+          maxBuffer: 1024 * 1024 * 10 // 10MB 缓冲区
+        });
+        result = stdout || stderr || '命令执行完成';
+      } else if (task.type === 'file') {
+        // 文件处理任务
+        const filePath = task.content;
+        try {
+          const fileContent = await fs.readFile(filePath, 'utf-8');
+          result = `文件读取成功，大小: ${fileContent.length} 字节`;
+        } catch (fileError) {
+          throw new Error(`文件处理失败: ${fileError.message}`);
+        }
+      } else {
+        // 自定义任务
+        result = `任务 "${task.name}" 执行成功\n内容: ${task.content}`;
+      }
+
+      // 更新任务状态为完成
+      task.status = 'completed';
+      task.completedAt = new Date().toISOString();
+      task.result = result;
+
+      console.log(`✅ 任务执行成功 - ID: ${id}`);
+    } catch (execError) {
+      // 更新任务状态为失败
+      task.status = 'failed';
+      task.completedAt = new Date().toISOString();
+      task.error = execError.message || '执行失败';
+      error = task.error;
+
+      console.error(`❌ 任务执行失败 - ID: ${id}, 错误: ${error}`);
+    }
+
+    tasks[taskIndex] = task;
+    await writeTasks(tasks);
+
+    res.json({
+      success: task.status === 'completed',
+      task: task,
+      error: error
+    });
+  } catch (error) {
+    console.error('执行任务失败:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 停止任务
+ */
+app.post('/api/tasks/:id/stop', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tasks = await readTasks();
+    const taskIndex = tasks.findIndex(t => t.id === id);
+
+    if (taskIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        error: '任务不存在'
+      });
+    }
+
+    const task = tasks[taskIndex];
+
+    if (task.status !== 'running') {
+      return res.status(400).json({
+        success: false,
+        error: '任务未在执行中'
+      });
+    }
+
+    // 更新任务状态为待执行
+    task.status = 'pending';
+    task.error = '任务被手动停止';
+
+    await writeTasks(tasks);
+
+    console.log(`⏸️ 任务已停止 - ID: ${id}`);
+
+    res.json({
+      success: true,
+      task: task
+    });
+  } catch (error) {
+    console.error('停止任务失败:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
