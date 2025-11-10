@@ -161,7 +161,8 @@ onUnmounted(() => {
 .hero-section {
   position: relative;
   height: 400px;
-  background-image: url('https://img1.baidu.com/it/u=3823064048,3738063826&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=667');
+  /* 使用渐变背景 - 如需使用蔡徐坤图片，请替换下面的background为: background-image: url('你的图片URL'); */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
