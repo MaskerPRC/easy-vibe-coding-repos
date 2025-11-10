@@ -1,74 +1,74 @@
 <template>
   <div class="task-manager">
-    <h2>📋 任务管理系统 (TaskInnerSupport)</h2>
+    <h2>📋 Dark Task Grimoire (TaskInnerSupport)</h2>
 
     <!-- 创建任务表单 -->
     <div class="task-form">
-      <h3>创建新任务</h3>
+      <h3>Summon New Task</h3>
       <div class="form-group">
-        <label>任务名称：</label>
+        <label>Task Name:</label>
         <input
           v-model="newTask.name"
           type="text"
-          placeholder="输入任务名称"
+          placeholder="Enter task name"
           @keyup.enter="createTask"
         >
       </div>
       <div class="form-group">
-        <label>任务类型：</label>
+        <label>Task Type:</label>
         <select v-model="newTask.type">
-          <option value="command">命令执行</option>
-          <option value="file">文件处理</option>
-          <option value="custom">自定义任务</option>
+          <option value="command">Command Execution</option>
+          <option value="file">File Processing</option>
+          <option value="custom">Custom Ritual</option>
         </select>
       </div>
       <div class="form-group">
-        <label>任务内容：</label>
+        <label>Task Content:</label>
         <textarea
           v-model="newTask.content"
-          placeholder="输入任务内容（命令、文件路径等）"
+          placeholder="Enter task content (commands, file paths, etc.)"
           rows="3"
         ></textarea>
       </div>
       <div class="form-group">
-        <label>优先级：</label>
+        <label>Priority:</label>
         <select v-model="newTask.priority">
-          <option value="low">低</option>
-          <option value="medium">中</option>
-          <option value="high">高</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
         </select>
       </div>
       <div class="form-group">
-        <label>描述：</label>
+        <label>Description:</label>
         <input
           v-model="newTask.description"
           type="text"
-          placeholder="任务描述（可选）"
+          placeholder="Task description (optional)"
         >
       </div>
-      <button @click="createTask" class="btn-primary">创建任务</button>
+      <button @click="createTask" class="btn-primary">Create Task</button>
     </div>
 
     <!-- 任务统计 -->
     <div class="task-stats">
       <div class="stat-card">
-        <div class="stat-label">总任务</div>
+        <div class="stat-label">Total Tasks</div>
         <div class="stat-value">{{ tasks.length }}</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">待执行</div>
+        <div class="stat-label">Pending</div>
         <div class="stat-value pending">{{ tasksByStatus.pending }}</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">执行中</div>
+        <div class="stat-label">Running</div>
         <div class="stat-value running">{{ tasksByStatus.running }}</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">已完成</div>
+        <div class="stat-label">Completed</div>
         <div class="stat-value completed">{{ tasksByStatus.completed }}</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">失败</div>
+        <div class="stat-label">Failed</div>
         <div class="stat-value failed">{{ tasksByStatus.failed }}</div>
       </div>
     </div>
@@ -103,7 +103,7 @@
               v-if="task.status === 'pending'"
               @click="executeTask(task.id)"
               class="btn-small btn-execute"
-              title="执行任务"
+              title="Execute Task"
             >
               ▶️
             </button>
@@ -111,21 +111,21 @@
               v-if="task.status === 'running'"
               @click="stopTask(task.id)"
               class="btn-small btn-stop"
-              title="停止任务"
+              title="Stop Task"
             >
               ⏸️
             </button>
             <button
               @click="viewTaskDetails(task)"
               class="btn-small"
-              title="查看详情"
+              title="View Details"
             >
               👁️
             </button>
             <button
               @click="deleteTask(task.id)"
               class="btn-small btn-delete"
-              title="删除任务"
+              title="Delete Task"
             >
               🗑️
             </button>
@@ -133,32 +133,32 @@
         </div>
 
         <div class="task-info">
-          <div class="task-description">{{ task.description || '无描述' }}</div>
+          <div class="task-description">{{ task.description || 'No description' }}</div>
           <div class="task-meta">
-            <span>类型: {{ typeLabels[task.type] }}</span>
-            <span>状态: {{ statusLabels[task.status] }}</span>
-            <span>创建: {{ formatDate(task.createdAt) }}</span>
-            <span v-if="task.executedAt">执行: {{ formatDate(task.executedAt) }}</span>
+            <span>Type: {{ typeLabels[task.type] }}</span>
+            <span>Status: {{ statusLabels[task.status] }}</span>
+            <span>Created: {{ formatDate(task.createdAt) }}</span>
+            <span v-if="task.executedAt">Executed: {{ formatDate(task.executedAt) }}</span>
           </div>
         </div>
 
         <div v-if="task.content" class="task-content">
-          <strong>内容:</strong> <code>{{ task.content }}</code>
+          <strong>Content:</strong> <code>{{ task.content }}</code>
         </div>
 
         <div v-if="task.result" class="task-result">
-          <strong>执行结果:</strong>
+          <strong>Execution Result:</strong>
           <pre>{{ task.result }}</pre>
         </div>
 
         <div v-if="task.error" class="task-error">
-          <strong>错误信息:</strong>
+          <strong>Error Message:</strong>
           <pre>{{ task.error }}</pre>
         </div>
       </div>
 
       <div v-if="filteredTasks.length === 0" class="no-tasks">
-        暂无任务
+        No tasks found
       </div>
     </div>
 
@@ -166,7 +166,7 @@
     <div v-if="selectedTask" class="modal" @click.self="selectedTask = null">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>任务详情</h3>
+          <h3>Task Details</h3>
           <button @click="selectedTask = null" class="close-btn">✕</button>
         </div>
         <div class="modal-body">
@@ -174,39 +174,39 @@
             <strong>ID:</strong> {{ selectedTask.id }}
           </div>
           <div class="detail-row">
-            <strong>名称:</strong> {{ selectedTask.name }}
+            <strong>Name:</strong> {{ selectedTask.name }}
           </div>
           <div class="detail-row">
-            <strong>类型:</strong> {{ typeLabels[selectedTask.type] }}
+            <strong>Type:</strong> {{ typeLabels[selectedTask.type] }}
           </div>
           <div class="detail-row">
-            <strong>优先级:</strong> {{ priorityLabels[selectedTask.priority] }}
+            <strong>Priority:</strong> {{ priorityLabels[selectedTask.priority] }}
           </div>
           <div class="detail-row">
-            <strong>状态:</strong> {{ statusLabels[selectedTask.status] }}
+            <strong>Status:</strong> {{ statusLabels[selectedTask.status] }}
           </div>
           <div class="detail-row">
-            <strong>描述:</strong> {{ selectedTask.description || '无' }}
+            <strong>Description:</strong> {{ selectedTask.description || 'None' }}
           </div>
           <div class="detail-row">
-            <strong>内容:</strong>
+            <strong>Content:</strong>
             <pre>{{ selectedTask.content }}</pre>
           </div>
           <div class="detail-row">
-            <strong>创建时间:</strong> {{ formatDate(selectedTask.createdAt) }}
+            <strong>Created At:</strong> {{ formatDate(selectedTask.createdAt) }}
           </div>
           <div v-if="selectedTask.executedAt" class="detail-row">
-            <strong>执行时间:</strong> {{ formatDate(selectedTask.executedAt) }}
+            <strong>Executed At:</strong> {{ formatDate(selectedTask.executedAt) }}
           </div>
           <div v-if="selectedTask.completedAt" class="detail-row">
-            <strong>完成时间:</strong> {{ formatDate(selectedTask.completedAt) }}
+            <strong>Completed At:</strong> {{ formatDate(selectedTask.completedAt) }}
           </div>
           <div v-if="selectedTask.result" class="detail-row">
-            <strong>执行结果:</strong>
+            <strong>Execution Result:</strong>
             <pre>{{ selectedTask.result }}</pre>
           </div>
           <div v-if="selectedTask.error" class="detail-row">
-            <strong>错误信息:</strong>
+            <strong>Error Message:</strong>
             <pre class="error-text">{{ selectedTask.error }}</pre>
           </div>
         </div>
@@ -235,9 +235,9 @@ export default {
     });
 
     const typeLabels = {
-      command: '命令执行',
-      file: '文件处理',
-      custom: '自定义任务'
+      command: 'Command Execution',
+      file: 'File Processing',
+      custom: 'Custom Ritual'
     };
 
     const typeIcons = {
@@ -247,17 +247,17 @@ export default {
     };
 
     const statusLabels = {
-      all: '全部',
-      pending: '待执行',
-      running: '执行中',
-      completed: '已完成',
-      failed: '失败'
+      all: 'All',
+      pending: 'Pending',
+      running: 'Running',
+      completed: 'Completed',
+      failed: 'Failed'
     };
 
     const priorityLabels = {
-      low: '低',
-      medium: '中',
-      high: '高'
+      low: 'Low',
+      medium: 'Medium',
+      high: 'High'
     };
 
     // 计算属性：按状态统计任务
@@ -282,7 +282,7 @@ export default {
     const formatDate = (dateStr) => {
       if (!dateStr) return '';
       const date = new Date(dateStr);
-      return date.toLocaleString('zh-CN');
+      return date.toLocaleString('en-US');
     };
 
     // 加载任务列表
@@ -291,19 +291,19 @@ export default {
         const response = await axios.get('/api/tasks');
         tasks.value = response.data.tasks || [];
       } catch (error) {
-        console.error('加载任务失败:', error);
-        alert('加载任务失败: ' + (error.response?.data?.error || error.message));
+        console.error('Failed to load tasks:', error);
+        alert('Failed to load tasks: ' + (error.response?.data?.error || error.message));
       }
     };
 
     // 创建任务
     const createTask = async () => {
       if (!newTask.value.name.trim()) {
-        alert('请输入任务名称');
+        alert('Please enter task name');
         return;
       }
       if (!newTask.value.content.trim()) {
-        alert('请输入任务内容');
+        alert('Please enter task content');
         return;
       }
 
@@ -320,10 +320,10 @@ export default {
           description: ''
         };
 
-        alert('任务创建成功！');
+        alert('Task summoned successfully!');
       } catch (error) {
-        console.error('创建任务失败:', error);
-        alert('创建任务失败: ' + (error.response?.data?.error || error.message));
+        console.error('Failed to create task:', error);
+        alert('Failed to create task: ' + (error.response?.data?.error || error.message));
       }
     };
 
@@ -339,10 +339,10 @@ export default {
           tasks.value[index] = updatedTask;
         }
 
-        alert('任务执行成功！');
+        alert('Task executed successfully!');
       } catch (error) {
-        console.error('执行任务失败:', error);
-        alert('执行任务失败: ' + (error.response?.data?.error || error.message));
+        console.error('Failed to execute task:', error);
+        alert('Failed to execute task: ' + (error.response?.data?.error || error.message));
 
         // 刷新任务列表以获取最新状态
         loadTasks();
@@ -361,26 +361,26 @@ export default {
           tasks.value[index] = updatedTask;
         }
 
-        alert('任务已停止');
+        alert('Task stopped');
       } catch (error) {
-        console.error('停止任务失败:', error);
-        alert('停止任务失败: ' + (error.response?.data?.error || error.message));
+        console.error('Failed to stop task:', error);
+        alert('Failed to stop task: ' + (error.response?.data?.error || error.message));
       }
     };
 
     // 删除任务
     const deleteTask = async (taskId) => {
-      if (!confirm('确定要删除这个任务吗？')) {
+      if (!confirm('Are you sure you want to delete this task?')) {
         return;
       }
 
       try {
         await axios.delete(`/api/tasks/${taskId}`);
         tasks.value = tasks.value.filter(t => t.id !== taskId);
-        alert('任务已删除');
+        alert('Task deleted');
       } catch (error) {
-        console.error('删除任务失败:', error);
-        alert('删除任务失败: ' + (error.response?.data?.error || error.message));
+        console.error('Failed to delete task:', error);
+        alert('Failed to delete task: ' + (error.response?.data?.error || error.message));
       }
     };
 

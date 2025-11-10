@@ -1,29 +1,29 @@
 <template>
   <div class="network-info-container">
     <div class="network-header">
-      <h2>🌐 系统网络信息</h2>
+      <h2>🌐 Network Veil</h2>
       <button class="refresh-button" @click="fetchNetworkInfo" :disabled="loading">
-        {{ loading ? '加载中...' : '🔄 刷新' }}
+        {{ loading ? 'Loading...' : '🔄 Refresh' }}
       </button>
     </div>
 
     <div v-if="error" class="error-message">
-      <p>❌ 获取网络信息失败: {{ error }}</p>
+      <p>❌ Failed to retrieve network info: {{ error }}</p>
     </div>
 
     <div v-if="networkData && !loading" class="info-sections">
       <!-- 公网IP -->
       <div class="info-card">
-        <h3>🌍 公网IP地址</h3>
+        <h3>🌍 Public IP Address</h3>
         <div class="ip-display">
           <span class="ip-value">{{ networkData.publicIp }}</span>
         </div>
-        <p class="info-description">您当前的公网IP地址</p>
+        <p class="info-description">Your current public IP address</p>
       </div>
 
       <!-- 内网IP -->
       <div class="info-card">
-        <h3>🏠 内网IP地址</h3>
+        <h3>🏠 Local IP Address</h3>
         <div v-if="networkData.localIps && networkData.localIps.length > 0" class="local-ips">
           <div v-for="(ip, index) in networkData.localIps" :key="index" class="local-ip-item">
             <div class="ip-header">
@@ -31,18 +31,18 @@
             </div>
             <div class="ip-details">
               <div class="detail-row">
-                <span class="label">IP地址:</span>
+                <span class="label">IP Address:</span>
                 <span class="value">{{ ip.address }}</span>
               </div>
               <div class="detail-row">
-                <span class="label">子网掩码:</span>
+                <span class="label">Netmask:</span>
                 <span class="value">{{ ip.netmask }}</span>
               </div>
             </div>
           </div>
         </div>
         <div v-else class="no-data">
-          <p>未检测到内网IP地址</p>
+          <p>No local IP detected</p>
         </div>
       </div>
 

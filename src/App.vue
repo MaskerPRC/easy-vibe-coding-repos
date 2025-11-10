@@ -23,8 +23,8 @@
           </svg>
         </div>
         <div class="brand-text">
-          <h1 class="brand-title">协作空间</h1>
-          <p class="brand-subtitle">Collaborative Space</p>
+          <h1 class="brand-title">Shadow Nexus</h1>
+          <p class="brand-subtitle">Realm of Eternal Collaboration</p>
         </div>
       </div>
 
@@ -37,7 +37,7 @@
         </div>
         <div class="status-badge" :class="{ online: serverOnline }">
           <span class="status-dot"></span>
-          <span>{{ serverOnline ? '在线' : '离线' }}</span>
+          <span>{{ serverOnline ? 'Connected' : 'Disconnected' }}</span>
         </div>
       </div>
     </header>
@@ -79,29 +79,29 @@
             </svg>
           </button>
           <div class="hero-content">
-            <div class="hero-badge">全新体验</div>
-            <h2 class="hero-title">实时协作平台</h2>
+            <div class="hero-badge">Darkness Awaits</div>
+            <h2 class="hero-title">The Dark Collaboration</h2>
             <p class="hero-description">
-              多人在线协作 · 实时同步 · 高效沟通 · 无缝体验
+              Eternal Unity · Shadow Synchronization · Whispers of Communication · Seamless Void
             </p>
             <div class="hero-features">
               <div class="feature-tag">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
                 </svg>
-                实时同步
+                Shadow Sync
               </div>
               <div class="feature-tag">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
                 </svg>
-                多人协作
+                Eternal Collaboration
               </div>
               <div class="feature-tag">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
                 </svg>
-                云端存储
+                Void Storage
               </div>
             </div>
           </div>
@@ -128,10 +128,10 @@
           <svg class="footer-icon" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
           </svg>
-          协作空间 v3.0
+          Shadow Nexus v3.0
         </span>
         <span class="footer-divider">·</span>
-        <span class="footer-item">Socket.IO 实时通信</span>
+        <span class="footer-item">Socket.IO Dark Communications</span>
         <span class="footer-divider">·</span>
         <span class="footer-item">Vue 3 + Vite</span>
       </div>
@@ -167,18 +167,18 @@ let statusInterval;
 
 // 菜单项配置
 const menuItems = [
-  { id: 'canvas', label: '协作画布', icon: '🎨' },
-  { id: 'chat', label: '聊天室', icon: '💬' },
-  { id: 'screen', label: '屏幕分享', icon: '📸' },
-  { id: 'network', label: '网络信息', icon: '🌐' },
-  { id: 'shadow', label: 'Shadow文件', icon: '🔐' },
-  { id: 'excel', label: 'Excel指南', icon: '📊' },
-  { id: 'weather', label: '天气预报', icon: '🌤️' },
-  { id: 'visitor', label: '访客追踪', icon: '👥' },
-  { id: 'search', label: '百度搜索', icon: '🔍' },
-  { id: 'task', label: '任务管理', icon: '📋' },
-  { id: 'skeuomorphic', label: '拟物电脑', icon: '🖥️' },
-  { id: 'blog', label: '博客平台', icon: '📝' }
+  { id: 'canvas', label: 'Dark Canvas', icon: '🎨' },
+  { id: 'chat', label: 'Whispering Chamber', icon: '💬' },
+  { id: 'screen', label: 'Shadow Capture', icon: '📸' },
+  { id: 'network', label: 'Network Veil', icon: '🌐' },
+  { id: 'shadow', label: 'Shadow Archives', icon: '🔐' },
+  { id: 'excel', label: 'Ancient Scrolls', icon: '📊' },
+  { id: 'weather', label: 'Dark Skies', icon: '🌤️' },
+  { id: 'visitor', label: 'Soul Tracker', icon: '👥' },
+  { id: 'search', label: 'Void Search', icon: '🔍' },
+  { id: 'task', label: 'Task Grimoire', icon: '📋' },
+  { id: 'skeuomorphic', label: 'Gothic Machine', icon: '🖥️' },
+  { id: 'blog', label: 'Dark Chronicles', icon: '📝' }
 ];
 
 // 组件映射

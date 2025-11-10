@@ -1,16 +1,16 @@
 <template>
   <div class="chat-room">
     <div class="chat-header">
-      <h2>💬 多人聊天室</h2>
+      <h2>💬 Whispering Chamber</h2>
       <div class="online-info">
         <span class="status-dot"></span>
-        <span>匿名聊天 · 无需登录</span>
+        <span>Anonymous Whispers · No Sign Required</span>
       </div>
     </div>
 
     <div class="chat-messages" ref="messagesContainer">
       <div v-if="messages.length === 0" class="empty-state">
-        <p>暂无消息，开始聊天吧！</p>
+        <p>The void awaits your whispers...</p>
       </div>
       <div
         v-for="(msg, index) in messages"
@@ -32,7 +32,7 @@
         <input
           v-model="username"
           type="text"
-          placeholder="设置昵称（可选，默认随机）"
+          placeholder="Choose your shadow name (optional, random by default)"
           maxlength="20"
           @input="saveUsername"
         />
@@ -40,7 +40,7 @@
       <div class="message-input-container">
         <textarea
           v-model="newMessage"
-          placeholder="输入消息... (按 Ctrl+Enter 发送)"
+          placeholder="Whisper into the darkness... (Ctrl+Enter to send)"
           @keydown.ctrl.enter="sendMessage"
           rows="3"
         ></textarea>
@@ -49,7 +49,7 @@
           :disabled="!newMessage.trim()"
           class="send-button"
         >
-          发送
+          Send
         </button>
       </div>
     </div>
@@ -112,11 +112,11 @@ export default {
         return this.username.trim();
       }
       // 生成随机昵称
-      const adjectives = ['快乐的', '神秘的', '勇敢的', '聪明的', '可爱的', '酷炫的', '友善的'];
-      const nouns = ['小熊', '小猫', '小狗', '小兔', '小鸟', '小鱼', '小龙'];
+      const adjectives = ['Dark', 'Mysterious', 'Brave', 'Cunning', 'Shadow', 'Crimson', 'Silent'];
+      const nouns = ['Raven', 'Wolf', 'Phantom', 'Wraith', 'Specter', 'Shade', 'Dragon'];
       const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
       const noun = nouns[Math.floor(Math.random() * nouns.length)];
-      return adj + noun;
+      return adj + ' ' + noun;
     },
     async loadMessages() {
       try {
@@ -128,7 +128,7 @@ export default {
           });
         }
       } catch (error) {
-        console.error('加载消息失败:', error);
+        console.error('Failed to load whispers:', error);
       }
     },
     async sendMessage() {
@@ -149,8 +149,8 @@ export default {
           await this.loadMessages();
         }
       } catch (error) {
-        console.error('发送消息失败:', error);
-        alert('发送消息失败，请重试');
+        console.error('Failed to send whisper:', error);
+        alert('Failed to send your whisper, please try again');
       }
     },
     startPolling() {
@@ -177,21 +177,21 @@ export default {
 
       // 小于1分钟显示"刚刚"
       if (diff < 60000) {
-        return '刚刚';
+        return 'Just now';
       }
 
       // 小于1小时显示分钟
       if (diff < 3600000) {
-        return Math.floor(diff / 60000) + '分钟前';
+        return Math.floor(diff / 60000) + ' min ago';
       }
 
       // 今天的消息显示时间
       if (date.toDateString() === now.toDateString()) {
-        return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
       }
 
       // 其他显示日期和时间
-      return date.toLocaleString('zh-CN', {
+      return date.toLocaleString('en-US', {
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',

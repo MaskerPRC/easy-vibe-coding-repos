@@ -1,9 +1,9 @@
 <template>
   <div class="collaborative-canvas">
     <div class="canvas-header">
-      <h1>实时协作画布</h1>
+      <h1>Dark Canvas of Shadows</h1>
       <div class="online-users">
-        <span class="users-label">在线用户 ({{ onlineUsers.length }})</span>
+        <span class="users-label">Shadow Souls ({{ onlineUsers.length }})</span>
         <div class="users-list">
           <span
             v-for="user in onlineUsers"
@@ -23,13 +23,13 @@
       <div class="toolbar">
         <!-- 绘画工具选择 -->
         <div class="tool-section">
-          <label>工具:</label>
+          <label>Tools:</label>
           <div class="tool-buttons">
             <button
               @click="currentTool = 'pencil'"
               :class="{ active: currentTool === 'pencil' }"
               class="tool-btn"
-              title="铅笔"
+              title="Pencil"
             >
               ✏️
             </button>
@@ -37,7 +37,7 @@
               @click="currentTool = 'eraser'"
               :class="{ active: currentTool === 'eraser' }"
               class="tool-btn"
-              title="橡皮擦"
+              title="Eraser"
             >
               🧹
             </button>
@@ -45,7 +45,7 @@
               @click="currentTool = 'line'"
               :class="{ active: currentTool === 'line' }"
               class="tool-btn"
-              title="直线"
+              title="Line"
             >
               📏
             </button>
@@ -53,7 +53,7 @@
               @click="currentTool = 'rectangle'"
               :class="{ active: currentTool === 'rectangle' }"
               class="tool-btn"
-              title="矩形"
+              title="Rectangle"
             >
               ▭
             </button>
@@ -61,7 +61,7 @@
               @click="currentTool = 'circle'"
               :class="{ active: currentTool === 'circle' }"
               class="tool-btn"
-              title="圆形"
+              title="Circle"
             >
               ⭕
             </button>
@@ -69,7 +69,7 @@
         </div>
 
         <div class="tool-section">
-          <label>颜色:</label>
+          <label>Shadow:</label>
           <input
             type="color"
             v-model="currentColor"
@@ -90,7 +90,7 @@
         </div>
 
         <div class="tool-section">
-          <label>大小:</label>
+          <label>Size:</label>
           <input
             type="range"
             v-model="lineWidth"
@@ -102,12 +102,12 @@
         </div>
 
         <div class="tool-section">
-          <label>用户名:</label>
+          <label>Soul Name:</label>
           <input
             type="text"
             v-model="userName"
             @change="updateUserName"
-            placeholder="输入您的名字"
+            placeholder="Enter your name"
             class="name-input"
             maxlength="20"
           />
@@ -115,25 +115,25 @@
 
         <!-- 操作按钮 -->
         <div class="tool-section action-buttons">
-          <button @click="undo" class="btn-action" :disabled="!canUndo" title="撤销">
+          <button @click="undo" class="btn-action" :disabled="!canUndo" title="Undo">
             ↶
           </button>
-          <button @click="redo" class="btn-action" :disabled="!canRedo" title="重做">
+          <button @click="redo" class="btn-action" :disabled="!canRedo" title="Redo">
             ↷
           </button>
-          <button @click="exportCanvas" class="btn-action" title="导出图片">
+          <button @click="exportCanvas" class="btn-action" title="Export">
             💾
           </button>
-          <button @click="toggleReplay" class="btn-action" :class="{ active: isReplaying }" title="回放轨迹">
+          <button @click="toggleReplay" class="btn-action" :class="{ active: isReplaying }" title="Replay">
             {{ isReplaying ? '⏸' : '▶️' }}
           </button>
-          <button @click="clearCanvas" class="btn-clear" title="清空画布">
+          <button @click="clearCanvas" class="btn-clear" title="Clear Canvas">
             🗑️
           </button>
         </div>
 
         <div class="connection-status" :class="{ connected: isConnected }">
-          {{ isConnected ? '已连接' : '未连接' }}
+          {{ isConnected ? 'Connected' : 'Disconnected' }}
         </div>
       </div>
 
@@ -153,18 +153,18 @@
 
         <!-- 回放控制条 -->
         <div v-if="isReplaying" class="replay-controls">
-          <button @click="stopReplay" class="replay-btn">停止回放</button>
+          <button @click="stopReplay" class="replay-btn">Stop Replay</button>
           <div class="replay-progress">
             <div class="replay-bar" :style="{ width: replayProgress + '%' }"></div>
           </div>
-          <span class="replay-info">回放进度: {{ Math.round(replayProgress) }}%</span>
+          <span class="replay-info">Progress: {{ Math.round(replayProgress) }}%</span>
         </div>
       </div>
 
       <!-- 使用说明 -->
       <div class="instructions">
-        <p>🎨 选择工具在画布上绘制，所有用户的绘画会实时同步</p>
-        <p>💡 使用撤销/重做按钮管理您的绘画，点击回放按钮查看绘画过程</p>
+        <p>🎨 Choose your tool and paint into the darkness, all souls shall see your work</p>
+        <p>💡 Use undo/redo to control your creation, replay to witness the birth of shadows</p>
       </div>
     </div>
   </div>
@@ -185,7 +185,7 @@ export default {
     const currentColor = ref('#000000');
     const lineWidth = ref(3);
     const currentTool = ref('pencil');
-    const userName = ref(`用户${Math.floor(Math.random() * 1000)}`);
+    const userName = ref(`Shadow${Math.floor(Math.random() * 1000)}`);
     const isConnected = ref(false);
     const onlineUsers = ref([]);
 
@@ -269,7 +269,7 @@ export default {
       if (!canvas.value) return;
 
       const link = document.createElement('a');
-      link.download = `画布_${new Date().getTime()}.png`;
+      link.download = `dark_canvas_${new Date().getTime()}.png`;
       link.href = canvas.value.toDataURL();
       link.click();
     };

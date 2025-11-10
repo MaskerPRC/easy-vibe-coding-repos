@@ -2,18 +2,18 @@
   <div class="baidu-search">
     <!-- 搜索头部 -->
     <div class="search-header">
-      <div class="baidu-logo">百度一下</div>
+      <div class="baidu-logo">Void Search</div>
       <div class="search-box-container">
         <div class="search-box">
           <input
             v-model="searchQuery"
             type="text"
             class="search-input"
-            placeholder="请输入搜索内容"
+            placeholder="Search the darkness..."
             @keyup.enter="performSearch"
           />
           <button class="search-button" @click="performSearch">
-            <span>百度一下</span>
+            <span>Search</span>
           </button>
         </div>
       </div>
@@ -22,7 +22,7 @@
     <!-- 加载状态 -->
     <div v-if="loading" class="loading-container">
       <div class="loading-spinner"></div>
-      <div class="loading-text">搜索中...</div>
+      <div class="loading-text">Searching...</div>
     </div>
 
     <!-- 错误提示 -->
@@ -33,7 +33,7 @@
     <!-- 搜索结果 -->
     <div v-if="!loading && searchResults.length > 0" class="search-results">
       <div class="results-info">
-        找到约 {{ totalResults }} 条结果 (按优先级倒序显示)
+        Found about {{ totalResults }} results (sorted by priority)
       </div>
 
       <div
@@ -45,7 +45,7 @@
           <a :href="result.url" target="_blank" class="result-title">
             {{ result.title }}
           </a>
-          <span class="result-priority">优先级: {{ result.priority }}</span>
+          <span class="result-priority">Priority: {{ result.priority }}</span>
         </div>
         <div class="result-url">{{ result.displayUrl }}</div>
         <div class="result-snippet">{{ result.snippet }}</div>
