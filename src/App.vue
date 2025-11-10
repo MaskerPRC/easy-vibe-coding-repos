@@ -80,6 +80,22 @@
         </div>
       </div>
 
+      <div class="ping-info">
+        <div class="ping-title">Ping Google.com 结果</div>
+        <div v-if="pingLoading" class="ping-loading">正在 ping google.com...</div>
+        <div v-else-if="pingResult">
+          <div class="ping-status" :class="{ 'ping-success': pingResult.success, 'ping-failed': !pingResult.success }">
+            状态: {{ pingResult.success ? '成功' : '失败' }}
+          </div>
+          <div v-if="pingResult.message && !pingResult.success" class="ping-message">
+            {{ pingResult.message }}
+          </div>
+          <div v-if="pingResult.data" class="ping-output">
+            <pre>{{ pingResult.data.output || pingResult.data.error }}</pre>
+          </div>
+        </div>
+      </div>
+
       <div class="language-offer">
         360搜索 - 安全、精准、可信赖
       </div>
@@ -117,6 +133,8 @@ import DemandButton from './components/DemandButton.vue';
 const searchQuery = ref('');
 const platformInfo = ref(null);
 const memoryInfo = ref(null);
+const pingResult = ref(null);
+const pingLoading = ref(false);
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
@@ -149,9 +167,27 @@ const fetchMemoryInfo = async () => {
   }
 };
 
+// 获取 Ping google.com 结果
+const fetchPingResult = async () => {
+  try {
+    pingLoading.value = true;
+    const response = await axios.get('/api/ping');
+    pingResult.value = response.data;
+  } catch (error) {
+    console.error('获取 Ping 结果失败:', error);
+    pingResult.value = {
+      success: false,
+      message: '请求失败: ' + error.message
+    };
+  } finally {
+    pingLoading.value = false;
+  }
+};
+
 onMounted(() => {
   fetchPlatformInfo();
   fetchMemoryInfo();
+  fetchPingResult();
 });
 </script>
 
@@ -347,6 +383,70 @@ onMounted(() => {
   color: black;
 }
 
+.ping-info {
+  margin-top: 25px;
+  padding: 20px 30px;
+  border: 1px solid black;
+  min-width: 400px;
+  max-width: 800px;
+}
+
+.ping-title {
+  font-size: 20px;
+  color: black;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.ping-loading {
+  font-size: 14px;
+  color: black;
+  text-align: center;
+  padding: 10px;
+}
+
+.ping-status {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+  border-bottom: 1px solid black;
+}
+
+.ping-success {
+  color: #008000;
+}
+
+.ping-failed {
+  color: #ff0000;
+}
+
+.ping-message {
+  font-size: 14px;
+  color: #ff0000;
+  padding: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.ping-output {
+  margin-top: 10px;
+}
+
+.ping-output pre {
+  background: #f5f5f5;
+  padding: 15px;
+  border: 1px solid black;
+  overflow-x: auto;
+  font-size: 12px;
+  line-height: 1.5;
+  color: black;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
 .language-offer {
   margin-top: 30px;
   font-size: 13px;
@@ -404,8 +504,10 @@ onMounted(() => {
   }
 
   .platform-info,
-  .memory-info {
+  .memory-info,
+  .ping-info {
     min-width: 300px;
+    max-width: 100%;
   }
 }
 </style>

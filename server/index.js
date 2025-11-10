@@ -5,6 +5,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
 import os from 'os';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execPromise = promisify(exec);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -172,6 +176,46 @@ app.get('/api/system/memory', (req, res) => {
     res.status(500).json({
       success: false,
       message: '获取内存信息失败: ' + error.message
+    });
+  }
+});
+
+// Ping google.com
+app.get('/api/ping', async (req, res) => {
+  try {
+    // 根据操作系统选择合适的 ping 命令
+    const platform = os.platform();
+    let pingCommand;
+
+    if (platform === 'win32') {
+      // Windows 系统
+      pingCommand = 'ping -n 4 google.com';
+    } else {
+      // Linux/Mac 系统
+      pingCommand = 'ping -c 4 google.com';
+    }
+
+    console.log('执行 ping 命令:', pingCommand);
+    const { stdout, stderr } = await execPromise(pingCommand);
+
+    res.json({
+      success: true,
+      data: {
+        output: stdout,
+        error: stderr,
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Ping 失败:', error);
+    res.json({
+      success: false,
+      message: 'Ping google.com 失败',
+      data: {
+        output: error.stdout || '',
+        error: error.stderr || error.message,
+        timestamp: new Date().toISOString()
+      }
     });
   }
 });
