@@ -35,6 +35,21 @@
         <p>&copy; 2025 你好，世界！让世界更加互联互通</p>
       </footer>
     </div>
+
+    <!-- 浮动需求按钮 -->
+    <button class="floating-demand-button" @click="showDemandModal">
+      需求
+    </button>
+
+    <!-- 需求提示弹窗 -->
+    <div v-if="isDemandModalVisible" class="modal-overlay" @click="closeDemandModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-body">
+          <p>今日需求请求已用完</p>
+        </div>
+        <button class="modal-close-btn" @click="closeDemandModal">关闭</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -72,6 +87,9 @@ const greetings = ref([
 // 当前正在播放的卡片索引（存储在内存中）
 const playingIndex = ref(-1)
 
+// 需求弹窗显示状态（存储在内存中）
+const isDemandModalVisible = ref(false)
+
 // 播放读音功能
 const playPronunciation = (greeting, index) => {
   // 检查浏览器是否支持 Web Speech API
@@ -107,6 +125,16 @@ const playPronunciation = (greeting, index) => {
   } else {
     alert('您的浏览器不支持语音播放功能')
   }
+}
+
+// 显示需求弹窗
+const showDemandModal = () => {
+  isDemandModalVisible.value = true
+}
+
+// 关闭需求弹窗
+const closeDemandModal = () => {
+  isDemandModalVisible.value = false
 }
 </script>
 
@@ -356,5 +384,91 @@ const playPronunciation = (greeting, index) => {
 
 .greeting-card {
   animation: fadeIn 0.5s ease-out;
+}
+
+/* 浮动需求按钮 */
+.floating-demand-button {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 168px;
+  height: 168px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 20%;
+  font-size: 24px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 9999;
+  transition: none;
+  /* 移除所有交互效果 */
+  box-shadow: none;
+}
+
+/* 确保按钮在任何状态下都不改变外观 */
+.floating-demand-button:hover,
+.floating-demand-button:active,
+.floating-demand-button:focus {
+  background-color: #007bff;
+  transform: none;
+  box-shadow: none;
+  outline: none;
+}
+
+/* 模态框遮罩层 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+/* 模态框内容 */
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+/* 模态框主体 */
+.modal-body {
+  margin-bottom: 24px;
+}
+
+.modal-body p {
+  font-size: 18px;
+  color: #343A40;
+  line-height: 1.6;
+}
+
+/* 模态框关闭按钮 */
+.modal-close-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-close-btn:hover {
+  background-color: #0056b3;
+}
+
+.modal-close-btn:active {
+  background-color: #004085;
 }
 </style>
