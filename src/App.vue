@@ -98,6 +98,13 @@
       >
         📋 任务管理
       </button>
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'skeuomorphic' }"
+        @click="currentTab = 'skeuomorphic'"
+      >
+        🖥️ 拟物电脑
+      </button>
     </nav>
 
     <main class="app-body">
@@ -111,6 +118,7 @@
       <VisitorTracker v-if="currentTab === 'visitor'" />
       <BaiduSearch v-if="currentTab === 'search'" />
       <TaskManager v-if="currentTab === 'task'" />
+      <SkeuomorphicScreen v-if="currentTab === 'skeuomorphic'" />
     </main>
 
     <footer class="app-footer">
@@ -138,6 +146,7 @@ import Weather from './components/Weather.vue';
 import VisitorTracker from './components/VisitorTracker.vue';
 import BaiduSearch from './components/BaiduSearch.vue';
 import TaskManager from './components/TaskManager.vue';
+import SkeuomorphicScreen from './components/SkeuomorphicScreen.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);
