@@ -3,9 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
   {
     path: '/',
-    name: 'PMFIntro',
-    component: () => import('../views/PMFIntro.vue'),
-    meta: { title: 'PMF（Product Market Fit）与产品管理' }
+    name: 'DevArsenal',
+    component: () => import('../views/DevArsenal.vue'),
+    meta: { title: '独立开发者工具库 - Dev Arsenal' }
   }
 ];
 
@@ -15,7 +15,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title || 'PMF介绍';
+  document.title = to.meta.title || '独立开发者工具库';
   next();
 });
 
