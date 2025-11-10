@@ -124,25 +124,25 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: #fff5f8;
 }
 
 /* 导航栏样式 */
 .nav-bar {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #ffc0e0 0%, #ffb3d9 100%);
   padding: 15px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-bottom: 2px solid #ff69b4;
+  box-shadow: 0 4px 20px rgba(255, 105, 180, 0.2);
   z-index: 100;
 }
 
 .nav-title {
   font-size: 1.5em;
   font-weight: bold;
-  color: #333333;
+  color: #d81b60;
   text-shadow: none;
   font-family: 'Courier New', monospace;
 }
@@ -154,10 +154,10 @@ body {
 
 .nav-btn {
   padding: 10px 20px;
-  background: #ffffff;
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  background: #ffe6f0;
+  border: 2px solid #ff99cc;
   border-radius: 8px;
-  color: #333333;
+  color: #d81b60;
   font-size: 1em;
   font-weight: bold;
   cursor: pointer;
@@ -166,16 +166,16 @@ body {
 }
 
 .nav-btn:hover {
-  background: #f0f0f0;
-  border-color: #666666;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #ffd4e5;
+  border-color: #ff66b3;
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.3);
   transform: translateY(-2px);
 }
 
 .nav-btn.active {
-  background: #e8e8e8;
-  border-color: #333333;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  background: #ffb3d9;
+  border-color: #ff1493;
+  box-shadow: 0 2px 10px rgba(255, 20, 147, 0.3);
 }
 
 /* 页面内容 */
@@ -196,26 +196,26 @@ body {
 }
 
 .page-content::-webkit-scrollbar-track {
-  background: #f0f0f0;
+  background: #ffe6f0;
 }
 
 .page-content::-webkit-scrollbar-thumb {
-  background: #cccccc;
+  background: #ffb3d9;
   border-radius: 5px;
 }
 
 .page-content::-webkit-scrollbar-thumb:hover {
-  background: #999999;
+  background: #ff99cc;
 }
 
 /* 源码显示区域 */
 .source-display {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #ffe6f0 0%, #fff0f5 100%);
   margin: 15px 30px;
   padding: 15px;
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  border: 2px solid #ff99cc;
   border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(255, 105, 180, 0.15);
 }
 
 .source-header {
@@ -224,11 +224,11 @@ body {
   align-items: center;
   margin-bottom: 10px;
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #ffb3d9;
 }
 
 .source-header h3 {
-  color: #333333;
+  color: #d81b60;
   font-family: 'Courier New', monospace;
   font-size: 1.2em;
   text-shadow: none;
@@ -236,10 +236,10 @@ body {
 
 .toggle-btn {
   padding: 8px 16px;
-  background: #ffffff;
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  background: #ffe6f0;
+  border: 2px solid #ff99cc;
   border-radius: 6px;
-  color: #333333;
+  color: #d81b60;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -247,14 +247,14 @@ body {
 }
 
 .toggle-btn:hover {
-  background: #f0f0f0;
-  border-color: #666666;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #ffd4e5;
+  border-color: #ff66b3;
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.2);
 }
 
 .source-content {
-  background: #f8f9fa;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff0f5;
+  border: 1px solid #ffb3d9;
   border-radius: 6px;
   padding: 15px;
   max-height: 400px;
@@ -264,7 +264,7 @@ body {
 
 .source-content pre {
   margin: 0;
-  color: #2c7a2c;
+  color: #c2185b;
   font-family: 'Courier New', monospace;
   font-size: 0.85em;
   line-height: 1.5;
@@ -273,7 +273,7 @@ body {
 }
 
 .source-content code {
-  color: #2c7a2c;
+  color: #c2185b;
   text-shadow: none;
 }
 
@@ -293,16 +293,16 @@ body {
 }
 
 .source-content::-webkit-scrollbar-track {
-  background: #f0f0f0;
+  background: #ffe6f0;
 }
 
 .source-content::-webkit-scrollbar-thumb {
-  background: #cccccc;
+  background: #ffb3d9;
   border-radius: 4px;
 }
 
 .source-content::-webkit-scrollbar-thumb:hover {
-  background: #999999;
+  background: #ff99cc;
 }
 
 /* 响应式设计 */
