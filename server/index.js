@@ -130,6 +130,52 @@ app.get('/api/system/platform', (req, res) => {
   }
 });
 
+// 获取进程内存使用信息
+app.get('/api/system/memory', (req, res) => {
+  try {
+    const memoryUsage = process.memoryUsage();
+    // 将字节转换为 MB 以便阅读
+    const memoryInfo = {
+      rss: {
+        bytes: memoryUsage.rss,
+        mb: (memoryUsage.rss / 1024 / 1024).toFixed(2),
+        description: '常驻集大小(RSS) - 进程占用的主内存空间'
+      },
+      heapTotal: {
+        bytes: memoryUsage.heapTotal,
+        mb: (memoryUsage.heapTotal / 1024 / 1024).toFixed(2),
+        description: '堆总大小 - V8分配的总内存'
+      },
+      heapUsed: {
+        bytes: memoryUsage.heapUsed,
+        mb: (memoryUsage.heapUsed / 1024 / 1024).toFixed(2),
+        description: '已使用的堆内存'
+      },
+      external: {
+        bytes: memoryUsage.external,
+        mb: (memoryUsage.external / 1024 / 1024).toFixed(2),
+        description: 'C++对象绑定到JavaScript对象的内存'
+      },
+      arrayBuffers: {
+        bytes: memoryUsage.arrayBuffers,
+        mb: (memoryUsage.arrayBuffers / 1024 / 1024).toFixed(2),
+        description: 'ArrayBuffers和SharedArrayBuffers的内存'
+      }
+    };
+    res.json({
+      success: true,
+      data: memoryInfo,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('获取内存信息失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取内存信息失败: ' + error.message
+    });
+  }
+});
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);

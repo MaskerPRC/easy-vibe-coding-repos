@@ -70,6 +70,31 @@
         </div>
       </div>
 
+      <!-- 进程内存使用信息展示 -->
+      <div class="memory-info" v-if="memoryInfo">
+        <div class="memory-title">进程内存使用 (process.memoryUsage())</div>
+        <div class="memory-item">
+          <span class="memory-label">常驻集大小 (RSS):</span>
+          <span class="memory-value">{{ memoryInfo.rss.mb }} MB</span>
+        </div>
+        <div class="memory-item">
+          <span class="memory-label">堆总大小:</span>
+          <span class="memory-value">{{ memoryInfo.heapTotal.mb }} MB</span>
+        </div>
+        <div class="memory-item">
+          <span class="memory-label">已使用堆内存:</span>
+          <span class="memory-value">{{ memoryInfo.heapUsed.mb }} MB</span>
+        </div>
+        <div class="memory-item">
+          <span class="memory-label">C++ 绑定内存:</span>
+          <span class="memory-value">{{ memoryInfo.external.mb }} MB</span>
+        </div>
+        <div class="memory-item">
+          <span class="memory-label">ArrayBuffers:</span>
+          <span class="memory-value">{{ memoryInfo.arrayBuffers.mb }} MB</span>
+        </div>
+      </div>
+
       <div class="language-offer">
         360搜索 - 安全、精准、可信赖
       </div>
@@ -109,6 +134,7 @@ import DemandButton from './components/DemandButton.vue';
 
 const searchQuery = ref('');
 const platformInfo = ref(null);
+const memoryInfo = ref(null);
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
@@ -129,8 +155,21 @@ const fetchPlatformInfo = async () => {
   }
 };
 
+// 获取进程内存使用信息
+const fetchMemoryInfo = async () => {
+  try {
+    const response = await axios.get('/api/system/memory');
+    if (response.data.success) {
+      memoryInfo.value = response.data.data;
+    }
+  } catch (error) {
+    console.error('获取内存信息失败:', error);
+  }
+};
+
 onMounted(() => {
   fetchPlatformInfo();
+  fetchMemoryInfo();
 });
 </script>
 
@@ -407,6 +446,59 @@ onMounted(() => {
   color: white;
   font-weight: 600;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* 进程内存使用信息展示 */
+.memory-info {
+  margin-top: 25px;
+  padding: 20px 30px;
+  background: rgba(100, 149, 237, 0.2);
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(100, 149, 237, 0.3);
+  transition: all 0.3s;
+  min-width: 400px;
+}
+
+.memory-info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  background: rgba(100, 149, 237, 0.25);
+}
+
+.memory-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  margin-bottom: 15px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.memory-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.memory-item:last-child {
+  border-bottom: none;
+}
+
+.memory-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.memory-value {
+  font-size: 14px;
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  font-family: 'Courier New', monospace;
 }
 
 .language-offer {
