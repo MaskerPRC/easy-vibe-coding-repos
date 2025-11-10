@@ -3,20 +3,20 @@
     <!-- 流星效果 -->
     <ShootingStars />
 
-    <!-- 协作画布背景 Banner -->
+    <!-- 应用背景 Banner -->
     <div class="hero-section">
       <div class="hero-overlay">
         <div class="hero-content">
-          <h1 class="hero-title">实时协作画布</h1>
-          <p class="hero-subtitle">多人在线协作 · 实时同步绘画</p>
+          <h1 class="hero-title">多功能应用平台</h1>
+          <p class="hero-subtitle">多功能集成 · 高效便捷</p>
         </div>
       </div>
     </div>
 
     <header class="app-header">
       <div class="header-left">
-        <h1 class="app-title">协作画布平台</h1>
-        <p class="app-subtitle">实时协作绘画 · 多用户同步</p>
+        <h1 class="app-title">多功能应用平台</h1>
+        <p class="app-subtitle">集成多种实用功能</p>
       </div>
       <div class="header-right">
         <div class="status-indicator" :class="{ online: serverOnline }">
@@ -28,13 +28,6 @@
     </header>
 
     <nav class="tab-navigation">
-      <button
-        class="tab-button"
-        :class="{ active: currentTab === 'canvas' }"
-        @click="currentTab = 'canvas'"
-      >
-        🎨 协作画布
-      </button>
       <button
         class="tab-button"
         :class="{ active: currentTab === 'chat' }"
@@ -108,7 +101,6 @@
     </nav>
 
     <main class="app-body">
-      <CollaborativeCanvas v-if="currentTab === 'canvas'" />
       <ChatRoom v-if="currentTab === 'chat'" />
       <ScreenCapture v-if="currentTab === 'screen'" />
       <NetworkInfo v-if="currentTab === 'network'" />
@@ -123,11 +115,11 @@
 
     <footer class="app-footer">
       <div class="footer-content">
-        <span>协作画布平台 v2.0.0</span>
+        <span>多功能应用平台 v2.0.0</span>
         <span class="separator">|</span>
-        <span>基于 Socket.IO 实时通信</span>
+        <span>集成多种实用功能</span>
         <span class="separator">|</span>
-        <span>支持多用户实时协作绘画</span>
+        <span>高效便捷的工作助手</span>
       </div>
     </footer>
   </div>
@@ -136,7 +128,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import ShootingStars from './components/ShootingStars.vue';
-import CollaborativeCanvas from './components/CollaborativeCanvas.vue';
 import ChatRoom from './components/ChatRoom.vue';
 import ScreenCapture from './components/ScreenCapture.vue';
 import NetworkInfo from './components/NetworkInfo.vue';
@@ -151,7 +142,7 @@ import axios from 'axios';
 
 const serverOnline = ref(false);
 const currentTime = ref('');
-const currentTab = ref('canvas'); // 默认显示协作画布
+const currentTab = ref('chat'); // 默认显示聊天室
 
 let timeInterval;
 let statusInterval;
