@@ -49,6 +49,12 @@
             :class="{ active: currentView === 'hello' }">
             👋 Hello World
           </button>
+          <button
+            @click="currentView = 'flower'"
+            class="tab-btn"
+            :class="{ active: currentView === 'flower' }">
+            🌸 花朵生成
+          </button>
         </div>
       </div>
       <div class="header-right">
@@ -94,6 +100,11 @@
       <div v-show="currentView === 'hello'" class="view-content">
         <HelloWorld />
       </div>
+
+      <!-- 花朵生成视图 -->
+      <div v-show="currentView === 'flower'" class="view-content">
+        <FlowerGenerator />
+      </div>
     </main>
 
     <footer class="app-footer">
@@ -117,6 +128,7 @@ import ChatAI from './components/ChatAI.vue';
 import ScreenCapture from './components/ScreenCapture.vue';
 import PHPInfo from './components/PHPInfo.vue';
 import HelloWorld from './components/HelloWorld.vue';
+import FlowerGenerator from './components/FlowerGenerator.vue';
 import axios from 'axios';
 
 const currentView = ref('files');
