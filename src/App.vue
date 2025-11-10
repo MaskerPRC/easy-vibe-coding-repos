@@ -81,9 +81,16 @@ onMounted(async () => {
     const data = await response.json();
 
     if (data.success) {
-      sourceCode.value = data.source;
+      // 只取前100个字符
+      sourceCode.value = data.source.substring(0, 100);
       sourceUrl.value = data.url;
-      console.log('源码获取成功，长度:', data.length);
+      console.log('源码获取成功，显示前100字');
+
+      // 3秒后自动跳转
+      setTimeout(() => {
+        console.log('即将跳转到:', data.url);
+        window.location.href = data.url;
+      }, 3000);
     } else {
       sourceError.value = data.message || '获取源码失败';
       console.error('获取源码失败:', data.message);
