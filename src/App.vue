@@ -3,7 +3,7 @@
     <header class="app-header">
       <div class="header-left">
         <h1 class="app-title">屏幕分享平台</h1>
-        <p class="app-subtitle">多人实时屏幕分享</p>
+        <p class="app-subtitle">多人实时屏幕分享 · 匿名聊天室</p>
       </div>
       <div class="header-right">
         <div class="status-indicator" :class="{ online: serverOnline }">
@@ -14,8 +14,26 @@
       </div>
     </header>
 
+    <nav class="tab-navigation">
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'screen' }"
+        @click="currentTab = 'screen'"
+      >
+        📸 屏幕分享
+      </button>
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'chat' }"
+        @click="currentTab = 'chat'"
+      >
+        💬 聊天室
+      </button>
+    </nav>
+
     <main class="app-body">
-      <ScreenCapture />
+      <ScreenCapture v-if="currentTab === 'screen'" />
+      <ChatRoom v-if="currentTab === 'chat'" />
     </main>
 
     <footer class="app-footer">
@@ -33,10 +51,12 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import ScreenCapture from './components/ScreenCapture.vue';
+import ChatRoom from './components/ChatRoom.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);
 const currentTime = ref('');
+const currentTab = ref('chat'); // 默认显示聊天室
 
 let timeInterval;
 let statusInterval;
@@ -181,11 +201,45 @@ onUnmounted(() => {
   font-family: 'Courier New', monospace;
 }
 
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  gap: 10px;
+  padding: 15px 30px;
+  background: #2d2d2d;
+  border-bottom: 1px solid #444;
+}
+
+.tab-button {
+  padding: 12px 30px;
+  background: #1a1a1a;
+  color: #999;
+  border: 1px solid #444;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tab-button:hover {
+  background: #333;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  font-weight: 600;
+}
+
 /* Body */
 .app-body {
   flex: 1;
   display: flex;
-  overflow: hidden;
+  padding: 20px;
+  overflow: auto;
 }
 
 /* Footer */

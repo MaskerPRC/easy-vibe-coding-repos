@@ -1,6 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -9,10 +15,113 @@ const PORT = process.env.PORT || 3002;
 const screenshots = [];
 let screenshotIdCounter = 1;
 
+// 聊天消息存储路径
+const CHAT_MESSAGES_FILE = path.join(__dirname, 'chat_messages.txt');
+
 // 中间件
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(express.json({ limit: '50mb' }));
+
+// ==================== 聊天室辅助函数 ====================
+
+/**
+ * 读取聊天消息
+ */
+async function readChatMessages() {
+  try {
+    const data = await fs.readFile(CHAT_MESSAGES_FILE, 'utf-8');
+    const lines = data.trim().split('\n').filter(line => line.trim());
+    return lines.map(line => JSON.parse(line));
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // 文件不存在，返回空数组
+      return [];
+    }
+    throw error;
+  }
+}
+
+/**
+ * 写入聊天消息
+ */
+async function writeChatMessage(message) {
+  const messageStr = JSON.stringify(message) + '\n';
+  await fs.appendFile(CHAT_MESSAGES_FILE, messageStr, 'utf-8');
+}
+
+// ==================== 聊天室 API ====================
+
+/**
+ * 获取聊天消息列表
+ */
+app.get('/api/chat/messages', async (req, res) => {
+  try {
+    const messages = await readChatMessages();
+
+    // 只返回最近的100条消息
+    const recentMessages = messages.slice(-100);
+
+    res.json({
+      success: true,
+      messages: recentMessages,
+      total: recentMessages.length
+    });
+  } catch (error) {
+    console.error('获取聊天消息失败:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * 发送聊天消息
+ */
+app.post('/api/chat/messages', async (req, res) => {
+  try {
+    const { userId, username, avatar, content, timestamp } = req.body;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: '消息内容不能为空'
+      });
+    }
+
+    // 验证消息长度
+    if (content.length > 1000) {
+      return res.status(400).json({
+        success: false,
+        message: '消息内容过长，最多1000字符'
+      });
+    }
+
+    const message = {
+      userId: userId || 'anonymous',
+      username: username || '匿名用户',
+      avatar: avatar || '😀',
+      content: content.trim(),
+      timestamp: timestamp || Date.now()
+    };
+
+    await writeChatMessage(message);
+
+    console.log(`💬 新消息 - 用户: ${message.username}, 内容: ${message.content.substring(0, 30)}...`);
+
+    res.json({
+      success: true,
+      message: '消息发送成功'
+    });
+  } catch (error) {
+    console.error('发送聊天消息失败:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
 
 // ==================== 屏幕截图 API ====================
 
@@ -208,6 +317,7 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`📡 Server: http://localhost:${PORT}`);
   console.log(`🔍 Health Check: http://localhost:${PORT}/api/health`);
   console.log(`📸 Screenshots API: http://localhost:${PORT}/api/screenshots/list`);
+  console.log(`💬 Chat Room API: http://localhost:${PORT}/api/chat/messages`);
   console.log(`📁 Working Directory: ${process.cwd()}`);
   console.log('='.repeat(60) + '\n');
 });
