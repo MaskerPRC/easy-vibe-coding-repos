@@ -1,268 +1,381 @@
 <template>
-  <div class="app-container">
-    <!-- 导航栏 -->
-    <nav class="nav-bar" v-if="!isFullscreen">
-      <div class="nav-title">应用项目</div>
-      <div class="nav-buttons">
-        <button
-          v-for="page in pages"
-          :key="page.name"
-          @click="currentPage = page.name"
-          :class="['nav-btn', { active: currentPage === page.name }]"
-        >
-          {{ page.label }}
-        </button>
-        <button
-          @click="restartServer"
-          class="nav-btn restart-btn"
-          :disabled="isRestarting"
-        >
-          {{ isRestarting ? '重启中...' : '重启服务器' }}
-        </button>
+  <div class="baidu-page">
+    <header class="header">
+      <div class="header-links">
+        <a href="https://www.baidu.com" target="_blank">关于</a>
+        <a href="https://www.baidu.com" target="_blank">商店</a>
       </div>
-    </nav>
+      <div class="header-right">
+        <a href="https://www.baidu.com" target="_blank">Gmail</a>
+        <a href="https://www.baidu.com" target="_blank">图片</a>
+        <button class="apps-btn">⋮⋮⋮</button>
+        <button class="signin-btn">登录</button>
+      </div>
+    </header>
 
+    <main class="main-content">
+      <div class="logo">
+        <span class="logo-bai">百</span>
+        <span class="logo-du">度</span>
+      </div>
 
-    <!-- 页面内容 -->
-    <div class="page-content" :class="{ fullscreen: isFullscreen }">
-      <component :is="currentComponent" />
-    </div>
+      <div class="search-container">
+        <div class="search-box">
+          <svg class="search-icon" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+          </svg>
+          <input
+            type="text"
+            v-model="searchQuery"
+            @keyup.enter="handleSearch"
+            placeholder=""
+            class="search-input"
+          />
+          <svg class="voice-icon" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#4285f4" d="m12 15c1.66 0 3-1.31 3-2.97v-7.02c0-1.66-1.34-3.01-3-3.01s-3 1.34-3 3.01v7.02c0 1.66 1.34 2.97 3 2.97z"></path>
+            <path fill="#34a853" d="m11 18.08h2v3.92h-2z"></path>
+            <path fill="#fbbc05" d="m7.05 16.87c-1.27-1.33-2.05-2.83-2.05-4.87h2c0 1.45 0.56 2.42 1.47 3.38v0.32l-1.15 1.18z"></path>
+            <path fill="#ea4335" d="m12 16.93a4.97 5.25 0 0 1 -3.54 -1.55l-1.41 1.49c1.26 1.34 3.02 2.13 4.95 2.13 3.87 0 6.99-2.92 6.99-7h-1.99c0 2.92-2.24 4.93-5 4.93z"></path>
+          </svg>
+        </div>
+
+        <div class="search-buttons">
+          <button @click="handleSearch" class="search-btn">百度搜索</button>
+          <button @click="handleLucky" class="search-btn">手气不错</button>
+        </div>
+      </div>
+
+      <div class="language-offer">
+        百度提供: <a href="#">English</a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-top">
+        中国
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-left">
+          <a href="https://www.baidu.com" target="_blank">广告</a>
+          <a href="https://www.baidu.com" target="_blank">商务</a>
+          <a href="https://www.baidu.com" target="_blank">百度的运作方式</a>
+        </div>
+        <div class="footer-right">
+          <a href="https://www.baidu.com" target="_blank">隐私权</a>
+          <a href="https://www.baidu.com" target="_blank">条款</a>
+          <a href="https://www.baidu.com" target="_blank">设置</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- 桌宠组件 -->
+    <DesktopPet />
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import FileBrowser from './components/FileBrowser.vue';
-import XSSDemo from './components/XSSDemo.vue';
-import FPSGame from './components/FPSGame.vue';
-import DigitalCat from './components/DigitalCat.vue';
-import LOLAnalysis from './components/LOLAnalysis.vue';
-import LOLWorldChampionship from './components/LOLWorldChampionship.vue';
-import MathModel from './components/MathModel.vue';
-import MathQuestions from './components/MathQuestions.vue';
-import Error502 from './components/Error502.vue';
-import Error592 from './components/Error592.vue';
-import HeroCarousel from './components/HeroCarousel.vue';
-import CatAsciiArt from './components/CatAsciiArt.vue';
-import WeddingMemorial from './components/WeddingMemorial.vue';
+import { ref } from 'vue';
+import DesktopPet from './components/DesktopPet.vue';
 
-// 当前页面
-const currentPage = ref('filebrowser');
+const searchQuery = ref('');
 
-// 是否全屏模式（FPS游戏时）
-const isFullscreen = computed(() => currentPage.value === 'fps');
-
-// 页面列表
-const pages = [
-  { name: 'filebrowser', label: '文件浏览器', component: FileBrowser },
-  { name: 'wedding', label: '结婚纪念帖', component: WeddingMemorial },
-  { name: 'mathquestions', label: '小学数学题', component: MathQuestions },
-  { name: 'lolworlds', label: 'LOL世界赛', component: LOLWorldChampionship },
-  { name: 'xssdemo', label: 'XSS靶场', component: XSSDemo },
-  { name: 'digitalcat', label: '数码猫咪', component: DigitalCat },
-  { name: 'catascii', label: '猫咪字符画', component: CatAsciiArt },
-  { name: 'hero', label: '王者荣耀', component: HeroCarousel },
-  { name: 'fps', label: 'FPS游戏', component: FPSGame },
-  { name: 'lol', label: 'LOL分析', component: LOLAnalysis },
-  { name: 'math', label: '数学模型', component: MathModel },
-  { name: 'error502', label: '502错误', component: Error502 },
-  { name: 'error592', label: '592错误', component: Error592 }
-];
-
-// 当前组件
-const currentComponent = computed(() => {
-  const page = pages.find(p => p.name === currentPage.value);
-  return page ? page.component : FileBrowser;
-});
-
-// 重启服务器状态
-const isRestarting = ref(false);
-
-// 重启服务器方法
-const restartServer = async () => {
-  if (isRestarting.value) return;
-
-  const confirmRestart = confirm('确定要重启服务器吗？');
-  if (!confirmRestart) return;
-
-  isRestarting.value = true;
-
-  try {
-    console.log('正在请求重启服务器...');
-    const response = await fetch('/api/restart', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      alert('服务器正在重启，页面将在3秒后自动刷新');
-
-      // 3秒后刷新页面
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
-    } else {
-      alert('重启失败: ' + (data.message || '未知错误'));
-      isRestarting.value = false;
-    }
-  } catch (error) {
-    console.error('重启请求失败:', error);
-    // 如果请求失败，可能是服务器已经开始重启
-    alert('服务器正在重启，页面将在3秒后自动刷新');
-    setTimeout(() => {
-      window.location.reload();
-    }, 3000);
+const handleSearch = () => {
+  if (searchQuery.value.trim()) {
+    // 实际上使用百度搜索
+    window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
   }
 };
 
+const handleLucky = () => {
+  if (searchQuery.value.trim()) {
+    // 手气不错也使用百度搜索
+    window.open(`https://www.baidu.com/s?wd=${encodeURIComponent(searchQuery.value)}`, '_blank');
+  }
+};
 </script>
 
-<style>
+<style scoped>
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Courier New', 'Fixedsys', 'Consolas', monospace;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: grayscale;
-  background: #0000AA;
-  color: #FFFFFF;
-}
-
-.app-container {
-  width: 100%;
-  height: 100vh;
+.baidu-page {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #0000AA;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
 }
 
-/* 导航栏样式 - Windows 98 蓝屏风格 */
-.nav-bar {
-  background: #0000AA;
-  padding: 15px 30px;
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Header */
+.header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #FFFFFF;
-  z-index: 100;
+  padding: 15px 20px;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.nav-title {
-  font-size: 1.5em;
-  font-weight: bold;
-  color: #FFFFFF;
-  text-shadow: none;
-  font-family: 'Courier New', 'Fixedsys', monospace;
-  letter-spacing: 2px;
-}
-
-.nav-buttons {
+.header-links,
+.header-right {
   display: flex;
+  align-items: center;
   gap: 15px;
 }
 
-.nav-btn {
-  padding: 10px 20px;
-  background: #0000AA;
-  border: 2px solid #AAAAAA;
-  border-radius: 0;
-  color: #FFFFFF;
-  font-size: 1em;
-  font-weight: bold;
+.header a {
+  color: rgba(255, 255, 255, 0.95);
+  text-decoration: none;
+  transition: text-decoration 0.3s;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.header a:hover {
+  text-decoration: underline;
+}
+
+.apps-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.95);
   cursor: pointer;
-  transition: all 0.1s ease;
-  font-family: 'Courier New', 'Fixedsys', monospace;
-  text-transform: uppercase;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s;
+  backdrop-filter: blur(5px);
 }
 
-.nav-btn:hover {
-  background: #0000CC;
-  border-color: #FFFFFF;
-  box-shadow: none;
-  transform: none;
+.apps-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.nav-btn.active {
-  background: #000088;
-  border-color: #FFFFFF;
-  box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.5);
+.signin-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 9px 23px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* 重启按钮特殊样式 */
-.restart-btn {
-  background: #AA0000;
-  border-color: #FFFFFF;
-  margin-left: 10px;
+.signin-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
-.restart-btn:hover:not(:disabled) {
-  background: #CC0000;
-  border-color: #FFFF00;
-}
-
-.restart-btn:disabled {
-  background: #880000;
-  border-color: #888888;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-/* 页面内容 */
-.page-content {
+/* Main Content */
+.main-content {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background: #0000AA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 100px;
 }
 
-.page-content.fullscreen {
-  height: 100vh;
-  overflow: hidden;
+/* Logo */
+.logo {
+  font-size: 90px;
+  font-weight: 400;
+  margin-bottom: 30px;
+  font-family: 'Product Sans', Arial, sans-serif;
+  user-select: none;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(255, 255, 255, 0.3);
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
 }
 
-/* 滚动条样式 - 蓝屏风格 */
-.page-content::-webkit-scrollbar {
-  width: 12px;
+.logo-bai {
+  color: #2932E1;
 }
 
-.page-content::-webkit-scrollbar-track {
-  background: #000088;
+.logo-du {
+  color: #DE0F17;
 }
 
-.page-content::-webkit-scrollbar-thumb {
-  background: #AAAAAA;
-  border-radius: 0;
-  border: 1px solid #FFFFFF;
+/* Search Container */
+.search-container {
+  width: 100%;
+  max-width: 584px;
+  padding: 0 20px;
 }
 
-.page-content::-webkit-scrollbar-thumb:hover {
-  background: #CCCCCC;
+.search-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  padding: 12px 20px;
+  width: 100%;
+  transition: all 0.3s;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* 响应式设计 */
+.search-box:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.search-box:focus-within {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  fill: rgba(255, 255, 255, 0.8);
+  margin-right: 13px;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: white;
+  background: transparent;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.voice-icon {
+  width: 24px;
+  height: 24px;
+  margin-left: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.search-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.search-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  color: white;
+  font-size: 14px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: Arial, sans-serif;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+}
+
+.search-btn:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.language-offer {
+  margin-top: 30px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.language-offer a {
+  color: rgba(255, 255, 255, 0.95);
+  text-decoration: none;
+  margin-left: 5px;
+  font-weight: 500;
+}
+
+.language-offer a:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
+.footer {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.footer-top {
+  padding: 15px 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 20px;
+  flex-wrap: wrap;
+}
+
+.footer-left,
+.footer-right {
+  display: flex;
+  gap: 27px;
+}
+
+.footer a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 14px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.footer a:hover {
+  text-decoration: underline;
+  color: rgba(255, 255, 255, 0.95);
+}
+
 @media (max-width: 768px) {
-  .nav-bar {
+  .logo {
+    font-size: 60px;
+  }
+
+  .footer-bottom {
     flex-direction: column;
     gap: 15px;
-    padding: 15px;
   }
 
-  .nav-buttons {
-    flex-wrap: wrap;
+  .footer-left,
+  .footer-right {
     justify-content: center;
-  }
-
-  .nav-btn {
-    padding: 8px 15px;
-    font-size: 0.9em;
   }
 }
 </style>
+
