@@ -105,6 +105,13 @@
       >
         🖥️ 拟物电脑
       </button>
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'base64' }"
+        @click="currentTab = 'base64'"
+      >
+        🔐 Base64加解密
+      </button>
     </nav>
 
     <main class="app-body">
@@ -119,6 +126,7 @@
       <BaiduSearch v-if="currentTab === 'search'" />
       <TaskManager v-if="currentTab === 'task'" />
       <SkeuomorphicScreen v-if="currentTab === 'skeuomorphic'" />
+      <Base64Converter v-if="currentTab === 'base64'" />
     </main>
 
     <footer class="app-footer">
@@ -147,6 +155,7 @@ import BaiduSearch from './components/BaiduSearch.vue';
 import TaskManager from './components/TaskManager.vue';
 import SkeuomorphicScreen from './components/SkeuomorphicScreen.vue';
 import OnlineUsers from './components/OnlineUsers.vue';
+import Base64Converter from './components/Base64Converter.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);

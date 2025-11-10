@@ -1272,6 +1272,93 @@ app.get('/api/users/online', async (req, res) => {
   }
 });
 
+// ==================== Base64 加解密 ====================
+
+/**
+ * Base64 编码
+ */
+app.post('/api/base64/encode', async (req, res) => {
+  try {
+    const { text } = req.body;
+
+    if (!text || text.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: '输入文本不能为空'
+      });
+    }
+
+    // 使用 Node.js Buffer 进行 Base64 编码
+    const encoded = Buffer.from(text, 'utf-8').toString('base64');
+
+    console.log(`✅ Base64编码成功 - 原文长度: ${text.length}, 编码长度: ${encoded.length}`);
+
+    res.json({
+      success: true,
+      result: encoded,
+      stats: {
+        originalLength: text.length,
+        encodedLength: encoded.length
+      }
+    });
+  } catch (error) {
+    console.error('❌ Base64编码失败:', error);
+    res.status(500).json({
+      success: false,
+      error: '编码失败: ' + error.message
+    });
+  }
+});
+
+/**
+ * Base64 解码
+ */
+app.post('/api/base64/decode', async (req, res) => {
+  try {
+    const { base64 } = req.body;
+
+    if (!base64 || base64.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Base64字符串不能为空'
+      });
+    }
+
+    try {
+      // 使用 Node.js Buffer 进行 Base64 解码
+      const decoded = Buffer.from(base64, 'base64').toString('utf-8');
+
+      // 验证解码是否成功（检查是否为有效的UTF-8）
+      if (!decoded && base64.length > 0) {
+        throw new Error('解码结果为空');
+      }
+
+      console.log(`✅ Base64解码成功 - 编码长度: ${base64.length}, 解码长度: ${decoded.length}`);
+
+      res.json({
+        success: true,
+        result: decoded,
+        stats: {
+          encodedLength: base64.length,
+          decodedLength: decoded.length
+        }
+      });
+    } catch (decodeError) {
+      console.error('❌ Base64解码失败:', decodeError);
+      return res.status(400).json({
+        success: false,
+        error: 'Base64字符串格式无效或包含非法字符'
+      });
+    }
+  } catch (error) {
+    console.error('❌ Base64解码失败:', error);
+    res.status(500).json({
+      success: false,
+      error: '解码失败: ' + error.message
+    });
+  }
+});
+
 // ==================== 健康检查 ====================
 
 /**
