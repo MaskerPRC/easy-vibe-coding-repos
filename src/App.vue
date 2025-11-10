@@ -200,6 +200,14 @@ onMounted(() => {
 });
 </script>
 
+<style>
+/* 全局样式：隐藏需求助手相关元素 */
+.chat-dialog,
+.demand-button {
+  display: none !important;
+}
+</style>
+
 <style scoped>
 * {
   box-sizing: border-box;
