@@ -31,25 +31,23 @@ const closeModal = () => {
 <style scoped>
 .demand-button {
   position: fixed;
-  bottom: 0px;
-  right: 0px;
-  width: 168px;
-  height: 168px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 20%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 600;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
   z-index: 10001;
   user-select: none;
+  font-size: 16px;
 }
 
-/* 弹窗遮罩 */
+.demand-button:hover {
+  background-color: black;
+  color: white;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -63,88 +61,35 @@ const closeModal = () => {
   z-index: 10000;
 }
 
-/* 弹窗内容 */
 .modal-content {
   background: white;
-  border-radius: 16px;
+  border: 1px solid black;
   padding: 30px 40px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   text-align: center;
   min-width: 300px;
-  animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .modal-content p {
   margin: 0 0 20px 0;
   font-size: 18px;
-  color: #333;
-  font-weight: 500;
+  color: black;
 }
 
 .modal-close-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
+  background-color: white;
+  color: black;
+  border: 1px solid black;
   padding: 10px 30px;
   font-size: 16px;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
 .modal-close-btn:hover {
-  background-color: #0069d9;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  background-color: black;
+  color: white;
 }
 
-.modal-close-btn:active {
-  transform: translateY(0);
-}
-
-/* 过渡动画 */
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active .modal-content,
-.modal-leave-active .modal-content {
-  transition: transform 0.3s ease;
-}
-
-.modal-enter-from .modal-content,
-.modal-leave-to .modal-content {
-  transform: translateY(-20px);
-}
-
-/* 响应式 */
 @media (max-width: 768px) {
-  .demand-button {
-    width: 168px;
-    height: 168px;
-    font-size: 14px;
-    bottom: 0px;
-    right: 0px;
-  }
-
   .modal-content {
     min-width: 260px;
     padding: 25px 30px;
