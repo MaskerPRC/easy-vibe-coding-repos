@@ -2,7 +2,7 @@
   <div class="star-carousel">
     <div class="carousel-header">
       <h1 class="title">明星写真展示</h1>
-      <p class="subtitle">精选明星艺术照片欣赏</p>
+      <p class="subtitle">123</p>
     </div>
 
     <div class="carousel-container">
