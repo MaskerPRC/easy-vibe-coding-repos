@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
-    <LOLAnalysis />
+    <FPSGame />
   </div>
 </template>
 
 <script setup>
-import LOLAnalysis from './components/LOLAnalysis.vue';
+import FPSGame from './components/FPSGame.vue';
 </script>
 
 <style>

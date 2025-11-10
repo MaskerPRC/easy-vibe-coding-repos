@@ -120,6 +120,64 @@ app.get('/api/math-model/random', (req, res) => {
   });
 });
 
+// FPS 游戏统计数据接口
+app.get('/api/fps/stats', (req, res) => {
+  // 模拟返回 FPS 游戏统计数据
+  const gameStats = {
+    success: true,
+    playerStats: {
+      totalKills: Math.floor(Math.random() * 1000) + 500,
+      totalDeaths: Math.floor(Math.random() * 800) + 300,
+      totalMatches: Math.floor(Math.random() * 200) + 50,
+      winRate: (45 + Math.random() * 20).toFixed(1),
+      headShotRate: (15 + Math.random() * 25).toFixed(1),
+      accuracy: (35 + Math.random() * 30).toFixed(1),
+      favoriteWeapon: 'AK-47'
+    },
+    leaderboard: [
+      { rank: 1, name: 'ProGamer123', kills: 2847, kd: 3.2 },
+      { rank: 2, name: 'SniperKing', kills: 2654, kd: 2.9 },
+      { rank: 3, name: 'HeadShot_Master', kills: 2431, kd: 2.7 },
+      { rank: 4, name: 'TacticalPlayer', kills: 2298, kd: 2.5 },
+      { rank: 5, name: 'RushB_Expert', kills: 2145, kd: 2.3 }
+    ],
+    weapons: [
+      { name: 'AK-47', damage: 36, fireRate: 600, accuracy: 70 },
+      { name: 'M4A1', damage: 33, fireRate: 666, accuracy: 75 },
+      { name: 'AWP', damage: 115, fireRate: 41, accuracy: 98 },
+      { name: 'Desert Eagle', damage: 63, fireRate: 267, accuracy: 65 },
+      { name: 'MP5', damage: 26, fireRate: 800, accuracy: 68 }
+    ],
+    maps: [
+      { name: 'Dust 2', playCount: 156, winRate: 52 },
+      { name: 'Inferno', playCount: 134, winRate: 48 },
+      { name: 'Mirage', playCount: 128, winRate: 51 },
+      { name: 'Nuke', playCount: 98, winRate: 45 }
+    ],
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(gameStats);
+});
+
+// FPS 游戏保存比赛记录
+app.post('/api/fps/match', (req, res) => {
+  const { kills, deaths, damage, accuracy } = req.body;
+
+  res.json({
+    success: true,
+    message: '比赛记录已保存',
+    data: {
+      kills,
+      deaths,
+      damage,
+      accuracy,
+      kd: deaths > 0 ? (kills / deaths).toFixed(2) : kills,
+      timestamp: new Date().toISOString()
+    }
+  });
+});
+
 // 英雄联盟总决赛数据接口
 app.get('/api/lol/match-data', (req, res) => {
   // 模拟返回英雄联盟总决赛数据
