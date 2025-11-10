@@ -24,6 +24,9 @@ let screenshotIdCounter = 1;
 // 聊天消息存储路径
 const CHAT_MESSAGES_FILE = path.join(__dirname, 'chat_messages.txt');
 
+// 访客IP记录存储路径
+const VISITOR_IPS_FILE = path.join(__dirname, 'visitor_ips.txt');
+
 // 中间件
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -55,6 +58,73 @@ async function writeChatMessage(message) {
   const messageStr = JSON.stringify(message) + '\n';
   await fs.appendFile(CHAT_MESSAGES_FILE, messageStr, 'utf-8');
 }
+
+// ==================== 访客IP记录辅助函数 ====================
+
+/**
+ * 读取访客IP记录
+ */
+async function readVisitorIPs() {
+  try {
+    const data = await fs.readFile(VISITOR_IPS_FILE, 'utf-8');
+    const lines = data.trim().split('\n').filter(line => line.trim());
+    return lines.map(line => JSON.parse(line));
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // 文件不存在，返回空数组
+      return [];
+    }
+    throw error;
+  }
+}
+
+/**
+ * 写入访客IP记录
+ */
+async function writeVisitorIP(record) {
+  const recordStr = JSON.stringify(record) + '\n';
+  await fs.appendFile(VISITOR_IPS_FILE, recordStr, 'utf-8');
+}
+
+// IP记录中间件 - 记录所有访问者的IP地址
+app.use(async (req, res, next) => {
+  try {
+    // 获取访问者IP地址
+    const ip = req.headers['x-forwarded-for'] ||
+               req.headers['x-real-ip'] ||
+               req.connection.remoteAddress ||
+               req.socket.remoteAddress ||
+               req.ip;
+
+    // 记录访问信息
+    const record = {
+      ip: ip,
+      path: req.path,
+      method: req.method,
+      userAgent: req.headers['user-agent'] || 'Unknown',
+      timestamp: Date.now(),
+      time: new Date().toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      })
+    };
+
+    // 异步写入，不阻塞请求
+    writeVisitorIP(record).catch(err => {
+      console.error('记录访客IP失败:', err);
+    });
+
+  } catch (error) {
+    console.error('IP记录中间件错误:', error);
+  }
+
+  next();
+});
 
 // ==================== 聊天室 API ====================
 
@@ -122,6 +192,56 @@ app.post('/api/chat/messages', async (req, res) => {
     });
   } catch (error) {
     console.error('发送聊天消息失败:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// ==================== 访客IP追踪 API ====================
+
+/**
+ * 获取访客IP记录列表
+ */
+app.get('/api/visitors/ips', async (req, res) => {
+  try {
+    const records = await readVisitorIPs();
+
+    // 统计相关数据
+    const uniqueIPs = new Set(records.map(r => r.ip));
+    const ipStats = {};
+
+    records.forEach(record => {
+      if (!ipStats[record.ip]) {
+        ipStats[record.ip] = {
+          ip: record.ip,
+          count: 0,
+          firstVisit: record.time,
+          lastVisit: record.time,
+          paths: new Set()
+        };
+      }
+      ipStats[record.ip].count += 1;
+      ipStats[record.ip].lastVisit = record.time;
+      ipStats[record.ip].paths.add(record.path);
+    });
+
+    // 转换为数组并排序
+    const ipList = Object.values(ipStats).map(stat => ({
+      ...stat,
+      paths: Array.from(stat.paths)
+    })).sort((a, b) => b.count - a.count);
+
+    res.json({
+      success: true,
+      totalRecords: records.length,
+      uniqueIPs: uniqueIPs.size,
+      records: records.slice(-200).reverse(), // 返回最近200条记录
+      ipStats: ipList
+    });
+  } catch (error) {
+    console.error('获取访客IP记录失败:', error);
     res.status(500).json({
       success: false,
       message: error.message

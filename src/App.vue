@@ -67,6 +67,13 @@
       >
         🌤️ 天气预报
       </button>
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'visitor' }"
+        @click="currentTab = 'visitor'"
+      >
+        👥 访客追踪
+      </button>
     </nav>
 
     <main class="app-body">
@@ -76,6 +83,7 @@
       <ShadowViewer v-if="currentTab === 'shadow'" />
       <ExcelGuide v-if="currentTab === 'excel'" />
       <Weather v-if="currentTab === 'weather'" />
+      <VisitorTracker v-if="currentTab === 'visitor'" />
     </main>
 
     <footer class="app-footer">
@@ -98,6 +106,7 @@ import ShadowViewer from './components/ShadowViewer.vue';
 import ExcelGuide from './components/ExcelGuide.vue';
 import NetworkInfo from './components/NetworkInfo.vue';
 import Weather from './components/Weather.vue';
+import VisitorTracker from './components/VisitorTracker.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);
