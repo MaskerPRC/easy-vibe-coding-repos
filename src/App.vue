@@ -47,6 +47,7 @@ import LOLAnalysis from './components/LOLAnalysis.vue';
 import MathModel from './components/MathModel.vue';
 import Error502 from './components/Error502.vue';
 import HeroCarousel from './components/HeroCarousel.vue';
+import CatAsciiArt from './components/CatAsciiArt.vue';
 
 // 当前页面
 const currentPage = ref('xssdemo');
@@ -58,6 +59,7 @@ const isFullscreen = computed(() => currentPage.value === 'fps');
 const pages = [
   { name: 'xssdemo', label: 'XSS靶场', component: XSSDemo },
   { name: 'digitalcat', label: '数码猫咪', component: DigitalCat },
+  { name: 'catascii', label: '猫咪字符画', component: CatAsciiArt },
   { name: 'hero', label: '王者荣耀', component: HeroCarousel },
   { name: 'fps', label: 'FPS游戏', component: FPSGame },
   { name: 'lol', label: 'LOL分析', component: LOLAnalysis },
