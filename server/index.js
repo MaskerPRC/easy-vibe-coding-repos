@@ -32,6 +32,9 @@ const VISITOR_IPS_FILE = path.join(__dirname, 'visitor_ips.txt');
 // 任务数据存储路径
 const TASKS_FILE = path.join(__dirname, 'tasks.json');
 
+// 在线用户数据存储路径
+const ONLINE_USERS_FILE = path.join(__dirname, 'online_users.json');
+
 // 中间件
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -121,6 +124,53 @@ async function writeTasks(tasks) {
  */
 function generateTaskId() {
   return `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// ==================== 在线用户管理辅助函数 ====================
+
+/**
+ * 读取在线用户列表
+ */
+async function readOnlineUsers() {
+  try {
+    const data = await fs.readFile(ONLINE_USERS_FILE, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      // 文件不存在，返回空数组
+      return [];
+    }
+    throw error;
+  }
+}
+
+/**
+ * 写入在线用户列表
+ */
+async function writeOnlineUsers(users) {
+  await fs.writeFile(ONLINE_USERS_FILE, JSON.stringify(users, null, 2), 'utf-8');
+}
+
+/**
+ * 清理超时的在线用户（超过60秒无心跳的用户）
+ */
+async function cleanupTimeoutUsers() {
+  try {
+    const users = await readOnlineUsers();
+    const now = Date.now();
+    const timeout = 60000; // 60秒超时
+
+    const activeUsers = users.filter(user => {
+      return (now - user.lastHeartbeat) < timeout;
+    });
+
+    if (activeUsers.length !== users.length) {
+      await writeOnlineUsers(activeUsers);
+      console.log(`🧹 清理超时用户: ${users.length - activeUsers.length} 个用户离线`);
+    }
+  } catch (error) {
+    console.error('清理超时用户失败:', error);
+  }
 }
 
 // IP记录中间件 - 记录所有访问者的IP地址
@@ -1123,6 +1173,105 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
+// ==================== 在线用户管理 API ====================
+
+/**
+ * 用户心跳接口 - 更新用户在线状态
+ */
+app.post('/api/user/heartbeat', async (req, res) => {
+  try {
+    const { userId, username, avatar } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: '用户ID不能为空'
+      });
+    }
+
+    const users = await readOnlineUsers();
+    const now = Date.now();
+
+    // 查找用户是否已存在
+    const existingUserIndex = users.findIndex(u => u.userId === userId);
+
+    if (existingUserIndex !== -1) {
+      // 更新现有用户
+      users[existingUserIndex] = {
+        userId,
+        username: username || users[existingUserIndex].username || '匿名用户',
+        avatar: avatar || users[existingUserIndex].avatar || '😀',
+        lastHeartbeat: now,
+        lastUpdate: new Date().toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        })
+      };
+    } else {
+      // 新用户上线
+      users.push({
+        userId,
+        username: username || '匿名用户',
+        avatar: avatar || '😀',
+        lastHeartbeat: now,
+        firstOnline: now,
+        lastUpdate: new Date().toLocaleString('zh-CN', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        })
+      });
+      console.log(`👤 新用户上线 - ID: ${userId}, 用户名: ${username || '匿名用户'}`);
+    }
+
+    await writeOnlineUsers(users);
+
+    res.json({
+      success: true,
+      message: '心跳更新成功'
+    });
+  } catch (error) {
+    console.error('心跳更新失败:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * 获取在线用户列表
+ */
+app.get('/api/users/online', async (req, res) => {
+  try {
+    // 先清理超时用户
+    await cleanupTimeoutUsers();
+
+    const users = await readOnlineUsers();
+
+    res.json({
+      success: true,
+      count: users.length,
+      users: users
+    });
+  } catch (error) {
+    console.error('获取在线用户失败:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 // ==================== 健康检查 ====================
 
 /**
@@ -1168,6 +1317,11 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔍 Health Check: http://localhost:${PORT}/api/health`);
   console.log(`📸 Screenshots API: http://localhost:${PORT}/api/screenshots/list`);
   console.log(`💬 Chat Room API: http://localhost:${PORT}/api/chat/messages`);
+  console.log(`👥 Online Users API: http://localhost:${PORT}/api/users/online`);
   console.log(`📁 Working Directory: ${process.cwd()}`);
   console.log('='.repeat(60) + '\n');
+
+  // 启动定时清理超时用户任务（每30秒执行一次）
+  setInterval(cleanupTimeoutUsers, 30000);
+  console.log('⏰ 在线用户清理任务已启动（每30秒执行一次）\n');
 });

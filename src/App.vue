@@ -79,6 +79,13 @@
       </button>
       <button
         class="tab-button"
+        :class="{ active: currentTab === 'online' }"
+        @click="currentTab = 'online'"
+      >
+        🟢 在线用户
+      </button>
+      <button
+        class="tab-button"
         :class="{ active: currentTab === 'search' }"
         @click="currentTab = 'search'"
       >
@@ -108,6 +115,7 @@
       <ExcelGuide v-if="currentTab === 'excel'" />
       <Weather v-if="currentTab === 'weather'" />
       <VisitorTracker v-if="currentTab === 'visitor'" />
+      <OnlineUsers v-if="currentTab === 'online'" />
       <BaiduSearch v-if="currentTab === 'search'" />
       <TaskManager v-if="currentTab === 'task'" />
       <SkeuomorphicScreen v-if="currentTab === 'skeuomorphic'" />
@@ -138,6 +146,7 @@ import VisitorTracker from './components/VisitorTracker.vue';
 import BaiduSearch from './components/BaiduSearch.vue';
 import TaskManager from './components/TaskManager.vue';
 import SkeuomorphicScreen from './components/SkeuomorphicScreen.vue';
+import OnlineUsers from './components/OnlineUsers.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);
@@ -146,6 +155,12 @@ const currentTab = ref('chat'); // 默认显示聊天室
 
 let timeInterval;
 let statusInterval;
+let heartbeatInterval;
+
+// 用户信息
+const currentUserId = ref('');
+const currentUsername = ref('');
+const currentAvatar = ref('😀');
 
 // 检查服务器状态
 const checkServerStatus = async () => {
@@ -171,15 +186,52 @@ const updateTime = () => {
   });
 };
 
+// 初始化用户信息
+const initUser = () => {
+  // 使用 localStorage 存储用户 ID
+  let userId = localStorage.getItem('chatUserId');
+  if (!userId) {
+    userId = 'user_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('chatUserId', userId);
+  }
+  currentUserId.value = userId;
+
+  // 用户名存储
+  const savedUsername = localStorage.getItem('chatUsername');
+  if (savedUsername) {
+    currentUsername.value = savedUsername;
+  } else {
+    currentUsername.value = '访客' + Math.random().toString(36).substr(2, 4);
+  }
+};
+
+// 发送心跳
+const sendHeartbeat = async () => {
+  try {
+    await axios.post('/api/user/heartbeat', {
+      userId: currentUserId.value,
+      username: currentUsername.value,
+      avatar: currentAvatar.value
+    });
+  } catch (error) {
+    console.error('发送心跳失败:', error);
+  }
+};
+
 onMounted(() => {
   checkServerStatus();
   updateTime();
+  initUser();
+  sendHeartbeat();
 
   // 每5秒检查一次服务器状态
   statusInterval = setInterval(checkServerStatus, 5000);
 
   // 每秒更新时间
   timeInterval = setInterval(updateTime, 1000);
+
+  // 每30秒发送一次心跳
+  heartbeatInterval = setInterval(sendHeartbeat, 30000);
 });
 
 onUnmounted(() => {
@@ -188,6 +240,9 @@ onUnmounted(() => {
   }
   if (statusInterval) {
     clearInterval(statusInterval);
+  }
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval);
   }
 });
 </script>
