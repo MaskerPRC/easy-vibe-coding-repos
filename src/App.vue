@@ -28,6 +28,7 @@ import FPSGame from './components/FPSGame.vue';
 import DigitalCat from './components/DigitalCat.vue';
 import LOLAnalysis from './components/LOLAnalysis.vue';
 import MathModel from './components/MathModel.vue';
+import Error502 from './components/Error502.vue';
 
 // 当前页面
 const currentPage = ref('digitalcat');
@@ -40,7 +41,8 @@ const pages = [
   { name: 'digitalcat', label: '数码猫咪', component: DigitalCat },
   { name: 'fps', label: 'FPS游戏', component: FPSGame },
   { name: 'lol', label: 'LOL分析', component: LOLAnalysis },
-  { name: 'math', label: '数学模型', component: MathModel }
+  { name: 'math', label: '数学模型', component: MathModel },
+  { name: 'error502', label: '502错误', component: Error502 }
 ];
 
 // 当前组件
