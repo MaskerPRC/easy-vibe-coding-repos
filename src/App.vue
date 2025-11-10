@@ -25,6 +25,12 @@
             :class="{ active: currentView === 'system' }">
             ⚙️ 系统信息
           </button>
+          <button
+            @click="currentView = 'chat'"
+            class="tab-btn"
+            :class="{ active: currentView === 'chat' }">
+            💬 AI聊天
+          </button>
         </div>
       </div>
       <div class="header-right">
@@ -50,6 +56,11 @@
       <div v-show="currentView === 'system'" class="view-content">
         <SystemInfo />
       </div>
+
+      <!-- AI聊天视图 -->
+      <div v-show="currentView === 'chat'" class="view-content">
+        <ChatAI />
+      </div>
     </main>
 
     <footer class="app-footer">
@@ -69,6 +80,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import FileManager from './components/FileManager.vue';
 import CommandExecutor from './components/CommandExecutor.vue';
 import SystemInfo from './components/SystemInfo.vue';
+import ChatAI from './components/ChatAI.vue';
 import axios from 'axios';
 
 const currentView = ref('files');
