@@ -1,5 +1,8 @@
 <template>
   <div class="carousel-container">
+    <div class="nav-bar">
+      <router-link to="/todo" class="nav-link">📝 待办事项</router-link>
+    </div>
     <div class="carousel-header">
       <h1 class="title">明星写真展</h1>
       <p class="subtitle">精彩瞬间 · 璀璨星光</p>
@@ -140,6 +143,31 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.nav-bar {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.nav-link {
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.nav-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
 }
 
 .carousel-header {

@@ -103,6 +103,157 @@ app.get('/api/config', (req, res) => {
   });
 });
 
+// TODO API 接口
+
+// 获取所有 TODO
+app.get('/api/todos', async (req, res) => {
+  try {
+    const fileData = await fs.readFile(DATA_FILE, 'utf-8');
+    const parsedData = JSON.parse(fileData);
+    res.json({
+      success: true,
+      todos: parsedData.todos || []
+    });
+  } catch (error) {
+    console.error('读取 TODO 失败:', error);
+    res.json({
+      success: true,
+      todos: []
+    });
+  }
+});
+
+// 创建新 TODO
+app.post('/api/todos', async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text || !text.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'TODO 内容不能为空'
+      });
+    }
+
+    let currentData = { count: 0, items: [], todos: [] };
+    try {
+      const fileData = await fs.readFile(DATA_FILE, 'utf-8');
+      currentData = JSON.parse(fileData);
+    } catch (error) {
+      console.log('初始化新的数据文件');
+    }
+
+    if (!currentData.todos) {
+      currentData.todos = [];
+    }
+
+    const newTodo = {
+      id: Date.now(),
+      text: text.trim(),
+      completed: false,
+      createdAt: new Date().toISOString()
+    };
+
+    currentData.todos.push(newTodo);
+    await fs.writeFile(DATA_FILE, JSON.stringify(currentData, null, 2), 'utf-8');
+
+    res.json({
+      success: true,
+      todo: newTodo
+    });
+  } catch (error) {
+    console.error('创建 TODO 失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '创建 TODO 失败: ' + error.message
+    });
+  }
+});
+
+// 更新 TODO
+app.put('/api/todos/:id', async (req, res) => {
+  try {
+    const todoId = parseInt(req.params.id);
+    const { completed, text } = req.body;
+
+    const fileData = await fs.readFile(DATA_FILE, 'utf-8');
+    const currentData = JSON.parse(fileData);
+
+    if (!currentData.todos) {
+      return res.status(404).json({
+        success: false,
+        message: 'TODO 不存在'
+      });
+    }
+
+    const todoIndex = currentData.todos.findIndex(t => t.id === todoId);
+    if (todoIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'TODO 不存在'
+      });
+    }
+
+    if (completed !== undefined) {
+      currentData.todos[todoIndex].completed = completed;
+    }
+    if (text !== undefined && text.trim()) {
+      currentData.todos[todoIndex].text = text.trim();
+    }
+
+    await fs.writeFile(DATA_FILE, JSON.stringify(currentData, null, 2), 'utf-8');
+
+    res.json({
+      success: true,
+      todo: currentData.todos[todoIndex]
+    });
+  } catch (error) {
+    console.error('更新 TODO 失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '更新 TODO 失败: ' + error.message
+    });
+  }
+});
+
+// 删除 TODO
+app.delete('/api/todos/:id', async (req, res) => {
+  try {
+    const todoId = parseInt(req.params.id);
+
+    const fileData = await fs.readFile(DATA_FILE, 'utf-8');
+    const currentData = JSON.parse(fileData);
+
+    if (!currentData.todos) {
+      return res.status(404).json({
+        success: false,
+        message: 'TODO 不存在'
+      });
+    }
+
+    const todoIndex = currentData.todos.findIndex(t => t.id === todoId);
+    if (todoIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'TODO 不存在'
+      });
+    }
+
+    currentData.todos.splice(todoIndex, 1);
+    await fs.writeFile(DATA_FILE, JSON.stringify(currentData, null, 2), 'utf-8');
+
+    res.json({
+      success: true,
+      message: 'TODO 已删除'
+    });
+  } catch (error) {
+    console.error('删除 TODO 失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '删除 TODO 失败: ' + error.message
+    });
+  }
+});
+
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('错误:', err);
