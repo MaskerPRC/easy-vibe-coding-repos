@@ -4,367 +4,342 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
-import os from 'os';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execPromise = promisify(exec);
+import fsSync from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DATA_FILE = path.join(__dirname, 'data.json');
+const SPY_DATA_FILE = path.join(__dirname, 'spy-data.json');
 
 const app = express();
-const PORT = process.env.PORT || 3002; // 后端端口 3002，前端 5173
+const PORT = process.env.PORT || 3002;
 
 // 中间件
 app.use(cors());
-app.use(bodyParser.json());
-app.use(express.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(express.json({ limit: '50mb' }));
 
-// API 路由
+// Spy记录存储（内存）
+let spyRecords = [];
+const MAX_RECORDS = 10000;
 
-// 健康检查
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    port: PORT,
-    timestamp: new Date().toISOString()
+// 加载spy数据
+const loadSpyData = async () => {
+  try {
+    if (fsSync.existsSync(SPY_DATA_FILE)) {
+      const data = await fs.readFile(SPY_DATA_FILE, 'utf8');
+      spyRecords = JSON.parse(data);
+      console.log(`✅ 已加载 ${spyRecords.length} 条spy记录`);
+    }
+  } catch (error) {
+    console.error('❌ 加载spy数据失败:', error.message);
+    spyRecords = [];
+  }
+};
+
+// 保存spy数据
+const saveSpyData = async () => {
+  try {
+    await fs.writeFile(SPY_DATA_FILE, JSON.stringify(spyRecords, null, 2));
+    console.log(`💾 已保存 ${spyRecords.length} 条spy记录`);
+  } catch (error) {
+    console.error('❌ 保存spy数据失败:', error.message);
+  }
+};
+
+// 初始化时加载数据
+loadSpyData();
+
+// ==================== Spy API ====================
+
+/**
+ * 获取所有spy记录
+ */
+app.get('/api/spy/records', (req, res) => {
+  const { type, limit = 1000 } = req.query;
+
+  let records = spyRecords;
+
+  // 按类型过滤
+  if (type) {
+    records = records.filter(r => r.type === type);
+  }
+
+  // 限制返回数量
+  records = records.slice(0, parseInt(limit));
+
+  res.json({
+    success: true,
+    data: records,
+    total: spyRecords.length
   });
 });
 
-// 获取数据示例
-app.get('/api/data', async (req, res) => {
+/**
+ * 添加spy记录
+ */
+app.post('/api/spy/records', (req, res) => {
   try {
-    const fileData = await fs.readFile(DATA_FILE, 'utf-8');
-    const parsedData = JSON.parse(fileData);
-    res.json({
-      message: '这是来自后端的数据',
-      data: parsedData
-    });
-  } catch (error) {
-    console.error('读取数据失败:', error);
-    // 如果文件不存在或读取失败，返回默认数据
-    res.json({
-      message: '这是来自后端的数据',
-      data: {
-        count: 0,
-        items: []
-      }
-    });
-  }
-});
+    const record = req.body;
 
-// 更新数据示例
-app.post('/api/data', async (req, res) => {
-  try {
-    const { count } = req.body;
-    console.log('收到更新请求，count =', count);
-    console.log('数据文件路径:', DATA_FILE);
-
-    // 读取现有数据
-    let currentData = { count: 0, items: [] };
-    try {
-      const fileData = await fs.readFile(DATA_FILE, 'utf-8');
-      currentData = JSON.parse(fileData);
-      console.log('读取到现有数据:', currentData);
-    } catch (error) {
-      // 文件不存在或读取失败，使用默认数据
-      console.log('使用默认数据, 错误:', error.message);
+    // 验证记录
+    if (!record.type || !record.method) {
+      return res.status(400).json({
+        success: false,
+        message: '缺少必要字段: type, method'
+      });
     }
 
-    // 更新 count 值
-    currentData.count = count;
-    console.log('准备保存的数据:', currentData);
+    // 添加记录
+    record.id = Date.now() + Math.random();
+    record.timestamp = record.timestamp || new Date().toISOString();
 
-    // 保存到文件
-    await fs.writeFile(DATA_FILE, JSON.stringify(currentData, null, 2), 'utf-8');
-    console.log('数据已写入文件');
+    spyRecords.unshift(record);
 
-    // 验证写入
-    const savedData = await fs.readFile(DATA_FILE, 'utf-8');
-    console.log('验证写入后的文件内容:', savedData);
+    // 限制记录数量
+    if (spyRecords.length > MAX_RECORDS) {
+      spyRecords = spyRecords.slice(0, MAX_RECORDS);
+    }
 
     res.json({
       success: true,
-      message: '数据已更新并保存',
-      data: currentData
+      data: record
     });
   } catch (error) {
-    console.error('保存数据失败:', error);
     res.status(500).json({
       success: false,
-      message: '保存数据失败: ' + error.message
+      message: error.message
     });
   }
 });
 
-// 获取配置
+/**
+ * 批量添加spy记录
+ */
+app.post('/api/spy/records/batch', (req, res) => {
+  try {
+    const records = req.body;
+
+    if (!Array.isArray(records)) {
+      return res.status(400).json({
+        success: false,
+        message: '请求体必须是数组'
+      });
+    }
+
+    // 添加记录
+    records.forEach(record => {
+      record.id = Date.now() + Math.random();
+      record.timestamp = record.timestamp || new Date().toISOString();
+      spyRecords.unshift(record);
+    });
+
+    // 限制记录数量
+    if (spyRecords.length > MAX_RECORDS) {
+      spyRecords = spyRecords.slice(0, MAX_RECORDS);
+    }
+
+    res.json({
+      success: true,
+      count: records.length,
+      total: spyRecords.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * 清空spy记录
+ */
+app.delete('/api/spy/records', async (req, res) => {
+  try {
+    spyRecords = [];
+    await saveSpyData();
+
+    res.json({
+      success: true,
+      message: '已清空所有记录'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * 导出spy记录
+ */
+app.get('/api/spy/export', (req, res) => {
+  try {
+    const { format = 'json' } = req.query;
+
+    if (format === 'json') {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename=spy-records-${Date.now()}.json`);
+      res.send(JSON.stringify(spyRecords, null, 2));
+    } else {
+      res.status(400).json({
+        success: false,
+        message: '不支持的格式'
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * 获取spy统计信息
+ */
+app.get('/api/spy/stats', (req, res) => {
+  try {
+    const stats = {
+      total: spyRecords.length,
+      byType: {},
+      byMethod: {},
+      recentActivity: []
+    };
+
+    // 按类型统计
+    spyRecords.forEach(record => {
+      stats.byType[record.type] = (stats.byType[record.type] || 0) + 1;
+      stats.byMethod[record.method] = (stats.byMethod[record.method] || 0) + 1;
+    });
+
+    // 最近活动（最近10条）
+    stats.recentActivity = spyRecords.slice(0, 10);
+
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * 保存spy记录到文件
+ */
+app.post('/api/spy/save', async (req, res) => {
+  try {
+    await saveSpyData();
+    res.json({
+      success: true,
+      message: '记录已保存到文件',
+      count: spyRecords.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// ==================== 其他API ====================
+
+/**
+ * 健康检查
+ */
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    status: 'ok',
+    message: 'JSpspy Server is running',
+    timestamp: new Date().toISOString(),
+    records: spyRecords.length,
+    port: PORT
+  });
+});
+
+/**
+ * 获取配置
+ */
 app.get('/api/config', (req, res) => {
   res.json({
-    appName: '应用项目',
+    success: true,
+    appName: 'JSpspy - JavaScript Spy Tool',
     version: '1.0.0',
-    features: ['前端', '后端', 'API']
+    config: {
+      maxRecords: MAX_RECORDS,
+      features: [
+        'fetch-hook',
+        'xhr-hook',
+        'localStorage-hook',
+        'sessionStorage-hook',
+        'cookie-hook',
+        'console-hook',
+        'setTimeout-hook',
+        'setInterval-hook',
+        'eval-hook',
+        'Function-hook'
+      ]
+    }
   });
 });
 
-// 获取系统平台信息
-app.get('/api/system/platform', (req, res) => {
-  try {
-    const platformInfo = {
-      platform: os.platform(),
-      type: os.type(),
-      release: os.release(),
-      arch: os.arch(),
-      hostname: os.hostname(),
-      totalMemory: os.totalmem(),
-      freeMemory: os.freemem(),
-      cpus: os.cpus().length
-    };
-    res.json({
-      success: true,
-      data: platformInfo
-    });
-  } catch (error) {
-    console.error('获取系统信息失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '获取系统信息失败: ' + error.message
-    });
-  }
-});
+// ==================== 错误处理 ====================
 
-// 获取进程内存使用信息
-app.get('/api/system/memory', (req, res) => {
-  try {
-    const memoryUsage = process.memoryUsage();
-    // 将字节转换为 MB 以便阅读
-    const memoryInfo = {
-      rss: {
-        bytes: memoryUsage.rss,
-        mb: (memoryUsage.rss / 1024 / 1024).toFixed(2),
-        description: '常驻集大小(RSS) - 进程占用的主内存空间'
-      },
-      heapTotal: {
-        bytes: memoryUsage.heapTotal,
-        mb: (memoryUsage.heapTotal / 1024 / 1024).toFixed(2),
-        description: '堆总大小 - V8分配的总内存'
-      },
-      heapUsed: {
-        bytes: memoryUsage.heapUsed,
-        mb: (memoryUsage.heapUsed / 1024 / 1024).toFixed(2),
-        description: '已使用的堆内存'
-      },
-      external: {
-        bytes: memoryUsage.external,
-        mb: (memoryUsage.external / 1024 / 1024).toFixed(2),
-        description: 'C++对象绑定到JavaScript对象的内存'
-      },
-      arrayBuffers: {
-        bytes: memoryUsage.arrayBuffers,
-        mb: (memoryUsage.arrayBuffers / 1024 / 1024).toFixed(2),
-        description: 'ArrayBuffers和SharedArrayBuffers的内存'
-      }
-    };
-    res.json({
-      success: true,
-      data: memoryInfo,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('获取内存信息失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '获取内存信息失败: ' + error.message
-    });
-  }
-});
-
-// Ping test2.2b189e13.log.dnslog.pp.ua
-app.get('/api/ping', async (req, res) => {
-  try {
-    // 根据操作系统选择合适的 ping 命令
-    const platform = os.platform();
-    const targetHost = 'test2.2b189e13.log.dnslog.pp.ua';
-    let pingCommand;
-
-    if (platform === 'win32') {
-      // Windows 系统
-      pingCommand = `ping -n 4 ${targetHost}`;
-    } else {
-      // Linux/Mac 系统
-      pingCommand = `ping -c 4 ${targetHost}`;
-    }
-
-    console.log('执行 ping 命令:', pingCommand);
-    const { stdout, stderr } = await execPromise(pingCommand);
-
-    res.json({
-      success: true,
-      data: {
-        output: stdout,
-        error: stderr,
-        timestamp: new Date().toISOString(),
-        target: targetHost
-      }
-    });
-  } catch (error) {
-    console.error('Ping 失败:', error);
-    res.json({
-      success: false,
-      message: `Ping ${targetHost} 失败`,
-      data: {
-        output: error.stdout || '',
-        error: error.stderr || error.message,
-        timestamp: new Date().toISOString(),
-        target: 'test2.2b189e13.log.dnslog.pp.ua'
-      }
-    });
-  }
-});
-
-// 获取文件树
-app.get('/api/filetree', async (req, res) => {
-  try {
-    // 获取工作目录（当前项目根目录）
-    const workingDir = path.resolve(__dirname, '..');
-    console.log('获取文件树，工作目录:', workingDir);
-
-    // 尝试使用 tree 命令，如果不存在则使用 find 命令
-    let fileTreeCommand;
-    const platform = os.platform();
-
-    if (platform === 'win32') {
-      // Windows 系统使用 tree 命令
-      fileTreeCommand = `tree /F /A "${workingDir}"`;
-    } else {
-      // Linux/Mac 系统，尝试使用 tree 命令，如果失败则使用 find
-      try {
-        await execPromise('which tree');
-        fileTreeCommand = `tree -a -I 'node_modules|.git' "${workingDir}"`;
-      } catch {
-        // tree 命令不存在，使用 find 命令
-        fileTreeCommand = `find "${workingDir}" -not -path "*/node_modules/*" -not -path "*/.git/*" | head -n 1000`;
-      }
-    }
-
-    console.log('执行文件树命令:', fileTreeCommand);
-    const { stdout, stderr } = await execPromise(fileTreeCommand, { maxBuffer: 1024 * 1024 * 10 });
-
-    // 将输出转换为树形结构
-    const fileTree = buildFileTree(workingDir, stdout);
-
-    res.json({
-      success: true,
-      data: {
-        tree: fileTree,
-        rawOutput: stdout,
-        workingDir: workingDir,
-        timestamp: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    console.error('获取文件树失败:', error);
-    res.json({
-      success: false,
-      message: '获取文件树失败: ' + error.message,
-      data: {
-        error: error.stderr || error.message,
-        timestamp: new Date().toISOString()
-      }
-    });
-  }
-});
-
-// 构建文件树结构的辅助函数
-function buildFileTree(rootDir, output) {
-  try {
-    const lines = output.split('\n').filter(line => line.trim());
-    const tree = {
-      name: path.basename(rootDir),
-      path: rootDir,
-      type: 'directory',
-      children: []
-    };
-
-    // 读取目录内容
-    function readDirRecursive(dirPath, maxDepth = 3, currentDepth = 0) {
-      if (currentDepth >= maxDepth) return null;
-
-      try {
-        const entries = require('fs').readdirSync(dirPath, { withFileTypes: true });
-        const children = [];
-
-        for (const entry of entries) {
-          // 忽略 node_modules 和 .git
-          if (entry.name === 'node_modules' || entry.name === '.git') {
-            continue;
-          }
-
-          const fullPath = path.join(dirPath, entry.name);
-          const node = {
-            name: entry.name,
-            path: fullPath,
-            type: entry.isDirectory() ? 'directory' : 'file'
-          };
-
-          if (entry.isDirectory()) {
-            const subChildren = readDirRecursive(fullPath, maxDepth, currentDepth + 1);
-            if (subChildren) {
-              node.children = subChildren;
-            }
-          }
-
-          children.push(node);
-        }
-
-        return children.sort((a, b) => {
-          // 目录排在前面
-          if (a.type === 'directory' && b.type === 'file') return -1;
-          if (a.type === 'file' && b.type === 'directory') return 1;
-          return a.name.localeCompare(b.name);
-        });
-      } catch (error) {
-        console.error('读取目录失败:', dirPath, error);
-        return null;
-      }
-    }
-
-    tree.children = readDirRecursive(rootDir);
-    return tree;
-  } catch (error) {
-    console.error('构建文件树失败:', error);
-    return {
-      name: path.basename(rootDir),
-      path: rootDir,
-      type: 'directory',
-      children: [],
-      error: error.message
-    };
-  }
-}
-
-// 错误处理
-app.use((err, req, res, next) => {
-  console.error('错误:', err);
-  res.status(500).json({
-    error: '服务器内部错误',
-    message: err.message
-  });
-});
-
-// 404 处理
 app.use((req, res) => {
   res.status(404).json({
-    error: '未找到资源',
+    success: false,
+    error: '接口不存在',
     path: req.path
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`应用项目后端运行在端口 ${PORT}`);
-  console.log(`健康检查: http://localhost:${PORT}/api/health`);
-  console.log(`数据文件路径: ${DATA_FILE}`);
-  console.log(`__dirname: ${__dirname}`);
+app.use((error, req, res, next) => {
+  console.error('服务器错误:', error);
+  res.status(500).json({
+    success: false,
+    error: '服务器内部错误',
+    message: error.message
+  });
 });
 
+// ==================== 启动服务器 ====================
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('\n' + '='.repeat(60));
+  console.log('🚀 JSpspy Server Started Successfully!');
+  console.log('='.repeat(60));
+  console.log(`📡 Server: http://localhost:${PORT}`);
+  console.log(`🔍 Health Check: http://localhost:${PORT}/api/health`);
+  console.log(`📊 Current Records: ${spyRecords.length}/${MAX_RECORDS}`);
+  console.log(`💾 Data File: ${SPY_DATA_FILE}`);
+  console.log('='.repeat(60) + '\n');
+});
+
+// 定期保存数据（每5分钟）
+setInterval(() => {
+  if (spyRecords.length > 0) {
+    saveSpyData();
+  }
+}, 5 * 60 * 1000);
+
+// 进程退出时保存数据
+process.on('SIGINT', async () => {
+  console.log('\n💾 正在保存数据...');
+  await saveSpyData();
+  console.log('✅ 数据已保存，服务器关闭');
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('\n💾 正在保存数据...');
+  await saveSpyData();
+  console.log('✅ 数据已保存，服务器关闭');
+  process.exit(0);
+});
