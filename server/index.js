@@ -586,6 +586,111 @@ print(factorial(5))  # 输出: 120
   return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
 }
 
+// ==================== 屏幕截图 API ====================
+
+// 存储截图的数组（内存存储）
+let screenshots = [];
+
+/**
+ * 上传屏幕截图
+ */
+app.post('/api/screenshots/upload', async (req, res) => {
+  try {
+    const { image, username = '匿名用户' } = req.body;
+
+    if (!image) {
+      return res.status(400).json({
+        success: false,
+        message: '图像数据不能为空'
+      });
+    }
+
+    // 创建截图对象
+    const screenshot = {
+      id: Date.now() + Math.random().toString(36).substr(2, 9),
+      image,
+      username,
+      timestamp: new Date().toISOString(),
+      uploadTime: new Date().toLocaleString('zh-CN', {
+        timeZone: 'Asia/Shanghai',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
+    };
+
+    // 添加到数组开头（最新的在前面）
+    screenshots.unshift(screenshot);
+
+    // 限制存储数量，最多保存100张
+    if (screenshots.length > 100) {
+      screenshots = screenshots.slice(0, 100);
+    }
+
+    res.json({
+      success: true,
+      message: '截图上传成功',
+      id: screenshot.id,
+      timestamp: screenshot.timestamp
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * 获取截图列表
+ */
+app.get('/api/screenshots/list', (req, res) => {
+  try {
+    res.json({
+      success: true,
+      screenshots,
+      total: screenshots.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+/**
+ * 删除指定截图
+ */
+app.delete('/api/screenshots/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const index = screenshots.findIndex(s => s.id === id);
+
+    if (index === -1) {
+      return res.status(404).json({
+        success: false,
+        message: '截图不存在'
+      });
+    }
+
+    screenshots.splice(index, 1);
+
+    res.json({
+      success: true,
+      message: '删除成功'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
 // ==================== 其他工具 API ====================
 
 /**

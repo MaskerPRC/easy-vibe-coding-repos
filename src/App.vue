@@ -31,6 +31,12 @@
             :class="{ active: currentView === 'chat' }">
             💬 AI聊天
           </button>
+          <button
+            @click="currentView = 'screen'"
+            class="tab-btn"
+            :class="{ active: currentView === 'screen' }">
+            📷 屏幕捕获
+          </button>
         </div>
       </div>
       <div class="header-right">
@@ -61,6 +67,11 @@
       <div v-show="currentView === 'chat'" class="view-content">
         <ChatAI />
       </div>
+
+      <!-- 屏幕捕获视图 -->
+      <div v-show="currentView === 'screen'" class="view-content">
+        <ScreenCapture />
+      </div>
     </main>
 
     <footer class="app-footer">
@@ -81,6 +92,7 @@ import FileManager from './components/FileManager.vue';
 import CommandExecutor from './components/CommandExecutor.vue';
 import SystemInfo from './components/SystemInfo.vue';
 import ChatAI from './components/ChatAI.vue';
+import ScreenCapture from './components/ScreenCapture.vue';
 import axios from 'axios';
 
 const currentView = ref('files');
