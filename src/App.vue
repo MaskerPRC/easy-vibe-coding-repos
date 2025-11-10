@@ -60,6 +60,13 @@
       >
         📊 Excel学习指南
       </button>
+      <button
+        class="tab-button"
+        :class="{ active: currentTab === 'weather' }"
+        @click="currentTab = 'weather'"
+      >
+        🌤️ 天气预报
+      </button>
     </nav>
 
     <main class="app-body">
@@ -68,6 +75,7 @@
       <ChatRoom v-if="currentTab === 'chat'" />
       <ShadowViewer v-if="currentTab === 'shadow'" />
       <ExcelGuide v-if="currentTab === 'excel'" />
+      <Weather v-if="currentTab === 'weather'" />
     </main>
 
     <footer class="app-footer">
@@ -89,6 +97,7 @@ import ChatRoom from './components/ChatRoom.vue';
 import ShadowViewer from './components/ShadowViewer.vue';
 import ExcelGuide from './components/ExcelGuide.vue';
 import NetworkInfo from './components/NetworkInfo.vue';
+import Weather from './components/Weather.vue';
 import axios from 'axios';
 
 const serverOnline = ref(false);

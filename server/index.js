@@ -371,6 +371,101 @@ app.get('/api/system/shadow', async (req, res) => {
   }
 });
 
+// ==================== 天气 API ====================
+
+/**
+ * 获取用户当前天气
+ */
+app.get('/api/weather', async (req, res) => {
+  try {
+    console.log('🌤️ 获取天气信息');
+
+    // 使用 wttr.in 免费天气服务（支持自动定位）
+    const weatherData = await new Promise((resolve, reject) => {
+      https.get('https://wttr.in/?format=j1', (resp) => {
+        let data = '';
+        resp.on('data', (chunk) => { data += chunk; });
+        resp.on('end', () => {
+          try {
+            resolve(JSON.parse(data));
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }).on('error', reject);
+    });
+
+    // 解析天气数据
+    const current = weatherData.current_condition[0];
+    const location = weatherData.nearest_area[0];
+
+    // 天气描述中文映射
+    const weatherDescMap = {
+      'Sunny': '晴朗',
+      'Clear': '晴朗',
+      'Partly cloudy': '多云',
+      'Cloudy': '阴天',
+      'Overcast': '阴天',
+      'Mist': '薄雾',
+      'Fog': '雾',
+      'Light rain': '小雨',
+      'Moderate rain': '中雨',
+      'Heavy rain': '大雨',
+      'Light snow': '小雪',
+      'Moderate snow': '中雪',
+      'Heavy snow': '大雪',
+      'Thunderstorm': '雷暴'
+    };
+
+    // 天气图标映射
+    const weatherIconMap = {
+      'Sunny': '☀️',
+      'Clear': '🌙',
+      'Partly cloudy': '⛅',
+      'Cloudy': '☁️',
+      'Overcast': '☁️',
+      'Mist': '🌫️',
+      'Fog': '🌫️',
+      'Light rain': '🌦️',
+      'Moderate rain': '🌧️',
+      'Heavy rain': '⛈️',
+      'Light snow': '🌨️',
+      'Moderate snow': '❄️',
+      'Heavy snow': '❄️',
+      'Thunderstorm': '⛈️'
+    };
+
+    const weatherDesc = current.weatherDesc[0].value;
+    const weatherDescCN = weatherDescMap[weatherDesc] || weatherDesc;
+    const weatherIcon = weatherIconMap[weatherDesc] || '🌡️';
+
+    res.json({
+      success: true,
+      data: {
+        location: location.areaName[0].value,
+        region: location.country[0].value,
+        temperature: current.temp_C,
+        feelsLike: current.FeelsLikeC,
+        description: weatherDescCN,
+        icon: weatherIcon,
+        humidity: current.humidity,
+        windSpeed: current.windspeedKmph,
+        pressure: current.pressure,
+        uvIndex: current.uvIndex
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('获取天气信息失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取天气信息失败，请稍后重试',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // ==================== 健康检查 ====================
 
 /**
