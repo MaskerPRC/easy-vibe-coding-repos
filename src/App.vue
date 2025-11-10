@@ -1,5 +1,20 @@
 <template>
   <div class="screen-share-app">
+    <!-- 刘亦菲照片展示区域 -->
+    <div class="hero-section">
+      <div class="photo-container">
+        <img
+          src="https://img2.baidu.com/it/u=2778571465,3409239746&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=750"
+          alt="刘亦菲"
+          class="hero-photo"
+        />
+        <div class="photo-caption">
+          <h2>刘亦菲</h2>
+          <p>中国著名女演员</p>
+        </div>
+      </div>
+    </div>
+
     <header class="app-header">
       <div class="header-left">
         <h1 class="app-title">屏幕分享平台</h1>
@@ -127,6 +142,59 @@ onUnmounted(() => {
   background: #1a1a1a;
   color: #e0e0e0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* 刘亦菲照片展示区域 */
+.hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.photo-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.hero-photo {
+  width: 400px;
+  height: auto;
+  max-height: 600px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero-photo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7);
+}
+
+.photo-caption {
+  text-align: center;
+  color: white;
+}
+
+.photo-caption h2 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  letter-spacing: 2px;
+}
+
+.photo-caption p {
+  margin: 10px 0 0 0;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Header */
@@ -273,6 +341,14 @@ onUnmounted(() => {
 
 /* Responsive */
 @media (max-width: 1024px) {
+  .hero-photo {
+    width: 350px;
+  }
+
+  .photo-caption h2 {
+    font-size: 32px;
+  }
+
   .app-header {
     flex-wrap: wrap;
     gap: 15px;
@@ -289,6 +365,23 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .hero-section {
+    padding: 30px 15px;
+  }
+
+  .hero-photo {
+    width: 280px;
+    max-height: 420px;
+  }
+
+  .photo-caption h2 {
+    font-size: 28px;
+  }
+
+  .photo-caption p {
+    font-size: 16px;
+  }
+
   .app-title {
     font-size: 22px;
   }
