@@ -17,6 +17,19 @@
           @click="playPronunciation(greeting, index)"
           :title="'点击播放 ' + greeting.hello"
         >
+          <!-- 知名人物头像区域 -->
+          <div class="famous-person-section" v-if="greeting.famousPerson">
+            <img
+              :src="greeting.famousPerson.image"
+              :alt="greeting.famousPerson.name"
+              class="person-avatar"
+            />
+            <div class="person-info">
+              <div class="person-name">{{ greeting.famousPerson.name }}</div>
+              <div class="person-role">{{ greeting.famousPerson.role }}</div>
+            </div>
+          </div>
+
           <div class="language-name">{{ greeting.language }}</div>
           <div class="greeting-text">{{ greeting.hello }}</div>
           <div class="pronunciation" v-if="greeting.pronunciation">
@@ -41,32 +54,56 @@
 <script setup>
 import { ref } from 'vue'
 
-// 万国语言数据（存储在内存中）
+// 万国语言数据（存储在内存中，包含知名人物信息）
 const greetings = ref([
-  { language: '中文', hello: '你好', pronunciation: 'Nǐ hǎo', country: '中国', lang: 'zh-CN' },
-  { language: 'English', hello: 'Hello', pronunciation: 'hə-ˈlō', country: '英国/美国', lang: 'en-US' },
-  { language: '日本語', hello: 'こんにちは', pronunciation: 'Konnichiwa', country: '日本', lang: 'ja-JP' },
-  { language: '한국어', hello: '안녕하세요', pronunciation: 'Annyeonghaseyo', country: '韩国', lang: 'ko-KR' },
-  { language: 'Español', hello: 'Hola', pronunciation: 'OH-lah', country: '西班牙', lang: 'es-ES' },
-  { language: 'Français', hello: 'Bonjour', pronunciation: 'bohn-ZHOOR', country: '法国', lang: 'fr-FR' },
-  { language: 'Deutsch', hello: 'Guten Tag', pronunciation: 'GOO-ten tahk', country: '德国', lang: 'de-DE' },
-  { language: 'Italiano', hello: 'Ciao', pronunciation: 'chow', country: '意大利', lang: 'it-IT' },
-  { language: 'Português', hello: 'Olá', pronunciation: 'oh-LAH', country: '葡萄牙/巴西', lang: 'pt-PT' },
-  { language: 'Русский', hello: 'Здравствуйте', pronunciation: 'ZDRAH-stvooy-tye', country: '俄罗斯', lang: 'ru-RU' },
-  { language: 'العربية', hello: 'مرحبا', pronunciation: 'Marhaba', country: '阿拉伯地区', lang: 'ar-SA' },
-  { language: 'हिन्दी', hello: 'नमस्ते', pronunciation: 'Namaste', country: '印度', lang: 'hi-IN' },
-  { language: 'Türkçe', hello: 'Merhaba', pronunciation: 'mer-ha-BAH', country: '土耳其', lang: 'tr-TR' },
-  { language: 'Nederlands', hello: 'Hallo', pronunciation: 'HAH-loh', country: '荷兰', lang: 'nl-NL' },
-  { language: 'Svenska', hello: 'Hej', pronunciation: 'hey', country: '瑞典', lang: 'sv-SE' },
-  { language: 'Polski', hello: 'Cześć', pronunciation: 'cheshch', country: '波兰', lang: 'pl-PL' },
-  { language: 'Ελληνικά', hello: 'Γεια σας', pronunciation: 'YAH-sas', country: '希腊', lang: 'el-GR' },
-  { language: 'עברית', hello: 'שלום', pronunciation: 'Shalom', country: '以色列', lang: 'he-IL' },
-  { language: 'ไทย', hello: 'สวัสดี', pronunciation: 'Sawatdee', country: '泰国', lang: 'th-TH' },
-  { language: 'Tiếng Việt', hello: 'Xin chào', pronunciation: 'sin chow', country: '越南', lang: 'vi-VN' },
-  { language: 'Bahasa Indonesia', hello: 'Halo', pronunciation: 'HAH-loh', country: '印度尼西亚', lang: 'id-ID' },
-  { language: 'Tagalog', hello: 'Kamusta', pronunciation: 'kah-moos-TAH', country: '菲律宾', lang: 'tl-PH' },
-  { language: 'Kiswahili', hello: 'Jambo', pronunciation: 'JAHM-boh', country: '坦桑尼亚/肯尼亚', lang: 'sw-KE' },
-  { language: 'Suomi', hello: 'Hei', pronunciation: 'hay', country: '芬兰', lang: 'fi-FI' }
+  { language: '中文', hello: '你好', pronunciation: 'Nǐ hǎo', country: '中国', lang: 'zh-CN',
+    famousPerson: { name: '孔子', role: '思想家', image: 'https://ui-avatars.com/api/?name=Confucius&size=128&background=DC143C&color=fff' } },
+  { language: 'English', hello: 'Hello', pronunciation: 'hə-ˈlō', country: '英国/美国', lang: 'en-US',
+    famousPerson: { name: 'Shakespeare', role: '文学家', image: 'https://ui-avatars.com/api/?name=Shakespeare&size=128&background=012169&color=fff' } },
+  { language: '日本語', hello: 'こんにちは', pronunciation: 'Konnichiwa', country: '日本', lang: 'ja-JP',
+    famousPerson: { name: '宮崎駿', role: '导演', image: 'https://ui-avatars.com/api/?name=Miyazaki&size=128&background=BC002D&color=fff' } },
+  { language: '한국어', hello: '안녕하세요', pronunciation: 'Annyeonghaseyo', country: '韩国', lang: 'ko-KR',
+    famousPerson: { name: '李舜臣', role: '将军', image: 'https://ui-avatars.com/api/?name=Yi+Sun-sin&size=128&background=003478&color=fff' } },
+  { language: 'Español', hello: 'Hola', pronunciation: 'OH-lah', country: '西班牙', lang: 'es-ES',
+    famousPerson: { name: 'Cervantes', role: '作家', image: 'https://ui-avatars.com/api/?name=Cervantes&size=128&background=AA151B&color=fff' } },
+  { language: 'Français', hello: 'Bonjour', pronunciation: 'bohn-ZHOOR', country: '法国', lang: 'fr-FR',
+    famousPerson: { name: 'Victor Hugo', role: '作家', image: 'https://ui-avatars.com/api/?name=Victor+Hugo&size=128&background=0055A4&color=fff' } },
+  { language: 'Deutsch', hello: 'Guten Tag', pronunciation: 'GOO-ten tahk', country: '德国', lang: 'de-DE',
+    famousPerson: { name: 'Beethoven', role: '音乐家', image: 'https://ui-avatars.com/api/?name=Beethoven&size=128&background=000000&color=fff' } },
+  { language: 'Italiano', hello: 'Ciao', pronunciation: 'chow', country: '意大利', lang: 'it-IT',
+    famousPerson: { name: 'Da Vinci', role: '艺术家', image: 'https://ui-avatars.com/api/?name=Da+Vinci&size=128&background=009246&color=fff' } },
+  { language: 'Português', hello: 'Olá', pronunciation: 'oh-LAH', country: '葡萄牙/巴西', lang: 'pt-PT',
+    famousPerson: { name: 'Cristiano Ronaldo', role: '足球运动员', image: 'https://ui-avatars.com/api/?name=CR7&size=128&background=FF0000&color=fff' } },
+  { language: 'Русский', hello: 'Здравствуйте', pronunciation: 'ZDRAH-stvooy-tye', country: '俄罗斯', lang: 'ru-RU',
+    famousPerson: { name: 'Tolstoy', role: '作家', image: 'https://ui-avatars.com/api/?name=Tolstoy&size=128&background=0039A6&color=fff' } },
+  { language: 'العربية', hello: 'مرحبا', pronunciation: 'Marhaba', country: '阿拉伯地区', lang: 'ar-SA',
+    famousPerson: { name: 'Ibn Sina', role: '哲学家', image: 'https://ui-avatars.com/api/?name=Ibn+Sina&size=128&background=007A3D&color=fff' } },
+  { language: 'हिन्दी', hello: 'नमस्ते', pronunciation: 'Namaste', country: '印度', lang: 'hi-IN',
+    famousPerson: { name: 'Gandhi', role: '政治家', image: 'https://ui-avatars.com/api/?name=Gandhi&size=128&background=FF9933&color=fff' } },
+  { language: 'Türkçe', hello: 'Merhaba', pronunciation: 'mer-ha-BAH', country: '土耳其', lang: 'tr-TR',
+    famousPerson: { name: 'Rumi', role: '诗人', image: 'https://ui-avatars.com/api/?name=Rumi&size=128&background=E30A17&color=fff' } },
+  { language: 'Nederlands', hello: 'Hallo', pronunciation: 'HAH-loh', country: '荷兰', lang: 'nl-NL',
+    famousPerson: { name: 'Van Gogh', role: '画家', image: 'https://ui-avatars.com/api/?name=Van+Gogh&size=128&background=21468B&color=fff' } },
+  { language: 'Svenska', hello: 'Hej', pronunciation: 'hey', country: '瑞典', lang: 'sv-SE',
+    famousPerson: { name: 'Nobel', role: '化学家', image: 'https://ui-avatars.com/api/?name=Nobel&size=128&background=006AA7&color=fff' } },
+  { language: 'Polski', hello: 'Cześć', pronunciation: 'cheshch', country: '波兰', lang: 'pl-PL',
+    famousPerson: { name: 'Chopin', role: '音乐家', image: 'https://ui-avatars.com/api/?name=Chopin&size=128&background=DC143C&color=fff' } },
+  { language: 'Ελληνικά', hello: 'Γεια σας', pronunciation: 'YAH-sas', country: '希腊', lang: 'el-GR',
+    famousPerson: { name: 'Socrates', role: '哲学家', image: 'https://ui-avatars.com/api/?name=Socrates&size=128&background=0D5EAF&color=fff' } },
+  { language: 'עברית', hello: 'שלום', pronunciation: 'Shalom', country: '以色列', lang: 'he-IL',
+    famousPerson: { name: 'Einstein', role: '物理学家', image: 'https://ui-avatars.com/api/?name=Einstein&size=128&background=0038B8&color=fff' } },
+  { language: 'ไทย', hello: 'สวัสดี', pronunciation: 'Sawatdee', country: '泰国', lang: 'th-TH',
+    famousPerson: { name: 'Rama V', role: '国王', image: 'https://ui-avatars.com/api/?name=Rama+V&size=128&background=A51931&color=fff' } },
+  { language: 'Tiếng Việt', hello: 'Xin chào', pronunciation: 'sin chow', country: '越南', lang: 'vi-VN',
+    famousPerson: { name: 'Ho Chi Minh', role: '政治家', image: 'https://ui-avatars.com/api/?name=Ho+Chi+Minh&size=128&background=DA251D&color=fff' } },
+  { language: 'Bahasa Indonesia', hello: 'Halo', pronunciation: 'HAH-loh', country: '印度尼西亚', lang: 'id-ID',
+    famousPerson: { name: 'Sukarno', role: '总统', image: 'https://ui-avatars.com/api/?name=Sukarno&size=128&background=FF0000&color=fff' } },
+  { language: 'Tagalog', hello: 'Kamusta', pronunciation: 'kah-moos-TAH', country: '菲律宾', lang: 'tl-PH',
+    famousPerson: { name: 'Jose Rizal', role: '民族英雄', image: 'https://ui-avatars.com/api/?name=Jose+Rizal&size=128&background=0038A8&color=fff' } },
+  { language: 'Kiswahili', hello: 'Jambo', pronunciation: 'JAHM-boh', country: '坦桑尼亚/肯尼亚', lang: 'sw-KE',
+    famousPerson: { name: 'Nyerere', role: '政治家', image: 'https://ui-avatars.com/api/?name=Nyerere&size=128&background=1EB53A&color=fff' } },
+  { language: 'Suomi', hello: 'Hei', pronunciation: 'hay', country: '芬兰', lang: 'fi-FI',
+    famousPerson: { name: 'Sibelius', role: '作曲家', image: 'https://ui-avatars.com/api/?name=Sibelius&size=128&background=003580&color=fff' } }
 ])
 
 // 当前正在播放的卡片索引（存储在内存中）
@@ -253,6 +290,60 @@ if ('speechSynthesis' in window) {
   overflow: hidden;
 }
 
+/* 知名人物区域 */
+.famous-person-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.greeting-card:hover .famous-person-section {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.person-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.greeting-card:hover .person-avatar {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 105, 148, 0.3);
+}
+
+.person-info {
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+}
+
+.person-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #006994;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.person-role {
+  font-size: 12px;
+  color: #6C757D;
+  font-weight: 400;
+}
+
 .greeting-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 16px rgba(0, 168, 204, 0.3);
@@ -373,6 +464,19 @@ if ('speechSynthesis' in window) {
   .language-name {
     font-size: 16px;
   }
+
+  .person-avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .person-name {
+    font-size: 14px;
+  }
+
+  .person-role {
+    font-size: 11px;
+  }
 }
 
 /* 手机适配 */
@@ -419,6 +523,24 @@ if ('speechSynthesis' in window) {
   .page-footer {
     font-size: 12px;
     padding: 24px 15px;
+  }
+
+  .famous-person-section {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .person-avatar {
+    width: 45px;
+    height: 45px;
+  }
+
+  .person-name {
+    font-size: 13px;
+  }
+
+  .person-role {
+    font-size: 10px;
   }
 }
 
