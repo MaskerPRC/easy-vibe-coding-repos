@@ -1,135 +1,95 @@
 <template>
-  <div class="v2ex-app">
+  <div class="app">
     <!-- 顶部导航栏 -->
     <header class="header">
       <div class="header-container">
-        <div class="header-left">
-          <h1 class="logo">V2EX</h1>
-          <nav class="nav">
-            <a href="#" class="nav-link active">首页</a>
-            <a href="#" class="nav-link">节点</a>
-            <a href="#" class="nav-link">最热</a>
-            <a href="#" class="nav-link">全部</a>
-          </nav>
+        <div class="logo">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none">
+            <path d="M17.813 4.653h.854c1.51.054 2.769.578 3.773 1.574 1.004.995 1.524 2.249 1.56 3.76v7.36c-.036 1.51-.556 2.769-1.56 3.773s-2.262 1.524-3.773 1.56H5.333c-1.51-.036-2.769-.556-3.773-1.56S.036 18.858 0 17.347v-7.36c.036-1.511.556-2.765 1.56-3.76 1.004-.996 2.262-1.52 3.773-1.574h.774l-1.174-1.12a1.234 1.234 0 0 1-.373-.906c0-.356.124-.658.373-.907l.027-.027c.267-.249.573-.373.92-.373.347 0 .653.124.92.373L9.653 4.44c.071.071.134.142.187.213h4.267a.836.836 0 0 1 .16-.213l2.853-2.747c.267-.249.573-.373.92-.373.347 0 .662.151.929.4.267.249.391.551.391.907 0 .355-.124.657-.373.906zM5.333 7.24c-.746.018-1.373.276-1.88.773-.506.498-.769 1.13-.786 1.894v7.52c.017.764.28 1.395.786 1.893.507.498 1.134.756 1.88.773h13.334c.746-.017 1.373-.275 1.88-.773.506-.498.769-1.129.786-1.893v-7.52c-.017-.765-.28-1.396-.786-1.894-.507-.497-1.134-.755-1.88-.773zM8 11.107c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c0-.373.129-.689.386-.947.258-.257.574-.386.947-.386zm8 0c.373 0 .684.124.933.373.25.249.383.569.4.96v1.173c-.017.391-.15.711-.4.96-.249.25-.56.374-.933.374s-.684-.125-.933-.374c-.25-.249-.383-.569-.4-.96V12.44c.017-.391.15-.711.4-.96.249-.249.56-.373.933-.373Z" fill="currentColor"/>
+          </svg>
+          <span class="logo-text">哔哩哔哩视频</span>
         </div>
-        <div class="header-right">
-          <button class="btn-login">登录</button>
-          <button class="btn-signup">注册</button>
+        <div class="header-info">
+          <span class="video-count">共 {{ totalVideos }} 个视频</span>
         </div>
       </div>
     </header>
 
-    <!-- 主体内容 -->
-    <div class="main-wrapper">
+    <!-- 主内容区 -->
+    <main class="main-content">
       <div class="container">
-        <!-- 左侧主内容区 -->
-        <main class="main-content">
-          <!-- 热门节点导航 -->
-          <div class="hot-nodes-box" v-if="hotNodes.length > 0">
-            <div class="hot-nodes">
-              <a
-                v-for="node in hotNodes"
-                :key="node.id"
-                href="#"
-                class="node-tag"
-              >
-                {{ node.name }}
-              </a>
-            </div>
-          </div>
+        <!-- 加载状态 -->
+        <div v-if="loading" class="loading">
+          <div class="loading-spinner"></div>
+          <p>加载中...</p>
+        </div>
 
-          <!-- 帖子列表 -->
-          <div class="topic-list">
-            <div
-              v-for="topic in topics"
-              :key="topic.id"
-              class="topic-item"
-            >
-              <div class="topic-avatar">
-                <img :src="topic.avatar" :alt="topic.author" />
-              </div>
-              <div class="topic-main">
-                <div class="topic-header">
-                  <a href="#" class="topic-node">{{ topic.node }}</a>
-                  <span class="topic-meta">•</span>
-                  <span class="topic-author">{{ topic.author }}</span>
-                  <span class="topic-meta">•</span>
-                  <span class="topic-time">{{ topic.lastReplyTime }}</span>
-                </div>
-                <h2 class="topic-title">
-                  <a href="#">{{ topic.title }}</a>
-                </h2>
-              </div>
-              <div class="topic-info">
-                <div class="topic-replies" v-if="topic.replies > 0">
-                  {{ topic.replies }}
+        <!-- 错误状态 -->
+        <div v-else-if="error" class="error">
+          <p>{{ error }}</p>
+          <button @click="fetchVideos" class="retry-btn">重试</button>
+        </div>
+
+        <!-- 视频列表 -->
+        <div v-else class="video-grid">
+          <div
+            v-for="video in videos"
+            :key="video.id"
+            class="video-card"
+          >
+            <!-- 视频封面 -->
+            <div class="video-cover">
+              <img :src="video.cover" :alt="video.title" />
+              <div class="video-duration">{{ video.duration }}</div>
+              <div class="video-overlay">
+                <div class="play-icon">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
                 </div>
               </div>
             </div>
-          </div>
-        </main>
 
-        <!-- 右侧边栏 -->
-        <aside class="sidebar">
-          <!-- 网站统计 -->
-          <div class="sidebar-box">
-            <div class="sidebar-title">社区统计</div>
-            <div class="stats-list">
-              <div class="stats-item">
-                <span class="stats-label">主题</span>
-                <span class="stats-value">{{ stats.topics }}</span>
+            <!-- 视频信息 -->
+            <div class="video-info">
+              <h3 class="video-title">{{ video.title }}</h3>
+              <div class="video-meta">
+                <div class="author-info">
+                  <img :src="video.avatar" :alt="video.author" class="author-avatar" />
+                  <span class="author-name">{{ video.author }}</span>
+                </div>
+                <div class="video-stats">
+                  <span class="stat-item">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                    </svg>
+                    {{ formatNumber(video.views) }}
+                  </span>
+                  <span class="stat-item">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    {{ formatNumber(video.likes) }}
+                  </span>
+                </div>
               </div>
-              <div class="stats-item">
-                <span class="stats-label">节点</span>
-                <span class="stats-value">{{ stats.nodes }}</span>
-              </div>
-              <div class="stats-item">
-                <span class="stats-label">用户</span>
-                <span class="stats-value">{{ stats.members }}</span>
-              </div>
+              <div class="video-date">{{ video.publishTime }}</div>
             </div>
           </div>
+        </div>
 
-          <!-- 热门节点 -->
-          <div class="sidebar-box">
-            <div class="sidebar-title">热门节点</div>
-            <div class="node-list">
-              <a
-                v-for="node in hotNodes.slice(0, 4)"
-                :key="node.id"
-                href="#"
-                class="node-item"
-              >
-                <span class="node-name">{{ node.name }}</span>
-                <span class="node-topics">{{ node.topics }}</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- 关于 -->
-          <div class="sidebar-box">
-            <div class="sidebar-title">关于</div>
-            <div class="about-text">
-              这是一个技术社区,讨论编程、设计、硬件、游戏等话题。
-            </div>
-          </div>
-        </aside>
-      </div>
-    </div>
-
-    <!-- 底部 -->
-    <footer class="footer">
-      <div class="container">
-        <div class="footer-content">
-          <span class="footer-text">V2EX 社区</span>
-          <span class="footer-separator">•</span>
-          <a href="#" class="footer-link">关于</a>
-          <span class="footer-separator">•</span>
-          <a href="#" class="footer-link">FAQ</a>
-          <span class="footer-separator">•</span>
-          <a href="#" class="footer-link">API</a>
+        <!-- 加载更多按钮 -->
+        <div v-if="!loading && !error && hasMore" class="load-more">
+          <button @click="loadMore" class="load-more-btn">
+            加载更多
+          </button>
         </div>
       </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+      <p>数据展示仅供参考</p>
     </footer>
   </div>
 </template>
@@ -139,35 +99,74 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 // 响应式数据
-const topics = ref([]);
-const hotNodes = ref([]);
-const stats = ref({
-  members: 0,
-  topics: 0,
-  nodes: 0
-});
+const videos = ref([]);
+const loading = ref(true);
+const error = ref(null);
+const currentPage = ref(1);
+const totalVideos = ref(0);
+const hasMore = ref(true);
 
-// 加载数据
-const loadData = async () => {
+// 获取视频列表
+const fetchVideos = async () => {
   try {
-    // 并行请求多个接口
-    const [topicsRes, nodesRes, statsRes] = await Promise.all([
-      axios.get('/api/topics'),
-      axios.get('/api/nodes/hot'),
-      axios.get('/api/stats')
-    ]);
+    loading.value = true;
+    error.value = null;
 
-    topics.value = topicsRes.data;
-    hotNodes.value = nodesRes.data;
-    stats.value = statsRes.data;
-  } catch (error) {
-    console.error('加载数据失败:', error);
+    const response = await axios.get('/api/bilibili/videos', {
+      params: {
+        page: currentPage.value,
+        pageSize: 12
+      }
+    });
+
+    if (response.data.success) {
+      const { videos: newVideos, total, totalPages } = response.data.data;
+      videos.value = newVideos;
+      totalVideos.value = total;
+      hasMore.value = currentPage.value < totalPages;
+    } else {
+      error.value = '获取视频列表失败';
+    }
+  } catch (err) {
+    console.error('获取视频列表失败:', err);
+    error.value = '网络错误，请稍后重试';
+  } finally {
+    loading.value = false;
   }
 };
 
-// 组件挂载时加载数据
+// 加载更多
+const loadMore = async () => {
+  try {
+    currentPage.value += 1;
+    const response = await axios.get('/api/bilibili/videos', {
+      params: {
+        page: currentPage.value,
+        pageSize: 12
+      }
+    });
+
+    if (response.data.success) {
+      const { videos: newVideos, totalPages } = response.data.data;
+      videos.value = [...videos.value, ...newVideos];
+      hasMore.value = currentPage.value < totalPages;
+    }
+  } catch (err) {
+    console.error('加载更多失败:', err);
+  }
+};
+
+// 格式化数字
+const formatNumber = (num) => {
+  if (num >= 10000) {
+    return (num / 10000).toFixed(1) + '万';
+  }
+  return num.toString();
+};
+
+// 组件挂载时获取数据
 onMounted(() => {
-  loadData();
+  fetchVideos();
 });
 </script>
 
@@ -178,450 +177,404 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-.v2ex-app {
+.app {
   min-height: 100vh;
-  background: #f0f0f0;
-  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #333333;
+  background: #F5F5F5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'HarmonyOS Sans', sans-serif;
 }
 
 /* 顶部导航栏 */
 .header {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e2e2;
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .header-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
-  height: 50px;
+  padding: 16px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.header-left {
+.logo {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 12px;
 }
 
-.logo {
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  color: #00A1D6;
+}
+
+.logo-text {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 600;
   color: #333333;
-  letter-spacing: 1px;
 }
 
-.nav {
+.header-info {
   display: flex;
-  gap: 20px;
+  align-items: center;
+  gap: 16px;
 }
 
-.nav-link {
-  color: #778087;
-  text-decoration: none;
+.video-count {
   font-size: 14px;
-  transition: color 0.2s;
-}
-
-.nav-link:hover,
-.nav-link.active {
-  color: #333333;
-}
-
-.header-right {
-  display: flex;
-  gap: 10px;
-}
-
-.btn-login,
-.btn-signup {
-  padding: 6px 16px;
-  border: 1px solid #e2e2e2;
-  background: #ffffff;
-  color: #333333;
-  font-size: 13px;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-login:hover,
-.btn-signup:hover {
-  border-color: #333333;
-}
-
-.btn-signup {
-  background: #333333;
-  color: #ffffff;
-  border-color: #333333;
-}
-
-.btn-signup:hover {
-  background: #000000;
-}
-
-/* 主体容器 */
-.main-wrapper {
-  padding: 20px 0;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  color: #666666;
 }
 
 /* 主内容区 */
 .main-content {
-  flex: 1;
-  min-width: 0;
+  padding: 32px 0;
+  min-height: calc(100vh - 140px);
 }
 
-/* 热门节点盒子 */
-.hot-nodes-box {
-  background: #ffffff;
-  border-radius: 3px;
-  border: 1px solid #e2e2e2;
-  padding: 15px;
-  margin-bottom: 20px;
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-.hot-nodes {
+/* 加载状态 */
+.loading {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: #666666;
 }
 
-.node-tag {
-  display: inline-block;
-  padding: 5px 12px;
-  background: #f9f9f9;
-  color: #778087;
-  text-decoration: none;
-  font-size: 13px;
-  border-radius: 3px;
-  transition: all 0.2s;
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #E0F7FA;
+  border-top-color: #00A1D6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
 }
 
-.node-tag:hover {
-  background: #333333;
-  color: #ffffff;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-/* 帖子列表 */
-.topic-list {
-  background: #ffffff;
-  border: 1px solid #e2e2e2;
-  border-radius: 3px;
+/* 错误状态 */
+.error {
+  text-align: center;
+  padding: 80px 20px;
+  color: #666666;
+}
+
+.retry-btn {
+  margin-top: 16px;
+  padding: 10px 24px;
+  background: #00A1D6;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+  background: #0090C0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 161, 214, 0.3);
+}
+
+/* 视频网格 */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+/* 视频卡片 */
+.video-card {
+  background: #FFFFFF;
+  border-radius: 8px;
   overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.topic-item {
-  display: flex;
-  gap: 15px;
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background 0.2s;
+.video-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
-.topic-item:last-child {
-  border-bottom: none;
+/* 视频封面 */
+.video-cover {
+  position: relative;
+  padding-top: 62.5%;
+  overflow: hidden;
+  background: #F0F0F0;
 }
 
-.topic-item:hover {
-  background: #f9f9f9;
+.video-cover img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.topic-avatar {
-  flex-shrink: 0;
+.video-card:hover .video-cover img {
+  transform: scale(1.05);
 }
 
-.topic-avatar img {
-  width: 48px;
-  height: 48px;
-  border-radius: 3px;
-  display: block;
-}
-
-.topic-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.topic-header {
+.video-duration {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #FFFFFF;
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: 12px;
-  color: #999999;
-  margin-bottom: 5px;
+  font-weight: 500;
 }
 
-.topic-node {
-  color: #778087;
-  text-decoration: none;
-  padding: 2px 6px;
-  background: #f9f9f9;
-  border-radius: 2px;
-  transition: all 0.2s;
-}
-
-.topic-node:hover {
-  background: #333333;
-  color: #ffffff;
-}
-
-.topic-meta {
-  margin: 0 5px;
-  color: #cccccc;
-}
-
-.topic-author {
-  color: #778087;
-}
-
-.topic-time {
-  color: #cccccc;
-}
-
-.topic-title {
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
-}
-
-.topic-title a {
-  color: #333333;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.topic-title a:hover {
-  color: #000000;
-}
-
-.topic-info {
-  flex-shrink: 0;
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.topic-replies {
-  min-width: 36px;
+.video-card:hover .video-overlay {
+  opacity: 1;
+}
+
+.play-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00A1D6;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.video-card:hover .play-icon {
+  transform: scale(1);
+}
+
+.play-icon svg {
+  width: 24px;
   height: 24px;
-  line-height: 24px;
-  text-align: center;
-  background: #f0f0f0;
-  color: #778087;
-  font-size: 12px;
-  border-radius: 12px;
-  padding: 0 10px;
+  margin-left: 3px;
 }
 
-/* 侧边栏 */
-.sidebar {
-  width: 300px;
+/* 视频信息 */
+.video-info {
+  padding: 12px;
+}
+
+.video-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+  line-height: 1.5;
+  height: 42px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin-bottom: 8px;
+}
+
+.video-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.author-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
   flex-shrink: 0;
 }
 
-.sidebar-box {
-  background: #ffffff;
-  border: 1px solid #e2e2e2;
-  border-radius: 3px;
-  margin-bottom: 20px;
-  overflow: hidden;
-}
-
-.sidebar-title {
-  padding: 12px 15px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333333;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-/* 统计信息 */
-.stats-list {
-  padding: 15px;
-}
-
-.stats-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.stats-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.stats-label {
-  color: #778087;
-  font-size: 13px;
-}
-
-.stats-value {
-  color: #333333;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-/* 节点列表 */
-.node-list {
-  padding: 10px 15px;
-}
-
-.node-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  color: #333333;
-  text-decoration: none;
-  font-size: 13px;
-  transition: color 0.2s;
-}
-
-.node-item:hover {
-  color: #000000;
-}
-
-.node-name {
-  color: #333333;
-}
-
-.node-topics {
-  color: #cccccc;
+.author-name {
   font-size: 12px;
+  color: #666666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* 关于 */
-.about-text {
-  padding: 15px;
-  font-size: 13px;
-  color: #778087;
-  line-height: 1.8;
+.video-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-/* 底部 */
-.footer {
-  background: #ffffff;
-  border-top: 1px solid #e2e2e2;
-  margin-top: 40px;
-  padding: 20px 0;
-}
-
-.footer-content {
-  text-align: center;
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
   color: #999999;
 }
 
-.footer-text {
-  color: #778087;
+.stat-item svg {
+  width: 14px;
+  height: 14px;
 }
 
-.footer-separator {
-  margin: 0 10px;
-  color: #e2e2e2;
+.video-date {
+  font-size: 12px;
+  color: #999999;
 }
 
-.footer-link {
-  color: #778087;
-  text-decoration: none;
-  transition: color 0.2s;
+/* 加载更多 */
+.load-more {
+  text-align: center;
+  padding: 32px 0;
 }
 
-.footer-link:hover {
-  color: #333333;
+.load-more-btn {
+  padding: 12px 48px;
+  background: #FFFFFF;
+  color: #00A1D6;
+  border: 2px solid #00A1D6;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* 响应式设计 */
+.load-more-btn:hover {
+  background: #00A1D6;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 161, 214, 0.3);
+}
+
+/* 页脚 */
+.footer {
+  background: #FFFFFF;
+  padding: 24px;
+  text-align: center;
+  color: #999999;
+  font-size: 14px;
+  border-top: 1px solid #E0E0E0;
+}
+
+/* 响应式布局 - 平板 */
 @media (max-width: 768px) {
   .header-container {
-    padding: 0 15px;
+    padding: 12px 16px;
   }
 
-  .header-left {
-    gap: 15px;
-  }
-
-  .nav {
-    gap: 12px;
-  }
-
-  .nav-link {
-    font-size: 13px;
-  }
-
-  .container {
-    flex-direction: column;
-    padding: 0 15px;
-  }
-
-  .sidebar {
-    width: 100%;
-  }
-
-  .topic-avatar img {
-    width: 40px;
-    height: 40px;
-  }
-
-  .topic-title {
-    font-size: 15px;
-  }
-
-  .hot-nodes-box {
-    padding: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .logo {
+  .logo-text {
     font-size: 18px;
   }
 
-  .nav {
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .main-content {
+    padding: 20px 0;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .video-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .video-title {
+    font-size: 13px;
+  }
+}
+
+/* 响应式布局 - 手机 */
+@media (max-width: 480px) {
+  .header-container {
+    padding: 10px 12px;
+  }
+
+  .logo-text {
     display: none;
   }
 
-  .btn-login,
-  .btn-signup {
-    padding: 5px 12px;
+  .video-count {
     font-size: 12px;
   }
 
-  .topic-item {
-    padding: 12px;
-    gap: 10px;
+  .main-content {
+    padding: 16px 0;
   }
 
-  .topic-avatar img {
-    width: 36px;
-    height: 36px;
+  .container {
+    padding: 0 12px;
   }
 
-  .topic-title {
-    font-size: 14px;
+  .video-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .hot-nodes {
-    gap: 8px;
+  .video-card {
+    border-radius: 6px;
   }
 
-  .node-tag {
-    padding: 4px 10px;
-    font-size: 12px;
+  .video-info {
+    padding: 10px;
+  }
+
+  .video-title {
+    font-size: 13px;
+    height: 38px;
+  }
+
+  .load-more-btn {
+    padding: 10px 36px;
+    font-size: 13px;
   }
 }
 </style>
