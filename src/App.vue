@@ -1,431 +1,407 @@
 <template>
   <div class="app">
-    <div class="container">
-      <h1 class="title">网站连通性验证</h1>
-      <p class="subtitle">输入网站地址，检测网络连通性</p>
+    <!-- 导航栏 -->
+    <NavBar
+      :categories="categories"
+      :activeCategory="activeCategory"
+      @category-change="handleCategoryChange"
+      @search="handleSearch"
+    />
 
-      <div class="input-section">
-        <input
-          v-model="website"
-          type="text"
-          class="website-input"
-          placeholder="请输入网站地址，例如：baidu.com"
-          @keyup.enter="checkWebsite"
-          :disabled="loading"
-        />
-        <button
-          class="check-button"
-          @click="checkWebsite"
-          :disabled="loading || !website.trim()"
-        >
-          {{ loading ? '验证中...' : 'Ping验证' }}
-        </button>
-      </div>
+    <!-- 主要内容区 -->
+    <div class="main-container">
+      <div class="content-wrapper">
+        <!-- 加载状态 -->
+        <div v-if="loading" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">加载中...</p>
+        </div>
 
-      <div v-if="loading" class="status-message">
-        <div class="loading-spinner"></div>
-        <p>正在验证连通性，请稍候...</p>
-      </div>
+        <!-- 错误状态 -->
+        <div v-else-if="error" class="error-container">
+          <p class="error-text">{{ error }}</p>
+          <button class="retry-btn" @click="fetchNews">重试</button>
+        </div>
 
-      <div v-if="result && !loading" class="result-section">
-        <div :class="['result-card', result.success ? 'success' : 'error']">
-          <div class="result-header">
-            <div class="result-icon">
-              <svg v-if="result.success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 6L9 17l-5-5"/>
-              </svg>
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 6L6 18M6 6l12 12"/>
-              </svg>
-            </div>
-            <h2>{{ result.success ? '连接成功' : '连接失败' }}</h2>
+        <!-- 新闻列表 -->
+        <div v-else class="news-list">
+          <NewsCard
+            v-for="news in newsList"
+            :key="news.id"
+            :news="news"
+            @click="handleNewsClick"
+          />
+
+          <!-- 空状态 -->
+          <div v-if="newsList.length === 0" class="empty-container">
+            <p class="empty-text">暂无新闻</p>
           </div>
 
-          <div class="result-content">
-            <div class="result-item">
-              <span class="label">目标地址：</span>
-              <span class="value">{{ result.target || website }}</span>
-            </div>
-
-            <div v-if="result.success" class="result-details">
-              <div class="result-item" v-if="result.transmitted">
-                <span class="label">发送数据包：</span>
-                <span class="value">{{ result.transmitted }} 个</span>
-              </div>
-              <div class="result-item" v-if="result.received !== undefined">
-                <span class="label">接收数据包：</span>
-                <span class="value">{{ result.received }} 个</span>
-              </div>
-              <div class="result-item" v-if="result.loss !== undefined">
-                <span class="label">丢包率：</span>
-                <span class="value">{{ result.loss }}%</span>
-              </div>
-              <div class="result-item" v-if="result.time">
-                <span class="label">平均延迟：</span>
-                <span class="value">{{ result.time }} ms</span>
-              </div>
-            </div>
-
-            <div v-if="result.message" class="result-message">
-              <span class="label">详细信息：</span>
-              <pre class="output">{{ result.message }}</pre>
-            </div>
+          <!-- 加载更多 -->
+          <div v-if="hasMore && newsList.length > 0" class="load-more">
+            <button
+              class="load-more-btn"
+              @click="loadMore"
+              :disabled="loadingMore"
+            >
+              {{ loadingMore ? '加载中...' : '加载更多' }}
+            </button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2025 百度新闻. All rights reserved.</p>
+        <p class="footer-links">
+          <a href="#">关于我们</a>
+          <span class="separator">|</span>
+          <a href="#">联系方式</a>
+          <span class="separator">|</span>
+          <a href="#">隐私政策</a>
+        </p>
+      </div>
+    </footer>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
+<script>
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import NavBar from './components/NavBar.vue';
+import NewsCard from './components/NewsCard.vue';
 
-const website = ref('');
-const loading = ref(false);
-const result = ref(null);
+export default {
+  name: 'App',
+  components: {
+    NavBar,
+    NewsCard
+  },
+  setup() {
+    const categories = ref([]);
+    const activeCategory = ref('all');
+    const newsList = ref([]);
+    const loading = ref(false);
+    const loadingMore = ref(false);
+    const error = ref(null);
+    const currentPage = ref(1);
+    const pageSize = ref(10);
+    const total = ref(0);
+    const hasMore = ref(true);
 
-const checkWebsite = async () => {
-  if (!website.value.trim()) {
-    return;
-  }
+    // 获取分类列表
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('/api/categories');
+        if (response.data.success) {
+          categories.value = response.data.data;
+        }
+      } catch (err) {
+        console.error('获取分类失败:', err);
+      }
+    };
 
-  loading.value = true;
-  result.value = null;
+    // 获取新闻列表
+    const fetchNews = async (reset = false) => {
+      try {
+        if (reset) {
+          currentPage.value = 1;
+          loading.value = true;
+        } else {
+          loadingMore.value = true;
+        }
 
-  try {
-    const response = await axios.post('/api/ping', {
-      website: website.value.trim()
+        error.value = null;
+
+        const response = await axios.get('/api/news', {
+          params: {
+            category: activeCategory.value,
+            page: currentPage.value,
+            pageSize: pageSize.value
+          }
+        });
+
+        if (response.data.success) {
+          const { data, total: totalCount } = response.data;
+
+          if (reset) {
+            newsList.value = data;
+          } else {
+            newsList.value = [...newsList.value, ...data];
+          }
+
+          total.value = totalCount;
+          hasMore.value = newsList.value.length < totalCount;
+        }
+      } catch (err) {
+        console.error('获取新闻失败:', err);
+        error.value = '获取新闻失败，请稍后重试';
+      } finally {
+        loading.value = false;
+        loadingMore.value = false;
+      }
+    };
+
+    // 处理分类切换
+    const handleCategoryChange = (categoryId) => {
+      activeCategory.value = categoryId;
+      fetchNews(true);
+    };
+
+    // 处理搜索
+    const handleSearch = (keyword) => {
+      console.log('搜索:', keyword);
+      // 这里可以实现搜索功能
+      // 暂时使用简单的客户端过滤
+      alert(`搜索功能开发中: "${keyword}"`);
+    };
+
+    // 处理新闻点击
+    const handleNewsClick = (news) => {
+      console.log('点击新闻:', news);
+      alert(`查看新闻详情: ${news.title}\n\n${news.summary}`);
+    };
+
+    // 加载更多
+    const loadMore = () => {
+      currentPage.value += 1;
+      fetchNews(false);
+    };
+
+    // 初始化
+    onMounted(() => {
+      fetchCategories();
+      fetchNews(true);
     });
 
-    result.value = response.data;
-  } catch (error) {
-    result.value = {
-      success: false,
-      target: website.value,
-      message: error.response?.data?.message || error.message || '验证失败，请检查网络连接或稍后重试'
+    return {
+      categories,
+      activeCategory,
+      newsList,
+      loading,
+      loadingMore,
+      error,
+      hasMore,
+      handleCategoryChange,
+      handleSearch,
+      handleNewsClick,
+      loadMore,
+      fetchNews
     };
-  } finally {
-    loading.value = false;
   }
 };
 </script>
 
-<style scoped>
+<style>
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+body {
+  font-family: 'Microsoft YaHei', '微软雅黑', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+</style>
+
+<style scoped>
 .app {
   min-height: 100vh;
-  background: #F5F7FA;
+  background-color: #F5F5F5;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  font-family: 'Roboto', 'PingFang SC', 'Helvetica Neue', 'Hiragino Sans GB', sans-serif;
+  flex-direction: column;
 }
 
-.container {
-  width: 100%;
-  max-width: 700px;
-}
-
-.title {
-  font-size: 32px;
-  font-weight: 600;
-  color: #333333;
-  text-align: center;
-  margin-bottom: 12px;
-}
-
-.subtitle {
-  font-size: 16px;
-  color: #666666;
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.input-section {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.website-input {
+/* 主要内容区 */
+.main-container {
   flex: 1;
-  padding: 16px 20px;
-  font-size: 16px;
-  color: #333333;
-  border: 2px solid #E1E8ED;
-  border-radius: 8px;
-  background: #FFFFFF;
-  transition: all 0.3s ease;
-  outline: none;
+  padding: 24px 0;
 }
 
-.website-input:focus {
-  border-color: #4A90E2;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-.website-input:disabled {
-  background: #F5F7FA;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.website-input::placeholder {
-  color: #999999;
-}
-
-.check-button {
-  padding: 16px 32px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #FFFFFF;
-  background: #4A90E2;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  outline: none;
-}
-
-.check-button:hover:not(:disabled) {
-  background: #357ABD;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
-}
-
-.check-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.check-button:disabled {
-  background: #B0BEC5;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.status-message {
+/* 加载状态 */
+.loading-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 24px;
-  background: #FFFFFF;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  color: #4A90E2;
-  font-size: 16px;
+  padding: 60px 20px;
 }
 
 .loading-spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid #E1E8ED;
-  border-top-color: #4A90E2;
+  width: 50px;
+  height: 50px;
+  border: 4px solid #E5E5E5;
+  border-top-color: #4065D4;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.result-section {
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: rotate(360deg);
   }
 }
 
-.result-card {
-  background: #FFFFFF;
-  border-radius: 12px;
-  padding: 32px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border-left: 4px solid;
+.loading-text {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #666666;
 }
 
-.result-card.success {
-  border-left-color: #28A745;
-}
-
-.result-card.error {
-  border-left-color: #DC3545;
-}
-
-.result-header {
+/* 错误状态 */
+.error-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #E1E8ED;
+  justify-content: center;
+  padding: 60px 20px;
 }
 
-.result-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+.error-text {
+  font-size: 16px;
+  color: #CC0000;
+  margin-bottom: 16px;
+}
+
+.retry-btn {
+  padding: 10px 24px;
+  background-color: #4065D4;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.retry-btn:hover {
+  background-color: #2545B8;
+}
+
+/* 新闻列表 */
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 空状态 */
+.empty-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  padding: 60px 20px;
 }
 
-.success .result-icon {
-  background: rgba(40, 167, 69, 0.1);
-  color: #28A745;
-}
-
-.error .result-icon {
-  background: rgba(220, 53, 69, 0.1);
-  color: #DC3545;
-}
-
-.result-icon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.result-header h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #333333;
-}
-
-.result-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.result-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.result-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.label {
-  font-size: 14px;
-  color: #666666;
-  font-weight: 500;
-}
-
-.value {
+.empty-text {
   font-size: 16px;
-  color: #333333;
-  font-weight: 600;
+  color: #999999;
 }
 
-.result-message {
-  margin-top: 8px;
+/* 加载更多 */
+.load-more {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
 }
 
-.output {
-  margin-top: 8px;
-  padding: 16px;
-  background: #F5F7FA;
-  border-radius: 6px;
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
-  color: #333333;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-x: auto;
+.load-more-btn {
+  padding: 12px 32px;
+  background-color: #FFFFFF;
+  color: #4065D4;
+  border: 2px solid #4065D4;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-/* 移动端适配 */
+.load-more-btn:hover:not(:disabled) {
+  background-color: #4065D4;
+  color: #FFFFFF;
+}
+
+.load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 页脚 */
+.footer {
+  background-color: #333333;
+  color: #FFFFFF;
+  padding: 32px 20px;
+  margin-top: 40px;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-content p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #CCCCCC;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.footer-links a {
+  color: #CCCCCC;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: #4065D4;
+}
+
+.separator {
+  color: #666666;
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .title {
-    font-size: 28px;
+  .main-container {
+    padding: 16px 0;
   }
 
-  .subtitle {
-    font-size: 14px;
-    margin-bottom: 24px;
+  .content-wrapper {
+    padding: 0 16px;
   }
 
-  .input-section {
+  .news-list {
+    gap: 12px;
+  }
+
+  .footer {
+    padding: 24px 16px;
+  }
+
+  .footer-links {
     flex-direction: column;
-    gap: 12px;
+    gap: 4px;
   }
 
-  .check-button {
-    width: 100%;
-  }
-
-  .result-card {
-    padding: 24px 20px;
-  }
-
-  .result-header h2 {
-    font-size: 20px;
-  }
-
-  .result-details {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .app {
-    padding: 16px;
-  }
-
-  .title {
-    font-size: 24px;
-  }
-
-  .subtitle {
-    font-size: 13px;
-  }
-
-  .website-input,
-  .check-button {
-    font-size: 15px;
-    padding: 14px 16px;
-  }
-
-  .result-card {
-    padding: 20px 16px;
-  }
-
-  .result-icon {
-    width: 40px;
-    height: 40px;
-  }
-
-  .result-icon svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .output {
-    font-size: 12px;
-    padding: 12px;
+  .separator {
+    display: none;
   }
 }
 </style>
