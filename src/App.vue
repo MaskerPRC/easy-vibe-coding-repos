@@ -1,544 +1,627 @@
 <template>
-  <div class="apex-cover">
-    <!-- 背景层 -->
-    <div class="background-layer"></div>
-    <div class="gradient-overlay"></div>
-
-    <!-- 主要内容 -->
-    <div class="content-wrapper">
-      <!-- Logo区域 -->
-      <div class="logo-section">
-        <div class="apex-logo">
-          <svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
-            <!-- A -->
-            <path d="M 20 70 L 35 20 L 50 70 M 25 55 L 45 55" stroke="#FF6B35" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- P -->
-            <path d="M 60 70 L 60 20 L 75 20 Q 85 20 85 30 Q 85 40 75 40 L 60 40" stroke="#FF6B35" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- E -->
-            <path d="M 95 70 L 95 20 L 115 20 M 95 45 L 110 45 M 95 70 L 115 70" stroke="#FF6B35" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- X -->
-            <path d="M 125 20 L 145 70 M 145 20 L 125 70" stroke="#FF6B35" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+  <div class="v2ex-app">
+    <!-- 顶部导航栏 -->
+    <header class="header">
+      <div class="header-container">
+        <div class="header-left">
+          <h1 class="logo">V2EX</h1>
+          <nav class="nav">
+            <a href="#" class="nav-link active">首页</a>
+            <a href="#" class="nav-link">节点</a>
+            <a href="#" class="nav-link">最热</a>
+            <a href="#" class="nav-link">全部</a>
+          </nav>
         </div>
-        <h1 class="game-title">APEX LEGENDS</h1>
-        <p class="game-subtitle">战场传奇</p>
-      </div>
-
-      <!-- 特色信息 -->
-      <div class="features-section">
-        <div class="feature-card" v-for="(feature, index) in features" :key="index" :style="{ animationDelay: `${index * 0.1}s` }">
-          <div class="feature-icon">
-            <component :is="feature.icon" />
-          </div>
-          <div class="feature-content">
-            <h3 class="feature-title">{{ feature.title }}</h3>
-            <p class="feature-desc">{{ feature.desc }}</p>
-          </div>
+        <div class="header-right">
+          <button class="btn-login">登录</button>
+          <button class="btn-signup">注册</button>
         </div>
       </div>
+    </header>
 
-      <!-- 底部信息 -->
-      <div class="bottom-info">
-        <div class="info-badge">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>FREE TO PLAY</span>
-        </div>
-        <div class="season-info">SEASON 20 | BREAKOUT</div>
+    <!-- 主体内容 -->
+    <div class="main-wrapper">
+      <div class="container">
+        <!-- 左侧主内容区 -->
+        <main class="main-content">
+          <!-- 热门节点导航 -->
+          <div class="hot-nodes-box" v-if="hotNodes.length > 0">
+            <div class="hot-nodes">
+              <a
+                v-for="node in hotNodes"
+                :key="node.id"
+                href="#"
+                class="node-tag"
+              >
+                {{ node.name }}
+              </a>
+            </div>
+          </div>
+
+          <!-- 帖子列表 -->
+          <div class="topic-list">
+            <div
+              v-for="topic in topics"
+              :key="topic.id"
+              class="topic-item"
+            >
+              <div class="topic-avatar">
+                <img :src="topic.avatar" :alt="topic.author" />
+              </div>
+              <div class="topic-main">
+                <div class="topic-header">
+                  <a href="#" class="topic-node">{{ topic.node }}</a>
+                  <span class="topic-meta">•</span>
+                  <span class="topic-author">{{ topic.author }}</span>
+                  <span class="topic-meta">•</span>
+                  <span class="topic-time">{{ topic.lastReplyTime }}</span>
+                </div>
+                <h2 class="topic-title">
+                  <a href="#">{{ topic.title }}</a>
+                </h2>
+              </div>
+              <div class="topic-info">
+                <div class="topic-replies" v-if="topic.replies > 0">
+                  {{ topic.replies }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <!-- 右侧边栏 -->
+        <aside class="sidebar">
+          <!-- 网站统计 -->
+          <div class="sidebar-box">
+            <div class="sidebar-title">社区统计</div>
+            <div class="stats-list">
+              <div class="stats-item">
+                <span class="stats-label">主题</span>
+                <span class="stats-value">{{ stats.topics }}</span>
+              </div>
+              <div class="stats-item">
+                <span class="stats-label">节点</span>
+                <span class="stats-value">{{ stats.nodes }}</span>
+              </div>
+              <div class="stats-item">
+                <span class="stats-label">用户</span>
+                <span class="stats-value">{{ stats.members }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 热门节点 -->
+          <div class="sidebar-box">
+            <div class="sidebar-title">热门节点</div>
+            <div class="node-list">
+              <a
+                v-for="node in hotNodes.slice(0, 4)"
+                :key="node.id"
+                href="#"
+                class="node-item"
+              >
+                <span class="node-name">{{ node.name }}</span>
+                <span class="node-topics">{{ node.topics }}</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 关于 -->
+          <div class="sidebar-box">
+            <div class="sidebar-title">关于</div>
+            <div class="about-text">
+              这是一个技术社区,讨论编程、设计、硬件、游戏等话题。
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
 
-    <!-- 装饰元素 -->
-    <div class="decoration-elements">
-      <div class="hex-pattern"></div>
-      <div class="glow-effect glow-1"></div>
-      <div class="glow-effect glow-2"></div>
-      <div class="glow-effect glow-3"></div>
-    </div>
+    <!-- 底部 -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <span class="footer-text">V2EX 社区</span>
+          <span class="footer-separator">•</span>
+          <a href="#" class="footer-link">关于</a>
+          <span class="footer-separator">•</span>
+          <a href="#" class="footer-link">FAQ</a>
+          <span class="footer-separator">•</span>
+          <a href="#" class="footer-link">API</a>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { h } from 'vue'
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
-// 特色功能数据
-const features = [
-  {
-    title: '英雄射击',
-    desc: '选择传奇角色，发挥独特能力',
-    icon: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', xmlns: 'http://www.w3.org/2000/svg' }, [
-      h('path', { d: 'M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })
-    ])
-  },
-  {
-    title: '小队对战',
-    desc: '3人小队，战术配合制胜',
-    icon: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', xmlns: 'http://www.w3.org/2000/svg' }, [
-      h('path', { d: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }),
-      h('circle', { cx: '9', cy: '7', r: '4', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }),
-      h('path', { d: 'M23 21v-2a4 4 0 0 0-3-3.87', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }),
-      h('path', { d: 'M16 3.13a4 4 0 0 1 0 7.75', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })
-    ])
-  },
-  {
-    title: '动态竞技场',
-    desc: '不断进化的战场地图',
-    icon: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', xmlns: 'http://www.w3.org/2000/svg' }, [
-      h('path', { d: 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }),
-      h('circle', { cx: '12', cy: '10', r: '3', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })
-    ])
-  },
-  {
-    title: '进化战利品',
-    desc: '收集装备，强化武装',
-    icon: () => h('svg', { viewBox: '0 0 24 24', fill: 'none', xmlns: 'http://www.w3.org/2000/svg' }, [
-      h('path', { d: 'M12 2L2 7l10 5 10-5-10-5z', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }),
-      h('path', { d: 'M2 17l10 5 10-5', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }),
-      h('path', { d: 'M2 12l10 5 10-5', stroke: 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' })
-    ])
+// 响应式数据
+const topics = ref([]);
+const hotNodes = ref([]);
+const stats = ref({
+  members: 0,
+  topics: 0,
+  nodes: 0
+});
+
+// 加载数据
+const loadData = async () => {
+  try {
+    // 并行请求多个接口
+    const [topicsRes, nodesRes, statsRes] = await Promise.all([
+      axios.get('/api/topics'),
+      axios.get('/api/nodes/hot'),
+      axios.get('/api/stats')
+    ]);
+
+    topics.value = topicsRes.data;
+    hotNodes.value = nodesRes.data;
+    stats.value = statsRes.data;
+  } catch (error) {
+    console.error('加载数据失败:', error);
   }
-]
+};
+
+// 组件挂载时加载数据
+onMounted(() => {
+  loadData();
+});
 </script>
 
 <style scoped>
-/* 全局重置 */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* 主容器 - Apex主题 */
-.apex-cover {
+.v2ex-app {
   min-height: 100vh;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
-  font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Rajdhani', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #f0f0f0;
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333333;
 }
 
-/* 背景层 */
-.background-layer {
-  position: absolute;
+/* 顶部导航栏 */
+.header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e2e2;
+  position: sticky;
   top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-  z-index: 0;
+  z-index: 100;
 }
 
-.gradient-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background:
-    radial-gradient(ellipse at 20% 30%, rgba(255, 107, 53, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 70%, rgba(220, 20, 60, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(255, 69, 0, 0.08) 0%, transparent 60%);
-  z-index: 1;
-}
-
-/* 装饰元素 */
-.decoration-elements {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.hex-pattern {
-  position: absolute;
-  top: 10%;
-  right: 10%;
-  width: 200px;
-  height: 200px;
-  opacity: 0.1;
-  background:
-    linear-gradient(30deg, #FF6B35 12%, transparent 12.5%, transparent 87%, #FF6B35 87.5%, #FF6B35),
-    linear-gradient(150deg, #FF6B35 12%, transparent 12.5%, transparent 87%, #FF6B35 87.5%, #FF6B35),
-    linear-gradient(30deg, #FF6B35 12%, transparent 12.5%, transparent 87%, #FF6B35 87.5%, #FF6B35),
-    linear-gradient(150deg, #FF6B35 12%, transparent 12.5%, transparent 87%, #FF6B35 87.5%, #FF6B35);
-  background-size: 80px 140px;
-  background-position: 0 0, 0 0, 40px 70px, 40px 70px;
-  animation: hexFloat 20s ease-in-out infinite;
-}
-
-.glow-effect {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  animation: pulse 4s ease-in-out infinite;
-}
-
-.glow-1 {
-  top: 20%;
-  left: 10%;
-  width: 300px;
-  height: 300px;
-  background: rgba(255, 107, 53, 0.2);
-  animation-delay: 0s;
-}
-
-.glow-2 {
-  bottom: 30%;
-  right: 15%;
-  width: 400px;
-  height: 400px;
-  background: rgba(220, 20, 60, 0.15);
-  animation-delay: 1.5s;
-}
-
-.glow-3 {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 500px;
-  height: 500px;
-  background: rgba(255, 69, 0, 0.1);
-  animation-delay: 3s;
-}
-
-/* 内容包装器 */
-.content-wrapper {
-  position: relative;
-  z-index: 10;
+.header-container {
   max-width: 1200px;
-  width: 100%;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 60px;
-}
-
-/* Logo区域 */
-.logo-section {
-  text-align: center;
-  animation: fadeInDown 1s ease-out;
-}
-
-.apex-logo {
-  margin-bottom: 20px;
-  animation: glowPulse 3s ease-in-out infinite;
-}
-
-.apex-logo svg {
-  width: 200px;
-  height: 80px;
-  filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.6));
-}
-
-.game-title {
-  font-size: 72px;
-  font-weight: 900;
-  letter-spacing: 8px;
-  background: linear-gradient(135deg, #FF6B35 0%, #DC143C 50%, #FF4500 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 0 40px rgba(255, 107, 53, 0.5);
-  margin-bottom: 10px;
-  animation: titleGlow 3s ease-in-out infinite;
-}
-
-.game-subtitle {
-  font-size: 24px;
-  font-weight: 300;
-  letter-spacing: 4px;
-  color: #ffffff;
-  opacity: 0.9;
-  text-transform: uppercase;
-}
-
-/* 特色功能区域 */
-.features-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  width: 100%;
-  max-width: 900px;
-}
-
-.feature-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 107, 53, 0.2);
-  border-radius: 12px;
-  padding: 24px;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  transition: all 0.3s ease;
-  animation: fadeInUp 0.8s ease-out;
-  animation-fill-mode: both;
-}
-
-.feature-card:hover {
-  transform: translateY(-8px);
-  border-color: rgba(255, 107, 53, 0.5);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(255, 107, 53, 0.2);
-}
-
-.feature-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(220, 20, 60, 0.2));
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 50px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
+  justify-content: space-between;
 }
 
-.feature-card:hover .feature-icon {
-  transform: rotate(5deg) scale(1.1);
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 30px;
 }
 
-.feature-icon svg {
-  width: 24px;
-  height: 24px;
-  color: #FF6B35;
-}
-
-.feature-content {
-  flex: 1;
-}
-
-.feature-title {
-  font-size: 18px;
+.logo {
+  font-size: 20px;
   font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 8px;
+  color: #333333;
   letter-spacing: 1px;
 }
 
-.feature-desc {
+.nav {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  color: #778087;
+  text-decoration: none;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
-  line-height: 1.6;
+  transition: color 0.2s;
 }
 
-/* 底部信息 */
-.bottom-info {
+.nav-link:hover,
+.nav-link.active {
+  color: #333333;
+}
+
+.header-right {
   display: flex;
-  align-items: center;
-  gap: 32px;
-  animation: fadeIn 1.2s ease-out 0.5s;
-  animation-fill-mode: both;
+  gap: 10px;
+}
+
+.btn-login,
+.btn-signup {
+  padding: 6px 16px;
+  border: 1px solid #e2e2e2;
+  background: #ffffff;
+  color: #333333;
+  font-size: 13px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-login:hover,
+.btn-signup:hover {
+  border-color: #333333;
+}
+
+.btn-signup {
+  background: #333333;
+  color: #ffffff;
+  border-color: #333333;
+}
+
+.btn-signup:hover {
+  background: #000000;
+}
+
+/* 主体容器 */
+.main-wrapper {
+  padding: 20px 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* 主内容区 */
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 热门节点盒子 */
+.hot-nodes-box {
+  background: #ffffff;
+  border-radius: 3px;
+  border: 1px solid #e2e2e2;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.hot-nodes {
+  display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  gap: 10px;
 }
 
-.info-badge {
+.node-tag {
+  display: inline-block;
+  padding: 5px 12px;
+  background: #f9f9f9;
+  color: #778087;
+  text-decoration: none;
+  font-size: 13px;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.node-tag:hover {
+  background: #333333;
+  color: #ffffff;
+}
+
+/* 帖子列表 */
+.topic-list {
+  background: #ffffff;
+  border: 1px solid #e2e2e2;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.topic-item {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.2s;
+}
+
+.topic-item:last-child {
+  border-bottom: none;
+}
+
+.topic-item:hover {
+  background: #f9f9f9;
+}
+
+.topic-avatar {
+  flex-shrink: 0;
+}
+
+.topic-avatar img {
+  width: 48px;
+  height: 48px;
+  border-radius: 3px;
+  display: block;
+}
+
+.topic-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.topic-header {
+  font-size: 12px;
+  color: #999999;
+  margin-bottom: 5px;
+}
+
+.topic-node {
+  color: #778087;
+  text-decoration: none;
+  padding: 2px 6px;
+  background: #f9f9f9;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.topic-node:hover {
+  background: #333333;
+  color: #ffffff;
+}
+
+.topic-meta {
+  margin: 0 5px;
+  color: #cccccc;
+}
+
+.topic-author {
+  color: #778087;
+}
+
+.topic-time {
+  color: #cccccc;
+}
+
+.topic-title {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.topic-title a {
+  color: #333333;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.topic-title a:hover {
+  color: #000000;
+}
+
+.topic-info {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(220, 20, 60, 0.2));
-  border: 2px solid #FF6B35;
-  border-radius: 50px;
-  font-size: 16px;
-  font-weight: 700;
-  color: #FF6B35;
-  letter-spacing: 2px;
-  transition: all 0.3s ease;
 }
 
-.info-badge:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+.topic-replies {
+  min-width: 36px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  background: #f0f0f0;
+  color: #778087;
+  font-size: 12px;
+  border-radius: 12px;
+  padding: 0 10px;
 }
 
-.info-badge svg {
-  width: 20px;
-  height: 20px;
+/* 侧边栏 */
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
 }
 
-.season-info {
+.sidebar-box {
+  background: #ffffff;
+  border: 1px solid #e2e2e2;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.sidebar-title {
+  padding: 12px 15px;
   font-size: 14px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  color: #333333;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-/* 动画定义 */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* 统计信息 */
+.stats-list {
+  padding: 15px;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.stats-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.stats-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.1);
-  }
+.stats-label {
+  color: #778087;
+  font-size: 13px;
 }
 
-@keyframes hexFloat {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(5deg);
-  }
+.stats-value {
+  color: #333333;
+  font-weight: 600;
+  font-size: 14px;
 }
 
-@keyframes glowPulse {
-  0%, 100% {
-    filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.6));
-  }
-  50% {
-    filter: drop-shadow(0 0 40px rgba(255, 107, 53, 0.9));
-  }
+/* 节点列表 */
+.node-list {
+  padding: 10px 15px;
 }
 
-@keyframes titleGlow {
-  0%, 100% {
-    text-shadow: 0 0 40px rgba(255, 107, 53, 0.5);
-  }
-  50% {
-    text-shadow: 0 0 60px rgba(255, 107, 53, 0.8), 0 0 80px rgba(220, 20, 60, 0.5);
-  }
+.node-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  color: #333333;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.2s;
 }
 
-/* 响应式设计 - 平板 */
+.node-item:hover {
+  color: #000000;
+}
+
+.node-name {
+  color: #333333;
+}
+
+.node-topics {
+  color: #cccccc;
+  font-size: 12px;
+}
+
+/* 关于 */
+.about-text {
+  padding: 15px;
+  font-size: 13px;
+  color: #778087;
+  line-height: 1.8;
+}
+
+/* 底部 */
+.footer {
+  background: #ffffff;
+  border-top: 1px solid #e2e2e2;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.footer-content {
+  text-align: center;
+  font-size: 12px;
+  color: #999999;
+}
+
+.footer-text {
+  color: #778087;
+}
+
+.footer-separator {
+  margin: 0 10px;
+  color: #e2e2e2;
+}
+
+.footer-link {
+  color: #778087;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: #333333;
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .content-wrapper {
-    gap: 40px;
-    padding: 30px 16px;
+  .header-container {
+    padding: 0 15px;
   }
 
-  .game-title {
-    font-size: 48px;
-    letter-spacing: 4px;
+  .header-left {
+    gap: 15px;
   }
 
-  .game-subtitle {
-    font-size: 18px;
-    letter-spacing: 2px;
+  .nav {
+    gap: 12px;
   }
 
-  .apex-logo svg {
-    width: 150px;
-    height: 60px;
+  .nav-link {
+    font-size: 13px;
   }
 
-  .features-section {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .feature-card {
-    padding: 20px;
-  }
-
-  .bottom-info {
-    gap: 20px;
-  }
-}
-
-/* 响应式设计 - 手机 */
-@media (max-width: 480px) {
-  .content-wrapper {
-    gap: 30px;
-    padding: 20px 12px;
-  }
-
-  .game-title {
-    font-size: 36px;
-    letter-spacing: 2px;
-  }
-
-  .game-subtitle {
-    font-size: 16px;
-    letter-spacing: 1px;
-  }
-
-  .apex-logo svg {
-    width: 120px;
-    height: 48px;
-  }
-
-  .feature-card {
+  .container {
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 16px;
+    padding: 0 15px;
   }
 
-  .feature-icon {
+  .sidebar {
+    width: 100%;
+  }
+
+  .topic-avatar img {
     width: 40px;
     height: 40px;
   }
 
-  .feature-icon svg {
-    width: 20px;
-    height: 20px;
+  .topic-title {
+    font-size: 15px;
   }
 
-  .feature-title {
-    font-size: 16px;
+  .hot-nodes-box {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 18px;
   }
 
-  .feature-desc {
-    font-size: 13px;
+  .nav {
+    display: none;
   }
 
-  .info-badge {
-    padding: 10px 20px;
-    font-size: 14px;
-  }
-
-  .season-info {
+  .btn-login,
+  .btn-signup {
+    padding: 5px 12px;
     font-size: 12px;
   }
 
-  .glow-1, .glow-2, .glow-3 {
-    width: 200px;
-    height: 200px;
+  .topic-item {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .topic-avatar img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .topic-title {
+    font-size: 14px;
+  }
+
+  .hot-nodes {
+    gap: 8px;
+  }
+
+  .node-tag {
+    padding: 4px 10px;
+    font-size: 12px;
   }
 }
 </style>
