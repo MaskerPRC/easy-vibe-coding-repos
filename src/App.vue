@@ -20,7 +20,7 @@
           class="baidu-iframe"
           frameborder="0"
           allowfullscreen
-          title="百度"
+          title="百度搜索"
         ></iframe>
       </div>
     </main>
@@ -28,7 +28,8 @@
 </template>
 
 <script setup>
-// 百度 iframe 嵌入页面
+// 百度 iframe 嵌入页面 - 遵循百度UI设计规范
+// 配色方案：蓝色主色调、白色背景、扁平化设计
 </script>
 
 <style scoped>
@@ -43,24 +44,23 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f0f0f0;
+  background: #FFFFFF;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   overflow: hidden;
 }
 
-/* 顶部导航栏 */
+/* 顶部导航栏 - 简约扁平化设计 */
 .header {
   width: 100%;
-  background: #ffffff;
-  border-bottom: 1px solid #cccccc;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background: #FFFFFF;
+  border-bottom: 1px solid #E5E5E5;
   flex-shrink: 0;
 }
 
 .header-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 12px 20px;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -72,16 +72,16 @@
 }
 
 .logo-text {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333333;
-  letter-spacing: 0.5px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #000000;
+  letter-spacing: 0.3px;
 }
 
 .header-info {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
 }
 
 .header-link {
@@ -89,10 +89,11 @@
   color: #999999;
   text-decoration: none;
   transition: color 0.2s ease;
+  cursor: default;
 }
 
 .header-link:hover {
-  color: #2D64B3;
+  color: #3385FF;
 }
 
 /* 主内容区域 */
@@ -103,13 +104,14 @@
   display: flex;
   justify-content: center;
   padding: 0;
+  background: #FFFFFF;
 }
 
 .iframe-container {
   width: 100%;
   height: 100%;
   max-width: 100%;
-  background: #ffffff;
+  background: #FFFFFF;
   position: relative;
   overflow: hidden;
 }
@@ -121,18 +123,29 @@
   display: block;
 }
 
-/* 响应式设计 - 移动端适配 */
-@media (max-width: 768px) {
+/* 响应式设计 - 平板适配 */
+@media (max-width: 1024px) {
   .header-content {
-    padding: 10px 15px;
+    padding: 12px 20px;
   }
 
   .logo-text {
-    font-size: 16px;
+    font-size: 18px;
+  }
+}
+
+/* 响应式设计 - 移动端适配 */
+@media (max-width: 768px) {
+  .header-content {
+    padding: 10px 16px;
+  }
+
+  .logo-text {
+    font-size: 17px;
   }
 
   .header-info {
-    gap: 10px;
+    gap: 12px;
   }
 
   .header-link {
@@ -142,11 +155,11 @@
 
 @media (max-width: 480px) {
   .header-content {
-    padding: 8px 12px;
+    padding: 10px 12px;
   }
 
   .logo-text {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .header-link {
