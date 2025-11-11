@@ -1,35 +1,98 @@
 <template>
   <div class="app">
-    <!-- 顶部导航栏 -->
-    <header class="header">
-      <div class="header-content">
-        <div class="logo">
-          <span class="logo-text">百度搜索</span>
-        </div>
-        <div class="header-info">
-          <span class="header-link">iframe嵌入模式</span>
+    <div class="iframe-grid-container">
+      <div
+        v-for="index in totalIframes"
+        :key="index"
+        class="iframe-wrapper"
+        :data-index="index"
+      >
+        <div
+          class="iframe-placeholder"
+          :ref="el => setIframeRef(el, index)"
+        >
+          <iframe
+            v-if="loadedIframes.has(index)"
+            :src="iframeUrl"
+            class="iframe-content"
+            :title="`Frame ${index}`"
+            frameborder="0"
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+          ></iframe>
+          <div v-else class="loading-placeholder">
+            <div class="loading-spinner"></div>
+            <span class="loading-text">{{ index }}</span>
+          </div>
         </div>
       </div>
-    </header>
-
-    <!-- iframe容器 -->
-    <main class="main-content">
-      <div class="iframe-container">
-        <iframe
-          src="https://www.baidu.com/"
-          class="baidu-iframe"
-          frameborder="0"
-          allowfullscreen
-          title="百度搜索"
-        ></iframe>
-      </div>
-    </main>
+    </div>
   </div>
 </template>
 
 <script setup>
-// 百度 iframe 嵌入页面 - 遵循百度UI设计规范
-// 配色方案：蓝色主色调、白色背景、扁平化设计
+import { ref, onMounted, onUnmounted } from 'vue';
+
+// 配置
+const totalIframes = 1000;
+const iframeUrl = 'https://play.apexstone.ai/';
+
+// 状态管理
+const loadedIframes = ref(new Set());
+const iframeRefs = new Map();
+
+// 设置 iframe 引用
+const setIframeRef = (el, index) => {
+  if (el) {
+    iframeRefs.set(index, el);
+  } else {
+    iframeRefs.delete(index);
+  }
+};
+
+// Intersection Observer 配置
+let observer = null;
+
+// 初始化 Intersection Observer
+const initObserver = () => {
+  const options = {
+    root: null, // 使用视口作为根元素
+    rootMargin: '200px', // 提前 200px 开始加载
+    threshold: 0.01 // 当 1% 可见时触发
+  };
+
+  observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const index = parseInt(entry.target.dataset.index || entry.target.closest('.iframe-wrapper')?.dataset.index);
+        if (index && !loadedIframes.value.has(index)) {
+          loadedIframes.value.add(index);
+        }
+      }
+    });
+  }, options);
+
+  // 观察所有 iframe 占位符
+  iframeRefs.forEach((el) => {
+    if (el) {
+      observer.observe(el);
+    }
+  });
+};
+
+// 生命周期钩子
+onMounted(() => {
+  // 延迟初始化 observer，确保所有元素都已渲染
+  setTimeout(() => {
+    initObserver();
+  }, 100);
+});
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+  }
+});
 </script>
 
 <style scoped>
@@ -40,130 +103,135 @@
 }
 
 .app {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: #FFFFFF;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  overflow: hidden;
+  min-height: 100vh;
+  background: #F8F8F8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Source Han Sans', 'Hiragino Sans GB', 'Microsoft YaHei', 'Arial', 'Helvetica', sans-serif;
 }
 
-/* 顶部导航栏 - 简约扁平化设计 */
-.header {
-  width: 100%;
-  background: #FFFFFF;
-  border-bottom: 1px solid #E5E5E5;
-  flex-shrink: 0;
-}
-
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 14px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-}
-
-.logo-text {
-  font-size: 20px;
-  font-weight: 500;
-  color: #000000;
-  letter-spacing: 0.3px;
-}
-
-.header-info {
-  display: flex;
-  align-items: center;
+.iframe-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
-}
-
-.header-link {
-  font-size: 14px;
-  color: #999999;
-  text-decoration: none;
-  transition: color 0.2s ease;
-  cursor: default;
-}
-
-.header-link:hover {
-  color: #3385FF;
-}
-
-/* 主内容区域 */
-.main-content {
-  flex: 1;
-  width: 100%;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  padding: 0;
-  background: #FFFFFF;
-}
-
-.iframe-container {
-  width: 100%;
-  height: 100%;
+  padding: 24px;
   max-width: 100%;
-  background: #FFFFFF;
+  margin: 0 auto;
+}
+
+.iframe-wrapper {
   position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 200px;
+}
+
+.iframe-placeholder {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
   overflow: hidden;
 }
 
-.baidu-iframe {
+.iframe-content {
   width: 100%;
   height: 100%;
-  border: 0;
+  border: none;
   display: block;
 }
 
-/* 响应式设计 - 平板适配 */
-@media (max-width: 1024px) {
-  .header-content {
-    padding: 12px 20px;
-  }
+.loading-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  color: #666666;
+  gap: 12px;
+}
 
-  .logo-text {
-    font-size: 18px;
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #E0E0E0;
+  border-top-color: #999999;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-/* 响应式设计 - 移动端适配 */
-@media (max-width: 768px) {
-  .header-content {
-    padding: 10px 16px;
-  }
+.loading-text {
+  font-size: 14px;
+  color: #999999;
+}
 
-  .logo-text {
-    font-size: 17px;
+/* 响应式设计 */
+@media (max-width: 1920px) {
+  .iframe-grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
+}
 
-  .header-info {
+@media (max-width: 1440px) {
+  .iframe-grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .iframe-grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .iframe-grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    padding: 12px;
   }
 
-  .header-link {
-    font-size: 13px;
+  .iframe-wrapper {
+    min-height: 150px;
   }
 }
 
 @media (max-width: 480px) {
-  .header-content {
-    padding: 10px 12px;
+  .iframe-grid-container {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+    padding: 8px;
   }
 
-  .logo-text {
-    font-size: 16px;
+  .iframe-wrapper {
+    min-height: 120px;
   }
 
-  .header-link {
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border-width: 2px;
+  }
+
+  .loading-text {
     font-size: 12px;
   }
+}
+
+/* 性能优化：减少重绘 */
+.iframe-content {
+  will-change: contents;
+  transform: translateZ(0);
 }
 </style>
