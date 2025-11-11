@@ -10,10 +10,13 @@
         <li><router-link to="/timeline" @click="closeMobileMenu">成长历程</router-link></li>
         <li><router-link to="/fans" @click="closeMobileMenu">粉丝生态</router-link></li>
       </ul>
-      <div class="nav-mobile-toggle" @click="toggleMobileMenu">
-        <span></span>
-        <span></span>
-        <span></span>
+      <div class="nav-right">
+        <MusicPlayer />
+        <div class="nav-mobile-toggle" @click="toggleMobileMenu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
     </div>
   </nav>
@@ -21,6 +24,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import MusicPlayer from './MusicPlayer.vue';
 
 const mobileMenuOpen = ref(false);
 
@@ -101,6 +105,12 @@ const closeMobileMenu = () => {
   height: 3px;
   background: #007AFF;
   border-radius: 2px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .nav-mobile-toggle {
