@@ -4,7 +4,7 @@
     <header class="header">
       <div class="header-content">
         <div class="logo">
-          <span class="logo-text">V2EX 浏览器</span>
+          <span class="logo-text">百度搜索</span>
         </div>
         <div class="header-info">
           <span class="header-link">iframe嵌入模式</span>
@@ -16,11 +16,11 @@
     <main class="main-content">
       <div class="iframe-container">
         <iframe
-          src="https://www.v2ex.com/"
-          class="v2ex-iframe"
+          src="https://www.baidu.com/"
+          class="baidu-iframe"
           frameborder="0"
           allowfullscreen
-          title="V2EX"
+          title="百度"
         ></iframe>
       </div>
     </main>
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-// V2EX iframe 嵌入页面
+// 百度 iframe 嵌入页面
 </script>
 
 <style scoped>
@@ -44,7 +44,7 @@
   display: flex;
   flex-direction: column;
   background: #f0f0f0;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   overflow: hidden;
 }
 
@@ -92,7 +92,7 @@
 }
 
 .header-link:hover {
-  color: #337ab7;
+  color: #2D64B3;
 }
 
 /* 主内容区域 */
@@ -114,7 +114,7 @@
   overflow: hidden;
 }
 
-.v2ex-iframe {
+.baidu-iframe {
   width: 100%;
   height: 100%;
   border: 0;
