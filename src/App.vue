@@ -1,143 +1,27 @@
 <template>
-  <div
-    class="horror-container"
-    :class="{ 'invert': isInverted }"
-    @click="handleClick"
-    @mousemove="handleMouseMove"
-  >
-    <div
-      v-for="(char, index) in characters"
-      :key="index"
-      class="yi-char"
-      :style="getCharStyle(char, index)"
-      :class="{
-        'flicker': char.flicker,
-        'pulse': char.pulse,
-        'shake': char.shake,
-        'hover-effect': char.isHovered
-      }"
-    >
-      一
+  <div class="app">
+    <div class="construction-container">
+      <div class="construction-box">
+        <div class="construction-icon">
+          <div class="icon-bar icon-bar-1"></div>
+          <div class="icon-bar icon-bar-2"></div>
+          <div class="icon-bar icon-bar-3"></div>
+        </div>
+        <h1 class="construction-title">网站正在构建中</h1>
+        <p class="construction-text">我们正在努力完善这个网站，请稍后再来</p>
+        <div class="construction-stripes">
+          <div class="stripe stripe-1"></div>
+          <div class="stripe stripe-2"></div>
+          <div class="stripe stripe-3"></div>
+          <div class="stripe stripe-4"></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-
-const characters = ref([]);
-const isInverted = ref(false);
-let animationFrame = null;
-let invertInterval = null;
-let flickerInterval = null;
-
-// 生成大量"一"字
-const generateCharacters = () => {
-  const chars = [];
-  const count = 500; // 生成500个"一"字
-
-  for (let i = 0; i < count; i++) {
-    chars.push({
-      x: Math.random() * 100, // 0-100%
-      y: Math.random() * 100,
-      size: Math.random() * 150 + 10, // 10-160px
-      opacity: Math.random() * 0.5 + 0.5, // 0.5-1
-      rotation: Math.random() * 360,
-      fontWeight: Math.random() > 0.5 ? 900 : 700,
-      flicker: Math.random() > 0.7, // 30%的字会闪烁
-      pulse: Math.random() > 0.8, // 20%的字会脉动
-      shake: false,
-      isHovered: false,
-      zIndex: Math.floor(Math.random() * 100),
-      animationDelay: Math.random() * 5
-    });
-  }
-
-  characters.value = chars;
-};
-
-// 获取单个字符的样式
-const getCharStyle = (char, index) => {
-  return {
-    left: `${char.x}%`,
-    top: `${char.y}%`,
-    fontSize: `${char.size}px`,
-    opacity: char.opacity,
-    transform: `rotate(${char.rotation}deg)`,
-    fontWeight: char.fontWeight,
-    zIndex: char.zIndex,
-    animationDelay: `${char.animationDelay}s`
-  };
-};
-
-// 处理点击事件 - 触发全局闪烁
-const handleClick = () => {
-  isInverted.value = !isInverted.value;
-
-  // 随机震动一些字
-  characters.value.forEach(char => {
-    if (Math.random() > 0.5) {
-      char.shake = true;
-      setTimeout(() => {
-        char.shake = false;
-      }, 300);
-    }
-  });
-};
-
-// 处理鼠标移动 - 影响附近的字
-const handleMouseMove = (e) => {
-  const mouseX = (e.clientX / window.innerWidth) * 100;
-  const mouseY = (e.clientY / window.innerHeight) * 100;
-
-  characters.value.forEach(char => {
-    const distance = Math.sqrt(
-      Math.pow(char.x - mouseX, 2) + Math.pow(char.y - mouseY, 2)
-    );
-
-    // 如果鼠标在字符附近，触发悬停效果
-    char.isHovered = distance < 10;
-  });
-};
-
-// 随机背景反转效果
-const startRandomInvert = () => {
-  invertInterval = setInterval(() => {
-    if (Math.random() > 0.7) {
-      isInverted.value = !isInverted.value;
-      setTimeout(() => {
-        isInverted.value = !isInverted.value;
-      }, Math.random() * 200 + 50);
-    }
-  }, Math.random() * 3000 + 2000);
-};
-
-// 随机闪烁效果
-const startRandomFlicker = () => {
-  flickerInterval = setInterval(() => {
-    characters.value.forEach(char => {
-      if (Math.random() > 0.95) {
-        const originalOpacity = char.opacity;
-        char.opacity = Math.random() * 0.3;
-        setTimeout(() => {
-          char.opacity = originalOpacity;
-        }, Math.random() * 100 + 50);
-      }
-    });
-  }, 200);
-};
-
-onMounted(() => {
-  generateCharacters();
-  startRandomInvert();
-  startRandomFlicker();
-});
-
-onUnmounted(() => {
-  if (animationFrame) cancelAnimationFrame(animationFrame);
-  if (invertInterval) clearInterval(invertInterval);
-  if (flickerInterval) clearInterval(flickerInterval);
-});
+// 无需后端检查，纯静态展示页面
 </script>
 
 <style scoped>
@@ -147,140 +31,200 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-.horror-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+.app {
+  min-height: 100vh;
   background: #000000;
-  overflow: hidden;
-  cursor: crosshair;
-  transition: background-color 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
-.horror-container.invert {
+.construction-container {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.construction-box {
+  border: 2px solid #ffffff;
   background: #ffffff;
+  padding: 60px 40px;
+  position: relative;
+  overflow: hidden;
 }
 
-.yi-char {
+.construction-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-bar {
   position: absolute;
-  color: #ffffff;
-  font-family: 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
-  user-select: none;
-  pointer-events: none;
-  white-space: nowrap;
-  line-height: 1;
-  transition: opacity 0.1s ease;
-  will-change: transform, opacity;
+  width: 8px;
+  height: 60px;
+  background: #000000;
+  animation: construction-pulse 1.5s ease-in-out infinite;
 }
 
-.horror-container.invert .yi-char {
-  color: #000000;
+.icon-bar-1 {
+  left: 20px;
+  animation-delay: 0s;
 }
 
-/* 闪烁动画 */
-.yi-char.flicker {
-  animation: flicker-animation 3s infinite;
+.icon-bar-2 {
+  left: 36px;
+  animation-delay: 0.3s;
 }
 
-@keyframes flicker-animation {
-  0%, 100% { opacity: 1; }
-  10% { opacity: 0.3; }
-  20% { opacity: 1; }
-  30% { opacity: 0.5; }
-  40% { opacity: 1; }
-  50% { opacity: 0.2; }
-  60% { opacity: 1; }
-  70% { opacity: 0.7; }
-  80% { opacity: 1; }
+.icon-bar-3 {
+  left: 52px;
+  animation-delay: 0.6s;
 }
 
-/* 脉动动画 */
-.yi-char.pulse {
-  animation: pulse-animation 2s ease-in-out infinite;
-}
-
-@keyframes pulse-animation {
+@keyframes construction-pulse {
   0%, 100% {
-    transform: scale(1) rotate(var(--rotation, 0deg));
     opacity: 1;
+    transform: scaleY(1);
   }
   50% {
-    transform: scale(1.3) rotate(var(--rotation, 0deg));
-    opacity: 0.5;
+    opacity: 0.3;
+    transform: scaleY(0.5);
   }
 }
 
-/* 震动动画 */
-.yi-char.shake {
-  animation: shake-animation 0.3s ease-in-out;
+.construction-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
 }
 
-@keyframes shake-animation {
-  0%, 100% { transform: translate(0, 0) rotate(var(--rotation, 0deg)); }
-  10% { transform: translate(-5px, -5px) rotate(calc(var(--rotation, 0deg) + 5deg)); }
-  20% { transform: translate(5px, 5px) rotate(calc(var(--rotation, 0deg) - 5deg)); }
-  30% { transform: translate(-5px, 5px) rotate(calc(var(--rotation, 0deg) + 5deg)); }
-  40% { transform: translate(5px, -5px) rotate(calc(var(--rotation, 0deg) - 5deg)); }
-  50% { transform: translate(-3px, -3px) rotate(calc(var(--rotation, 0deg) + 3deg)); }
-  60% { transform: translate(3px, 3px) rotate(calc(var(--rotation, 0deg) - 3deg)); }
-  70% { transform: translate(-3px, 3px) rotate(calc(var(--rotation, 0deg) + 3deg)); }
-  80% { transform: translate(3px, -3px) rotate(calc(var(--rotation, 0deg) - 3deg)); }
-  90% { transform: translate(-1px, -1px) rotate(calc(var(--rotation, 0deg) + 1deg)); }
+.construction-text {
+  font-size: 16px;
+  color: #000000;
+  line-height: 1.6;
+  opacity: 0.8;
+  margin-bottom: 40px;
 }
 
-/* 悬停效果 */
-.yi-char.hover-effect {
-  animation: hover-effect-animation 0.5s ease-in-out;
-  opacity: 1 !important;
-}
-
-@keyframes hover-effect-animation {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.5); }
-  100% { transform: scale(1); }
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .yi-char {
-    font-size: 0.8em;
-  }
-}
-
-/* 增加一些全局的诡异氛围效果 */
-.horror-container::before {
-  content: '';
-  position: fixed;
+.construction-stripes {
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 2px,
-    rgba(255, 255, 255, 0.03) 2px,
-    rgba(255, 255, 255, 0.03) 4px
-  );
   pointer-events: none;
-  z-index: 1000;
-  animation: scan-line 8s linear infinite;
+  overflow: hidden;
 }
 
-@keyframes scan-line {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(100vh); }
-}
-
-.horror-container.invert::before {
+.stripe {
+  position: absolute;
+  width: 100%;
+  height: 20px;
   background: repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 2px,
-    rgba(0, 0, 0, 0.03) 2px,
-    rgba(0, 0, 0, 0.03) 4px
+    90deg,
+    #000000 0px,
+    #000000 20px,
+    transparent 20px,
+    transparent 40px
   );
+  opacity: 0.1;
+  animation: stripe-move 2s linear infinite;
+}
+
+.stripe-1 {
+  top: 0;
+  animation-delay: 0s;
+}
+
+.stripe-2 {
+  top: 25%;
+  animation-delay: 0.5s;
+}
+
+.stripe-3 {
+  top: 50%;
+  animation-delay: 1s;
+}
+
+.stripe-4 {
+  top: 75%;
+  animation-delay: 1.5s;
+}
+
+@keyframes stripe-move {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .construction-box {
+    padding: 40px 20px;
+  }
+
+  .construction-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 30px;
+  }
+
+  .icon-bar {
+    width: 6px;
+    height: 45px;
+  }
+
+  .icon-bar-1 {
+    left: 15px;
+  }
+
+  .icon-bar-2 {
+    left: 27px;
+  }
+
+  .icon-bar-3 {
+    left: 39px;
+  }
+
+  .construction-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  .construction-text {
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+
+  .stripe {
+    height: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .construction-box {
+    padding: 30px 15px;
+  }
+
+  .construction-title {
+    font-size: 20px;
+  }
+
+  .construction-text {
+    font-size: 13px;
+  }
 }
 </style>
+
