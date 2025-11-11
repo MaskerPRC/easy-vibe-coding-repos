@@ -1,79 +1,125 @@
 <template>
   <div class="app">
-    <div class="welcome-container">
-      <!-- 主要欢迎卡片 -->
-      <div class="welcome-card">
-        <div class="icon-wrapper">
-          <svg class="welcome-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="45" fill="#4A90E2" opacity="0.1"/>
-            <path d="M30 50 Q30 30 50 30 Q70 30 70 50" stroke="#4A90E2" stroke-width="3" fill="none" stroke-linecap="round"/>
-            <circle cx="40" cy="45" r="3" fill="#4A90E2"/>
-            <circle cx="60" cy="45" r="3" fill="#4A90E2"/>
-            <path d="M35 55 Q50 70 65 55" stroke="#4A90E2" stroke-width="3" fill="none" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h1 class="main-title">你好！</h1>
-        <p class="main-description">欢迎来到这里，很高兴见到你</p>
-      </div>
+    <div class="container">
+      <!-- 头部 -->
+      <header class="header">
+        <h1 class="title">Bash 历史记录查看器</h1>
+        <button @click="importHistory" class="import-btn" :disabled="loading">
+          <span v-if="loading">导入中...</span>
+          <span v-else>导入历史记录</span>
+        </button>
+      </header>
 
-      <!-- 信息卡片组 -->
-      <div class="info-cards">
-        <div class="info-card">
-          <div class="card-icon" style="background-color: #4A90E2;">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <h3 class="card-title">简约设计</h3>
-          <p class="card-text">采用现代化的简约风格，注重用户体验</p>
+      <!-- 状态信息 -->
+      <div class="status-bar" v-if="lastUpdated || error">
+        <div class="status-info" v-if="lastUpdated">
+          <span class="label">最后更新:</span>
+          <span class="value">{{ formatDate(lastUpdated) }}</span>
+          <span class="label">命令数量:</span>
+          <span class="value">{{ commandCount }}</span>
         </div>
-
-        <div class="info-card">
-          <div class="card-icon" style="background-color: #50E3C2;">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" stroke-width="2"/>
-              <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3 class="card-title">友好交互</h3>
-          <p class="card-text">清晰的视觉反馈，让交互更加自然流畅</p>
-        </div>
-
-        <div class="info-card">
-          <div class="card-icon" style="background-color: #4A90E2;">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="3" width="7" height="7" stroke="white" stroke-width="2" rx="1"/>
-              <rect x="14" y="3" width="7" height="7" stroke="white" stroke-width="2" rx="1"/>
-              <rect x="3" y="14" width="7" height="7" stroke="white" stroke-width="2" rx="1"/>
-              <rect x="14" y="14" width="7" height="7" stroke="white" stroke-width="2" rx="1"/>
-            </svg>
-          </div>
-          <h3 class="card-title">模块化</h3>
-          <p class="card-text">清晰的信息层次，内容组织井然有序</p>
+        <div class="error-message" v-if="error">
+          <span class="error-icon">⚠</span>
+          {{ error }}
         </div>
       </div>
 
-      <!-- 操作按钮 -->
-      <div class="action-buttons">
-        <button class="btn btn-primary" @click="handleExplore">开始探索</button>
-        <button class="btn btn-secondary" @click="handleLearnMore">了解更多</button>
+      <!-- 命令列表 -->
+      <div class="commands-container">
+        <div v-if="commands.length === 0 && !loading" class="empty-state">
+          <p class="empty-icon">📋</p>
+          <p class="empty-text">暂无历史记录</p>
+          <p class="empty-hint">点击上方按钮导入 /root/.bash_history</p>
+        </div>
+
+        <div v-else class="commands-list">
+          <div
+            v-for="cmd in commands"
+            :key="cmd.id"
+            class="command-item"
+          >
+            <span class="command-id">{{ cmd.id }}</span>
+            <span class="command-text">{{ cmd.command }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-const handleExplore = () => {
-  console.log('开始探索');
-  // 这里可以添加导航或其他逻辑
+import { ref, onMounted } from 'vue';
+
+// 响应式数据
+const commands = ref([]);
+const lastUpdated = ref(null);
+const commandCount = ref(0);
+const error = ref(null);
+const loading = ref(false);
+
+// 格式化日期
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
 };
 
-const handleLearnMore = () => {
-  console.log('了解更多');
-  // 这里可以添加更多信息展示逻辑
+// 获取历史记录
+const fetchHistory = async () => {
+  try {
+    const response = await fetch('/api/bash-history');
+    const data = await response.json();
+
+    commands.value = data.commands || [];
+    lastUpdated.value = data.lastUpdated;
+    commandCount.value = data.count || 0;
+    error.value = data.error;
+  } catch (err) {
+    error.value = '获取历史记录失败: ' + err.message;
+    console.error('获取历史记录失败:', err);
+  }
 };
+
+// 导入历史记录
+const importHistory = async () => {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const response = await fetch('/api/bash-history/import', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // 导入成功后，重新获取数据
+      await fetchHistory();
+    } else {
+      error.value = data.error || '导入失败';
+    }
+  } catch (err) {
+    error.value = '导入历史记录失败: ' + err.message;
+    console.error('导入失败:', err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 页面加载时获取历史记录
+onMounted(() => {
+  fetchHistory();
+});
 </script>
 
 <style scoped>
@@ -85,235 +131,248 @@ const handleLearnMore = () => {
 
 .app {
   min-height: 100vh;
-  background: #F8F8F8;
+  background: #0a0a0a;
+  color: #00ff00;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 头部样式 */
+.header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  padding: 32px;
-  font-family: 'PingFang SC', 'SF Pro SC', 'Hiragino Sans GB', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Lato, sans-serif;
-}
-
-.welcome-container {
-  width: 100%;
-  max-width: 800px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* 主欢迎卡片 */
-.welcome-card {
-  width: 100%;
-  background: #ffffff;
+  padding: 20px;
+  background: #1a1a1a;
+  border: 2px solid #00ff00;
   border-radius: 8px;
-  padding: 48px 40px;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
-.icon-wrapper {
-  margin-bottom: 24px;
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00ff00;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
 }
 
-.welcome-icon {
-  width: 100px;
-  height: 100px;
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.main-title {
-  font-size: 40px;
-  font-weight: 700;
-  color: #333333;
-  margin-bottom: 16px;
-  letter-spacing: 1px;
-}
-
-.main-description {
-  font-size: 18px;
-  font-weight: 400;
-  color: #666666;
-  line-height: 1.6;
-}
-
-/* 信息卡片组 */
-.info-cards {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-.info-card {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 32px 24px;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: default;
-}
-
-.info-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.card-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-}
-
-.card-icon svg {
-  width: 28px;
-  height: 28px;
-}
-
-.card-title {
-  font-size: 18px;
-  font-weight: 500;
-  color: #333333;
-  margin-bottom: 8px;
-}
-
-.card-text {
-  font-size: 14px;
-  font-weight: 300;
-  color: #999999;
-  line-height: 1.6;
-}
-
-/* 操作按钮 */
-.action-buttons {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.btn {
-  padding: 12px 32px;
+.import-btn {
+  padding: 10px 20px;
+  background: #00ff00;
+  color: #0a0a0a;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: 500;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: inherit;
 }
 
-.btn-primary {
-  background: #4A90E2;
-  color: #ffffff;
-}
-
-.btn-primary:hover {
-  background: #357ABD;
+.import-btn:hover:not(:disabled) {
+  background: #00cc00;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 255, 0, 0.3);
 }
 
-.btn-primary:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
+.import-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.btn-secondary {
-  background: #ffffff;
-  color: #4A90E2;
-  border: 2px solid #4A90E2;
+/* 状态栏样式 */
+.status-bar {
+  padding: 15px 20px;
+  background: #1a1a1a;
+  border: 1px solid #00ff00;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
 
-.btn-secondary:hover {
-  background: #4A90E2;
-  color: #ffffff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+.status-info {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.btn-secondary:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.2);
+.label {
+  color: #00ff00;
+  font-weight: bold;
+  opacity: 0.8;
 }
 
-/* 响应式设计 */
+.value {
+  color: #00ff00;
+  margin-right: 10px;
+}
+
+.error-message {
+  color: #ff6b6b;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.error-icon {
+  font-size: 20px;
+}
+
+/* 命令列表容器 */
+.commands-container {
+  background: #1a1a1a;
+  border: 2px solid #00ff00;
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 400px;
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+}
+
+/* 滚动条样式 */
+.commands-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.commands-container::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+.commands-container::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  border-radius: 5px;
+}
+
+.commands-container::-webkit-scrollbar-thumb:hover {
+  background: #00cc00;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: 20px;
+  color: #00ff00;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.empty-hint {
+  font-size: 14px;
+  color: #00ff00;
+  opacity: 0.6;
+}
+
+/* 命令列表 */
+.commands-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.command-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+  background: #0a0a0a;
+  border: 1px solid #00ff00;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.command-item:hover {
+  background: #1a1a1a;
+  border-color: #00cc00;
+  transform: translateX(5px);
+}
+
+.command-id {
+  min-width: 60px;
+  color: #00ff00;
+  opacity: 0.6;
+  font-weight: bold;
+  text-align: right;
+  margin-right: 20px;
+}
+
+.command-text {
+  flex: 1;
+  color: #00ff00;
+  word-break: break-all;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+/* 移动端适配 */
 @media (max-width: 768px) {
   .app {
-    padding: 24px 16px;
+    padding: 10px;
   }
 
-  .welcome-card {
-    padding: 32px 24px;
-  }
-
-  .main-title {
-    font-size: 32px;
-  }
-
-  .main-description {
-    font-size: 16px;
-  }
-
-  .welcome-icon {
-    width: 80px;
-    height: 80px;
-  }
-
-  .info-cards {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .info-card {
-    padding: 24px 20px;
-  }
-
-  .action-buttons {
-    width: 100%;
+  .header {
     flex-direction: column;
+    gap: 15px;
+    padding: 15px;
   }
 
-  .btn {
+  .title {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .import-btn {
     width: 100%;
+  }
+
+  .status-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .commands-container {
+    padding: 15px;
+    max-height: calc(100vh - 350px);
+  }
+
+  .command-item {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .command-id {
+    min-width: auto;
+    text-align: left;
   }
 }
 
 @media (max-width: 480px) {
-  .welcome-card {
-    padding: 24px 16px;
-  }
-
-  .main-title {
-    font-size: 28px;
-  }
-
-  .main-description {
-    font-size: 15px;
-  }
-
-  .card-title {
+  .title {
     font-size: 16px;
   }
 
-  .card-text {
-    font-size: 13px;
+  .import-btn {
+    font-size: 12px;
+    padding: 8px 16px;
+  }
+
+  .command-item {
+    padding: 10px;
   }
 }
 </style>
-
