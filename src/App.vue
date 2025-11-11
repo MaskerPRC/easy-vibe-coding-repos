@@ -1,27 +1,37 @@
 <template>
   <div class="app">
-    <div class="construction-container">
-      <div class="construction-box">
-        <div class="construction-icon">
-          <div class="icon-bar icon-bar-1"></div>
-          <div class="icon-bar icon-bar-2"></div>
-          <div class="icon-bar icon-bar-3"></div>
+    <header class="header">
+      <h1 class="header-title">外部网站展示</h1>
+    </header>
+
+    <main class="content">
+      <div class="iframe-container">
+        <div class="iframe-wrapper">
+          <div class="iframe-label">百度</div>
+          <iframe
+            src="https://www.baidu.com/"
+            class="iframe-content"
+            frameborder="0"
+            title="百度"
+          ></iframe>
         </div>
-        <h1 class="construction-title">网站正在构建中</h1>
-        <p class="construction-text">我们正在努力完善这个网站，请稍后再来</p>
-        <div class="construction-stripes">
-          <div class="stripe stripe-1"></div>
-          <div class="stripe stripe-2"></div>
-          <div class="stripe stripe-3"></div>
-          <div class="stripe stripe-4"></div>
+
+        <div class="iframe-wrapper">
+          <div class="iframe-label">ibracc</div>
+          <iframe
+            src="http://ibracc.click/"
+            class="iframe-content"
+            frameborder="0"
+            title="ibracc"
+          ></iframe>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
 <script setup>
-// 无需后端检查，纯静态展示页面
+// 展示外部网站页面
 </script>
 
 <style scoped>
@@ -33,198 +43,123 @@
 
 .app {
   min-height: 100vh;
-  background: #000000;
+  background: #F8F8F8;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  flex-direction: column;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
-.construction-container {
-  width: 100%;
-  max-width: 600px;
+/* 页头样式 */
+.header {
+  background: #333333;
+  padding: 20px 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #FFFFFF;
   text-align: center;
+  letter-spacing: 1px;
 }
 
-.construction-box {
-  border: 2px solid #ffffff;
-  background: #ffffff;
-  padding: 60px 40px;
-  position: relative;
+/* 内容区域 */
+.content {
+  flex: 1;
+  padding: 30px;
   overflow: hidden;
 }
 
-.construction-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 40px;
-  position: relative;
+.iframe-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-bar {
-  position: absolute;
-  width: 8px;
-  height: 60px;
-  background: #000000;
-  animation: construction-pulse 1.5s ease-in-out infinite;
-}
-
-.icon-bar-1 {
-  left: 20px;
-  animation-delay: 0s;
-}
-
-.icon-bar-2 {
-  left: 36px;
-  animation-delay: 0.3s;
-}
-
-.icon-bar-3 {
-  left: 52px;
-  animation-delay: 0.6s;
-}
-
-@keyframes construction-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-  50% {
-    opacity: 0.3;
-    transform: scaleY(0.5);
-  }
-}
-
-.construction-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #000000;
-  margin-bottom: 20px;
-  letter-spacing: 2px;
-}
-
-.construction-text {
-  font-size: 16px;
-  color: #000000;
-  line-height: 1.6;
-  opacity: 0.8;
-  margin-bottom: 40px;
-}
-
-.construction-stripes {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  flex-direction: column;
+  gap: 20px;
   height: 100%;
-  pointer-events: none;
+}
+
+.iframe-wrapper {
+  flex: 1;
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.stripe {
-  position: absolute;
+.iframe-label {
+  background: #666666;
+  color: #FFFFFF;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  border-bottom: 1px solid #E0E0E0;
+}
+
+.iframe-content {
+  flex: 1;
   width: 100%;
-  height: 20px;
-  background: repeating-linear-gradient(
-    90deg,
-    #000000 0px,
-    #000000 20px,
-    transparent 20px,
-    transparent 40px
-  );
-  opacity: 0.1;
-  animation: stripe-move 2s linear infinite;
+  border: none;
+  display: block;
 }
 
-.stripe-1 {
-  top: 0;
-  animation-delay: 0s;
-}
-
-.stripe-2 {
-  top: 25%;
-  animation-delay: 0.5s;
-}
-
-.stripe-3 {
-  top: 50%;
-  animation-delay: 1s;
-}
-
-.stripe-4 {
-  top: 75%;
-  animation-delay: 1.5s;
-}
-
-@keyframes stripe-move {
-  0% {
-    transform: translateX(-100%);
+/* 响应式布局 - 大屏幕左右分栏 */
+@media (min-width: 1200px) {
+  .iframe-container {
+    flex-direction: row;
   }
-  100% {
-    transform: translateX(100%);
+
+  .iframe-wrapper {
+    min-width: 0;
   }
 }
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .construction-box {
-    padding: 40px 20px;
+  .header {
+    padding: 15px 20px;
   }
 
-  .construction-icon {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 30px;
+  .header-title {
+    font-size: 20px;
   }
 
-  .icon-bar {
-    width: 6px;
-    height: 45px;
+  .content {
+    padding: 15px;
   }
 
-  .icon-bar-1 {
-    left: 15px;
+  .iframe-container {
+    gap: 15px;
   }
 
-  .icon-bar-2 {
-    left: 27px;
-  }
-
-  .icon-bar-3 {
-    left: 39px;
-  }
-
-  .construction-title {
-    font-size: 24px;
-    margin-bottom: 15px;
-  }
-
-  .construction-text {
+  .iframe-label {
+    padding: 10px 15px;
     font-size: 14px;
-    margin-bottom: 30px;
-  }
-
-  .stripe {
-    height: 15px;
   }
 }
 
 @media (max-width: 480px) {
-  .construction-box {
-    padding: 30px 15px;
+  .header {
+    padding: 12px 15px;
   }
 
-  .construction-title {
-    font-size: 20px;
+  .header-title {
+    font-size: 18px;
   }
 
-  .construction-text {
+  .content {
+    padding: 10px;
+  }
+
+  .iframe-container {
+    gap: 10px;
+  }
+
+  .iframe-label {
+    padding: 8px 12px;
     font-size: 13px;
   }
 }
 </style>
-
