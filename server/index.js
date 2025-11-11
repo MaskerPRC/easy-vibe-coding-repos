@@ -81,13 +81,6 @@ app.post('/api/ping', async (req, res) => {
 
     const cleanedWebsite = cleanWebsite(website);
 
-    if (!validateWebsite(cleanedWebsite)) {
-      return res.status(400).json({
-        success: false,
-        message: '无效的网站地址格式，请输入有效的域名或IP地址'
-      });
-    }
-
     // 执行ping命令（发送4个数据包，超时5秒）
     // 使用-c参数限制ping次数，-W参数设置超时
     const command = `ping -c 4 -W 5 ${cleanedWebsite}`;
