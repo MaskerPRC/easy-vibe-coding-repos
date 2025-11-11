@@ -16,6 +16,12 @@ app.use(express.json());
 // 使用内存Map存储玩家统计数据（重启后数据会丢失，这是正常的）
 const playerStats = new Map();
 
+// =====================================================
+// 内存存储 - IP 访问记录
+// =====================================================
+// 使用数组存储 IP 访问记录，最多保存 200 条
+const ipRecords = [];
+
 // 初始化默认玩家数据
 const initializePlayerStats = () => {
   if (!playerStats.has('default')) {
@@ -158,6 +164,84 @@ app.get('/api/leaderboard', (req, res) => {
     leaderboard,
     totalPlayers: leaderboard.length
   });
+});
+
+// =====================================================
+// IP 访问记录 API
+// =====================================================
+
+// 保存 IP 访问记录
+app.post('/api/ip-records', (req, res) => {
+  try {
+    const { publicIp, localIp, userAgent } = req.body;
+
+    // 获取客户端真实IP（考虑代理情况）
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0] ||
+                     req.headers['x-real-ip'] ||
+                     req.connection.remoteAddress ||
+                     req.socket.remoteAddress;
+
+    const timestamp = new Date().toISOString();
+
+    // 创建唯一标识（基于公网IP和内网IP的组合）
+    const uniqueKey = `${publicIp || 'unknown'}_${localIp || 'unknown'}`;
+
+    // 去重：如果已存在相同的IP组合，删除旧记录
+    const existingIndex = ipRecords.findIndex(record =>
+      record.uniqueKey === uniqueKey
+    );
+
+    if (existingIndex !== -1) {
+      ipRecords.splice(existingIndex, 1);
+    }
+
+    // 添加新记录到开头
+    ipRecords.unshift({
+      uniqueKey,
+      publicIp: publicIp || 'N/A',
+      localIp: localIp || 'N/A',
+      serverIp: clientIp,
+      userAgent: userAgent || 'Unknown',
+      timestamp
+    });
+
+    // 限制最多保存 200 条记录
+    if (ipRecords.length > 200) {
+      ipRecords.length = 200;
+    }
+
+    res.json({
+      success: true,
+      message: 'IP record saved successfully',
+      totalRecords: ipRecords.length
+    });
+  } catch (error) {
+    console.error('Error saving IP record:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to save IP record',
+      message: error.message
+    });
+  }
+});
+
+// 获取 IP 访问记录列表
+app.get('/api/ip-records', (req, res) => {
+  try {
+    // 返回所有记录，已按访问时间排序（最新的在前面）
+    res.json({
+      success: true,
+      records: ipRecords,
+      totalRecords: ipRecords.length
+    });
+  } catch (error) {
+    console.error('Error fetching IP records:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch IP records',
+      message: error.message
+    });
+  }
 });
 
 // 错误处理

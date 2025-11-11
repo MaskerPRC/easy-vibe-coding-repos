@@ -30,6 +30,11 @@
           <span class="btn-icon">ℹ</span>
           <span class="btn-text">HOW TO PLAY</span>
         </button>
+
+        <button class="menu-btn" @click="showIPRecords = !showIPRecords">
+          <span class="btn-icon">🌐</span>
+          <span class="btn-text">IP 访问记录</span>
+        </button>
       </div>
 
       <!-- Player Info -->
@@ -121,6 +126,14 @@
         <button class="menu-btn primary" @click="showStats = false">CLOSE</button>
       </div>
     </div>
+
+    <!-- IP Records Modal -->
+    <div v-if="showIPRecords" class="modal-overlay" @click="showIPRecords = false">
+      <div class="modal-content ip-records-modal" @click.stop>
+        <IPRecords />
+        <button class="menu-btn primary close-btn" @click="showIPRecords = false">关闭</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -128,6 +141,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import IPRecords from './IPRecords.vue'
 
 const router = useRouter()
 
@@ -148,6 +162,7 @@ const volume = ref(70)
 const showSettings = ref(false)
 const showStats = ref(false)
 const showInfo = ref(false)
+const showIPRecords = ref(false)
 
 // Computed stats
 const kdRatio = computed(() => {
@@ -507,6 +522,17 @@ onMounted(() => {
   letter-spacing: 1px;
 }
 
+/* IP Records Modal */
+.ip-records-modal {
+  max-width: 950px;
+  padding: 20px;
+}
+
+.ip-records-modal .close-btn {
+  margin-top: 20px;
+  width: 100%;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .game-title h1 {
@@ -521,6 +547,10 @@ onMounted(() => {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .ip-records-modal {
+    padding: 15px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -534,6 +564,11 @@ onMounted(() => {
 
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ip-records-modal {
+    width: 95%;
+    padding: 10px;
   }
 }
 </style>
