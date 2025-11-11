@@ -1,31 +1,23 @@
 <template>
-  <div class="app">
-    <div class="iframe-grid-container">
-      <div
-        v-for="index in totalIframes"
-        :key="index"
-        class="iframe-wrapper"
-        :data-index="index"
-      >
-        <div
-          class="iframe-placeholder"
-          :ref="el => setIframeRef(el, index)"
-        >
-          <iframe
-            v-if="loadedIframes.has(index)"
-            :src="iframeUrl"
-            class="iframe-content"
-            :title="`Frame ${index}`"
-            frameborder="0"
-            loading="lazy"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
-          ></iframe>
-          <div v-else class="loading-placeholder">
-            <div class="loading-spinner"></div>
-            <span class="loading-text">{{ index }}</span>
-          </div>
-        </div>
-      </div>
+  <div
+    class="horror-container"
+    :class="{ 'invert': isInverted }"
+    @click="handleClick"
+    @mousemove="handleMouseMove"
+  >
+    <div
+      v-for="(char, index) in characters"
+      :key="index"
+      class="yi-char"
+      :style="getCharStyle(char, index)"
+      :class="{
+        'flicker': char.flicker,
+        'pulse': char.pulse,
+        'shake': char.shake,
+        'hover-effect': char.isHovered
+      }"
+    >
+      一
     </div>
   </div>
 </template>
@@ -33,65 +25,118 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 
-// 配置
-const totalIframes = 1000;
-const iframeUrl = 'https://play.apexstone.ai/';
+const characters = ref([]);
+const isInverted = ref(false);
+let animationFrame = null;
+let invertInterval = null;
+let flickerInterval = null;
 
-// 状态管理
-const loadedIframes = ref(new Set());
-const iframeRefs = new Map();
+// 生成大量"一"字
+const generateCharacters = () => {
+  const chars = [];
+  const count = 500; // 生成500个"一"字
 
-// 设置 iframe 引用
-const setIframeRef = (el, index) => {
-  if (el) {
-    iframeRefs.set(index, el);
-  } else {
-    iframeRefs.delete(index);
+  for (let i = 0; i < count; i++) {
+    chars.push({
+      x: Math.random() * 100, // 0-100%
+      y: Math.random() * 100,
+      size: Math.random() * 150 + 10, // 10-160px
+      opacity: Math.random() * 0.5 + 0.5, // 0.5-1
+      rotation: Math.random() * 360,
+      fontWeight: Math.random() > 0.5 ? 900 : 700,
+      flicker: Math.random() > 0.7, // 30%的字会闪烁
+      pulse: Math.random() > 0.8, // 20%的字会脉动
+      shake: false,
+      isHovered: false,
+      zIndex: Math.floor(Math.random() * 100),
+      animationDelay: Math.random() * 5
+    });
   }
+
+  characters.value = chars;
 };
 
-// Intersection Observer 配置
-let observer = null;
-
-// 初始化 Intersection Observer
-const initObserver = () => {
-  const options = {
-    root: null, // 使用视口作为根元素
-    rootMargin: '200px', // 提前 200px 开始加载
-    threshold: 0.01 // 当 1% 可见时触发
+// 获取单个字符的样式
+const getCharStyle = (char, index) => {
+  return {
+    left: `${char.x}%`,
+    top: `${char.y}%`,
+    fontSize: `${char.size}px`,
+    opacity: char.opacity,
+    transform: `rotate(${char.rotation}deg)`,
+    fontWeight: char.fontWeight,
+    zIndex: char.zIndex,
+    animationDelay: `${char.animationDelay}s`
   };
+};
 
-  observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const index = parseInt(entry.target.dataset.index || entry.target.closest('.iframe-wrapper')?.dataset.index);
-        if (index && !loadedIframes.value.has(index)) {
-          loadedIframes.value.add(index);
-        }
-      }
-    });
-  }, options);
+// 处理点击事件 - 触发全局闪烁
+const handleClick = () => {
+  isInverted.value = !isInverted.value;
 
-  // 观察所有 iframe 占位符
-  iframeRefs.forEach((el) => {
-    if (el) {
-      observer.observe(el);
+  // 随机震动一些字
+  characters.value.forEach(char => {
+    if (Math.random() > 0.5) {
+      char.shake = true;
+      setTimeout(() => {
+        char.shake = false;
+      }, 300);
     }
   });
 };
 
-// 生命周期钩子
+// 处理鼠标移动 - 影响附近的字
+const handleMouseMove = (e) => {
+  const mouseX = (e.clientX / window.innerWidth) * 100;
+  const mouseY = (e.clientY / window.innerHeight) * 100;
+
+  characters.value.forEach(char => {
+    const distance = Math.sqrt(
+      Math.pow(char.x - mouseX, 2) + Math.pow(char.y - mouseY, 2)
+    );
+
+    // 如果鼠标在字符附近，触发悬停效果
+    char.isHovered = distance < 10;
+  });
+};
+
+// 随机背景反转效果
+const startRandomInvert = () => {
+  invertInterval = setInterval(() => {
+    if (Math.random() > 0.7) {
+      isInverted.value = !isInverted.value;
+      setTimeout(() => {
+        isInverted.value = !isInverted.value;
+      }, Math.random() * 200 + 50);
+    }
+  }, Math.random() * 3000 + 2000);
+};
+
+// 随机闪烁效果
+const startRandomFlicker = () => {
+  flickerInterval = setInterval(() => {
+    characters.value.forEach(char => {
+      if (Math.random() > 0.95) {
+        const originalOpacity = char.opacity;
+        char.opacity = Math.random() * 0.3;
+        setTimeout(() => {
+          char.opacity = originalOpacity;
+        }, Math.random() * 100 + 50);
+      }
+    });
+  }, 200);
+};
+
 onMounted(() => {
-  // 延迟初始化 observer，确保所有元素都已渲染
-  setTimeout(() => {
-    initObserver();
-  }, 100);
+  generateCharacters();
+  startRandomInvert();
+  startRandomFlicker();
 });
 
 onUnmounted(() => {
-  if (observer) {
-    observer.disconnect();
-  }
+  if (animationFrame) cancelAnimationFrame(animationFrame);
+  if (invertInterval) clearInterval(invertInterval);
+  if (flickerInterval) clearInterval(flickerInterval);
 });
 </script>
 
@@ -102,136 +147,140 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-.app {
-  min-height: 100vh;
-  background: #F8F8F8;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Source Han Sans', 'Hiragino Sans GB', 'Microsoft YaHei', 'Arial', 'Helvetica', sans-serif;
-}
-
-.iframe-grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  padding: 24px;
-  max-width: 100%;
-  margin: 0 auto;
-}
-
-.iframe-wrapper {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  min-height: 200px;
-}
-
-.iframe-placeholder {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  background: #FFFFFF;
-  border: 1px solid #E0E0E0;
+.horror-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000000;
   overflow: hidden;
+  cursor: crosshair;
+  transition: background-color 0.1s ease;
 }
 
-.iframe-content {
-  width: 100%;
-  height: 100%;
-  border: none;
-  display: block;
+.horror-container.invert {
+  background: #ffffff;
 }
 
-.loading-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #FFFFFF;
-  color: #666666;
-  gap: 12px;
+.yi-char {
+  position: absolute;
+  color: #ffffff;
+  font-family: 'Arial Black', 'Helvetica Neue', Arial, sans-serif;
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+  line-height: 1;
+  transition: opacity 0.1s ease;
+  will-change: transform, opacity;
 }
 
-.loading-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #E0E0E0;
-  border-top-color: #999999;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.horror-container.invert .yi-char {
+  color: #000000;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+/* 闪烁动画 */
+.yi-char.flicker {
+  animation: flicker-animation 3s infinite;
+}
+
+@keyframes flicker-animation {
+  0%, 100% { opacity: 1; }
+  10% { opacity: 0.3; }
+  20% { opacity: 1; }
+  30% { opacity: 0.5; }
+  40% { opacity: 1; }
+  50% { opacity: 0.2; }
+  60% { opacity: 1; }
+  70% { opacity: 0.7; }
+  80% { opacity: 1; }
+}
+
+/* 脉动动画 */
+.yi-char.pulse {
+  animation: pulse-animation 2s ease-in-out infinite;
+}
+
+@keyframes pulse-animation {
+  0%, 100% {
+    transform: scale(1) rotate(var(--rotation, 0deg));
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3) rotate(var(--rotation, 0deg));
+    opacity: 0.5;
   }
 }
 
-.loading-text {
-  font-size: 14px;
-  color: #999999;
+/* 震动动画 */
+.yi-char.shake {
+  animation: shake-animation 0.3s ease-in-out;
 }
 
-/* 响应式设计 */
-@media (max-width: 1920px) {
-  .iframe-grid-container {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  }
+@keyframes shake-animation {
+  0%, 100% { transform: translate(0, 0) rotate(var(--rotation, 0deg)); }
+  10% { transform: translate(-5px, -5px) rotate(calc(var(--rotation, 0deg) + 5deg)); }
+  20% { transform: translate(5px, 5px) rotate(calc(var(--rotation, 0deg) - 5deg)); }
+  30% { transform: translate(-5px, 5px) rotate(calc(var(--rotation, 0deg) + 5deg)); }
+  40% { transform: translate(5px, -5px) rotate(calc(var(--rotation, 0deg) - 5deg)); }
+  50% { transform: translate(-3px, -3px) rotate(calc(var(--rotation, 0deg) + 3deg)); }
+  60% { transform: translate(3px, 3px) rotate(calc(var(--rotation, 0deg) - 3deg)); }
+  70% { transform: translate(-3px, 3px) rotate(calc(var(--rotation, 0deg) + 3deg)); }
+  80% { transform: translate(3px, -3px) rotate(calc(var(--rotation, 0deg) - 3deg)); }
+  90% { transform: translate(-1px, -1px) rotate(calc(var(--rotation, 0deg) + 1deg)); }
 }
 
-@media (max-width: 1440px) {
-  .iframe-grid-container {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
-    padding: 20px;
-  }
+/* 悬停效果 */
+.yi-char.hover-effect {
+  animation: hover-effect-animation 0.5s ease-in-out;
+  opacity: 1 !important;
 }
 
-@media (max-width: 1024px) {
-  .iframe-grid-container {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-    padding: 16px;
-  }
+@keyframes hover-effect-animation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.5); }
+  100% { transform: scale(1); }
 }
 
+/* 移动端适配 */
 @media (max-width: 768px) {
-  .iframe-grid-container {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 12px;
-    padding: 12px;
-  }
-
-  .iframe-wrapper {
-    min-height: 150px;
+  .yi-char {
+    font-size: 0.8em;
   }
 }
 
-@media (max-width: 480px) {
-  .iframe-grid-container {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 8px;
-    padding: 8px;
-  }
-
-  .iframe-wrapper {
-    min-height: 120px;
-  }
-
-  .loading-spinner {
-    width: 24px;
-    height: 24px;
-    border-width: 2px;
-  }
-
-  .loading-text {
-    font-size: 12px;
-  }
+/* 增加一些全局的诡异氛围效果 */
+.horror-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(255, 255, 255, 0.03) 2px,
+    rgba(255, 255, 255, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+  animation: scan-line 8s linear infinite;
 }
 
-/* 性能优化：减少重绘 */
-.iframe-content {
-  will-change: contents;
-  transform: translateZ(0);
+@keyframes scan-line {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100vh); }
+}
+
+.horror-container.invert::before {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
 }
 </style>
