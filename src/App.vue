@@ -1,74 +1,76 @@
 <template>
   <div class="app">
     <div class="container">
-      <!-- 头部 -->
-      <header class="header">
-        <h1 class="header-title">医药商品列表</h1>
-        <p class="header-subtitle">优质医药产品，健康生活必备</p>
-      </header>
+      <h1 class="title">网站连通性验证</h1>
+      <p class="subtitle">输入网站地址，检测网络连通性</p>
 
-      <!-- 商品列表 -->
-      <div class="product-list">
-        <div
-          v-for="product in products"
-          :key="product.id"
-          class="product-card"
+      <div class="input-section">
+        <input
+          v-model="website"
+          type="text"
+          class="website-input"
+          placeholder="请输入网站地址，例如：baidu.com"
+          @keyup.enter="checkWebsite"
+          :disabled="loading"
+        />
+        <button
+          class="check-button"
+          @click="checkWebsite"
+          :disabled="loading || !website.trim()"
         >
-          <!-- 商品主要信息 -->
-          <div class="product-main">
-            <div class="product-info">
-              <h3 class="product-name">
-                {{ product.name }}
-                <span v-if="product.isPrescription" class="prescription-badge">处方药</span>
-              </h3>
-              <p class="product-spec">{{ product.spec }}</p>
-            </div>
-
-            <!-- 价格信息 -->
-            <div class="product-prices">
-              <div class="price-row">
-                <span class="price-label">优惠价</span>
-                <span class="discount-price">¥{{ product.discountPrice.toFixed(2) }}</span>
-              </div>
-              <div class="price-row">
-                <span class="original-price">¥{{ product.price.toFixed(2) }}</span>
-              </div>
-            </div>
-
-            <!-- 数量控制 -->
-            <div class="product-quantity">
-              <button
-                class="quantity-btn"
-                @click="decreaseQuantity(product)"
-                :disabled="product.quantity <= 1"
-              >-</button>
-              <span class="quantity-value">x{{ product.quantity }}</span>
-              <button
-                class="quantity-btn"
-                @click="increaseQuantity(product)"
-              >+</button>
-            </div>
-          </div>
-        </div>
+          {{ loading ? '验证中...' : 'Ping验证' }}
+        </button>
       </div>
 
-      <!-- 总计信息 -->
-      <div class="summary">
-        <div class="summary-row">
-          <span class="summary-label">商品总数：</span>
-          <span class="summary-value">{{ totalItems }} 件</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">原价总计：</span>
-          <span class="summary-original">¥{{ totalOriginalPrice.toFixed(2) }}</span>
-        </div>
-        <div class="summary-row total">
-          <span class="summary-label">优惠总计：</span>
-          <span class="summary-discount">¥{{ totalDiscountPrice.toFixed(2) }}</span>
-        </div>
-        <div class="summary-row savings">
-          <span class="savings-label">已节省：</span>
-          <span class="savings-value">¥{{ totalSavings.toFixed(2) }}</span>
+      <div v-if="loading" class="status-message">
+        <div class="loading-spinner"></div>
+        <p>正在验证连通性，请稍候...</p>
+      </div>
+
+      <div v-if="result && !loading" class="result-section">
+        <div :class="['result-card', result.success ? 'success' : 'error']">
+          <div class="result-header">
+            <div class="result-icon">
+              <svg v-if="result.success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </div>
+            <h2>{{ result.success ? '连接成功' : '连接失败' }}</h2>
+          </div>
+
+          <div class="result-content">
+            <div class="result-item">
+              <span class="label">目标地址：</span>
+              <span class="value">{{ result.target || website }}</span>
+            </div>
+
+            <div v-if="result.success" class="result-details">
+              <div class="result-item" v-if="result.transmitted">
+                <span class="label">发送数据包：</span>
+                <span class="value">{{ result.transmitted }} 个</span>
+              </div>
+              <div class="result-item" v-if="result.received !== undefined">
+                <span class="label">接收数据包：</span>
+                <span class="value">{{ result.received }} 个</span>
+              </div>
+              <div class="result-item" v-if="result.loss !== undefined">
+                <span class="label">丢包率：</span>
+                <span class="value">{{ result.loss }}%</span>
+              </div>
+              <div class="result-item" v-if="result.time">
+                <span class="label">平均延迟：</span>
+                <span class="value">{{ result.time }} ms</span>
+              </div>
+            </div>
+
+            <div v-if="result.message" class="result-message">
+              <span class="label">详细信息：</span>
+              <pre class="output">{{ result.message }}</pre>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -76,73 +78,37 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref } from 'vue';
 import axios from 'axios';
 
-const products = ref([]);
+const website = ref('');
+const loading = ref(false);
+const result = ref(null);
 
-// 计算属性
-const totalItems = computed(() => {
-  return products.value.reduce((sum, product) => sum + product.quantity, 0);
-});
-
-const totalOriginalPrice = computed(() => {
-  return products.value.reduce((sum, product) => sum + product.price * product.quantity, 0);
-});
-
-const totalDiscountPrice = computed(() => {
-  return products.value.reduce((sum, product) => sum + product.discountPrice * product.quantity, 0);
-});
-
-const totalSavings = computed(() => {
-  return totalOriginalPrice.value - totalDiscountPrice.value;
-});
-
-// 加载商品数据
-const loadProducts = async () => {
-  try {
-    const response = await axios.get('/api/products');
-    if (response.data.success) {
-      products.value = response.data.data;
-    }
-  } catch (error) {
-    console.error('加载商品失败:', error);
+const checkWebsite = async () => {
+  if (!website.value.trim()) {
+    return;
   }
-};
 
-// 增加数量
-const increaseQuantity = async (product) => {
+  loading.value = true;
+  result.value = null;
+
   try {
-    const response = await axios.put(`/api/products/${product.id}/quantity`, {
-      quantity: product.quantity + 1
+    const response = await axios.post('/api/ping', {
+      website: website.value.trim()
     });
-    if (response.data.success) {
-      product.quantity++;
-    }
+
+    result.value = response.data;
   } catch (error) {
-    console.error('更新数量失败:', error);
+    result.value = {
+      success: false,
+      target: website.value,
+      message: error.response?.data?.message || error.message || '验证失败，请检查网络连接或稍后重试'
+    };
+  } finally {
+    loading.value = false;
   }
 };
-
-// 减少数量
-const decreaseQuantity = async (product) => {
-  if (product.quantity <= 1) return;
-
-  try {
-    const response = await axios.put(`/api/products/${product.id}/quantity`, {
-      quantity: product.quantity - 1
-    });
-    if (response.data.success) {
-      product.quantity--;
-    }
-  } catch (error) {
-    console.error('更新数量失败:', error);
-  }
-};
-
-onMounted(() => {
-  loadProducts();
-});
 </script>
 
 <style scoped>
@@ -154,327 +120,312 @@ onMounted(() => {
 
 .app {
   min-height: 100vh;
-  background: #F8F9FA;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: #F5F7FA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 24px;
+  font-family: 'Roboto', 'PingFang SC', 'Helvetica Neue', 'Hiragino Sans GB', sans-serif;
 }
 
 .container {
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 700px;
 }
 
-/* 头部样式 */
-.header {
-  background: #FFFFFF;
-  padding: 32px 24px;
-  border-radius: 8px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.header-title {
-  font-size: 28px;
+.title {
+  font-size: 32px;
   font-weight: 600;
-  color: #1A73E8;
-  margin-bottom: 8px;
+  color: #333333;
+  text-align: center;
+  margin-bottom: 12px;
 }
 
-.header-subtitle {
-  font-size: 14px;
+.subtitle {
+  font-size: 16px;
   color: #666666;
-  line-height: 1.5;
+  text-align: center;
+  margin-bottom: 32px;
 }
 
-/* 商品列表 */
-.product-list {
+.input-section {
   display: flex;
-  flex-direction: column;
   gap: 16px;
   margin-bottom: 24px;
 }
 
-.product-card {
-  background: #FFFFFF;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-.product-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-.product-main {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.product-info {
+.website-input {
   flex: 1;
-  min-width: 0;
-}
-
-.product-name {
+  padding: 16px 20px;
   font-size: 16px;
-  font-weight: 600;
   color: #333333;
-  margin-bottom: 6px;
-  line-height: 1.5;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  border: 2px solid #E1E8ED;
+  border-radius: 8px;
+  background: #FFFFFF;
+  transition: all 0.3s ease;
+  outline: none;
 }
 
-.prescription-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  background: #EA4335;
-  color: #FFFFFF;
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: 4px;
+.website-input:focus {
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
-.product-spec {
-  font-size: 13px;
-  color: #666666;
-  line-height: 1.5;
+.website-input:disabled {
+  background: #F5F7FA;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-/* 价格信息 */
-.product-prices {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: flex-end;
-}
-
-.price-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.price-label {
-  font-size: 12px;
-  color: #666666;
-}
-
-.discount-price {
-  font-size: 20px;
-  font-weight: 700;
-  color: #FF9800;
-}
-
-.original-price {
-  font-size: 14px;
+.website-input::placeholder {
   color: #999999;
-  text-decoration: line-through;
 }
 
-/* 数量控制 */
-.product-quantity {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #F8F9FA;
-  padding: 6px 12px;
-  border-radius: 6px;
-}
-
-.quantity-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: #1A73E8;
-  color: #FFFFFF;
+.check-button {
+  padding: 16px 32px;
   font-size: 16px;
   font-weight: 600;
-  border-radius: 4px;
+  color: #FFFFFF;
+  background: #4A90E2;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  outline: none;
+}
+
+.check-button:hover:not(:disabled) {
+  background: #357ABD;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.check-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.check-button:disabled {
+  background: #B0BEC5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.status-message {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  color: #4A90E2;
+  font-size: 16px;
 }
 
-.quantity-btn:hover:not(:disabled) {
-  background: #1557B0;
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #E1E8ED;
+  border-top-color: #4A90E2;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.quantity-btn:disabled {
-  background: #CCCCCC;
-  cursor: not-allowed;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-.quantity-value {
-  font-size: 14px;
+.result-section {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid;
+}
+
+.result-card.success {
+  border-left-color: #28A745;
+}
+
+.result-card.error {
+  border-left-color: #DC3545;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #E1E8ED;
+}
+
+.result-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.success .result-icon {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28A745;
+}
+
+.error .result-icon {
+  background: rgba(220, 53, 69, 0.1);
+  color: #DC3545;
+}
+
+.result-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.result-header h2 {
+  font-size: 24px;
   font-weight: 600;
   color: #333333;
-  min-width: 32px;
-  text-align: center;
 }
 
-/* 总计信息 */
-.summary {
-  background: #FFFFFF;
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.summary-row {
+.result-content {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #E9ECEF;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.summary-row:last-child {
-  border-bottom: none;
+.result-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
 }
 
-.summary-row.total {
-  padding-top: 16px;
-  margin-top: 8px;
-  border-top: 2px solid #E9ECEF;
+.result-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.summary-row.savings {
-  background: #FFF3E0;
-  margin: 16px -24px -24px;
-  padding: 16px 24px;
-  border-bottom: none;
-  border-radius: 0 0 8px 8px;
-}
-
-.summary-label {
+.label {
   font-size: 14px;
   color: #666666;
+  font-weight: 500;
 }
 
-.summary-value {
+.value {
   font-size: 16px;
-  font-weight: 600;
   color: #333333;
-}
-
-.summary-original {
-  font-size: 16px;
-  color: #999999;
-  text-decoration: line-through;
-}
-
-.summary-discount {
-  font-size: 24px;
-  font-weight: 700;
-  color: #FF9800;
-}
-
-.savings-label {
-  font-size: 15px;
   font-weight: 600;
-  color: #F57C00;
 }
 
-.savings-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: #F57C00;
+.result-message {
+  margin-top: 8px;
+}
+
+.output {
+  margin-top: 8px;
+  padding: 16px;
+  background: #F5F7FA;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #333333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
 }
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .app {
-    padding: 16px;
+  .title {
+    font-size: 28px;
   }
 
-  .header {
-    padding: 24px 16px;
+  .subtitle {
+    font-size: 14px;
+    margin-bottom: 24px;
   }
 
-  .header-title {
-    font-size: 22px;
-  }
-
-  .product-card {
-    padding: 16px;
-  }
-
-  .product-main {
+  .input-section {
     flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
+    gap: 12px;
   }
 
-  .product-prices {
-    align-items: flex-start;
+  .check-button {
+    width: 100%;
   }
 
-  .product-quantity {
-    align-self: flex-end;
+  .result-card {
+    padding: 24px 20px;
   }
 
-  .summary {
-    padding: 20px 16px;
+  .result-header h2 {
+    font-size: 20px;
   }
 
-  .summary-row.savings {
-    margin: 16px -16px -20px;
-    padding: 16px;
+  .result-details {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .app {
-    padding: 12px;
+    padding: 16px;
   }
 
-  .header {
-    padding: 20px 12px;
-    margin-bottom: 16px;
+  .title {
+    font-size: 24px;
   }
 
-  .header-title {
-    font-size: 20px;
-  }
-
-  .header-subtitle {
+  .subtitle {
     font-size: 13px;
   }
 
-  .product-list {
-    gap: 12px;
-  }
-
-  .product-card {
-    padding: 12px;
-  }
-
-  .product-name {
+  .website-input,
+  .check-button {
     font-size: 15px;
+    padding: 14px 16px;
   }
 
-  .product-spec {
+  .result-card {
+    padding: 20px 16px;
+  }
+
+  .result-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .result-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .output {
     font-size: 12px;
-  }
-
-  .discount-price {
-    font-size: 18px;
-  }
-
-  .summary {
-    padding: 16px 12px;
-  }
-
-  .summary-discount {
-    font-size: 20px;
+    padding: 12px;
   }
 }
 </style>

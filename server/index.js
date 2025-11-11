@@ -1,6 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execPromise = promisify(exec);
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -10,72 +14,129 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
-// 内存存储商品数据
-let products = [
-  {
-    id: 1,
-    name: '[慢严舒柠]咽炎片',
-    spec: '0.25g*15片*2板/盒',
-    price: 22,
-    discountPrice: 16.92,
-    quantity: 1,
-    isPrescription: false
-  },
-  {
-    id: 2,
-    name: '[济川药业]蒲地蓝消炎口服液',
-    spec: '10ml*10支/盒',
-    price: 49,
-    discountPrice: 37.6,
-    quantity: 1,
-    isPrescription: false
-  },
-  {
-    id: 3,
-    name: '[三金]西瓜霜润喉片',
-    spec: '1.2g*12片/盒',
-    price: 12.8,
-    discountPrice: 12.54,
-    quantity: 1,
-    isPrescription: false
-  },
-  {
-    id: 4,
-    name: '[仁和]阿莫西林胶囊',
-    spec: '0.25g*10粒*4板/盒',
-    price: 15.8,
-    discountPrice: 15.48,
-    quantity: 1,
-    isPrescription: true
-  },
-  {
-    id: 5,
-    name: '[999]抗病毒口服液',
-    spec: '10ml*10支/盒',
-    price: 29.9,
-    discountPrice: 11.14,
-    quantity: 1,
-    isPrescription: false
-  },
-  {
-    id: 6,
-    name: '[三精]双黄连口服液',
-    spec: '10ml*16支/盒',
-    price: 39.8,
-    discountPrice: 39,
-    quantity: 1,
-    isPrescription: false
-  },
-  {
-    id: 7,
-    name: '[仁和]多种维生素泡腾片(甜橙味)固体饮料',
-    spec: '40g(4g*10片)/支',
-    price: 9.8,
-    discountPrice: 7.96,
-    quantity: 1,
-    isPrescription: false
+// 验证网站地址的函数
+function validateWebsite(website) {
+  if (!website || typeof website !== 'string') {
+    return false;
   }
-];
+
+  // 移除协议前缀
+  const cleanWebsite = website.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+  // 基本的域名验证正则表达式
+  const domainRegex = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+  const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+
+  return domainRegex.test(cleanWebsite) || ipRegex.test(cleanWebsite);
+}
+
+// 清理网站地址，移除协议和路径
+function cleanWebsite(website) {
+  return website
+    .replace(/^https?:\/\//, '')
+    .replace(/\/.*$/, '')
+    .trim();
+}
+
+// 解析ping输出
+function parsePingOutput(output) {
+  const result = {
+    transmitted: null,
+    received: null,
+    loss: null,
+    time: null
+  };
+
+  // 解析统计信息
+  const statsMatch = output.match(/(\d+) packets transmitted, (\d+) (?:packets )?received, ([\d.]+)% packet loss/);
+  if (statsMatch) {
+    result.transmitted = parseInt(statsMatch[1], 10);
+    result.received = parseInt(statsMatch[2], 10);
+    result.loss = parseFloat(statsMatch[3]);
+  }
+
+  // 解析平均延迟 (支持多种格式)
+  const timeMatch = output.match(/rtt min\/avg\/max\/mdev = [\d.]+\/([\d.]+)\/([\d.]+)\/[\d.]+ ms/) ||
+                   output.match(/round-trip min\/avg\/max = [\d.]+\/([\d.]+)\/([\d.]+) ms/) ||
+                   output.match(/Average = ([\d.]+)ms/);
+
+  if (timeMatch) {
+    result.time = parseFloat(timeMatch[1]);
+  }
+
+  return result;
+}
+
+// Ping接口
+app.post('/api/ping', async (req, res) => {
+  try {
+    const { website } = req.body;
+
+    if (!website) {
+      return res.status(400).json({
+        success: false,
+        message: '请提供网站地址'
+      });
+    }
+
+    const cleanedWebsite = cleanWebsite(website);
+
+    if (!validateWebsite(cleanedWebsite)) {
+      return res.status(400).json({
+        success: false,
+        message: '无效的网站地址格式，请输入有效的域名或IP地址'
+      });
+    }
+
+    // 执行ping命令（发送4个数据包，超时5秒）
+    // 使用-c参数限制ping次数，-W参数设置超时
+    const command = `ping -c 4 -W 5 ${cleanedWebsite}`;
+
+    try {
+      const { stdout, stderr } = await execPromise(command, {
+        timeout: 10000 // 10秒总超时
+      });
+
+      const output = stdout || stderr;
+      const stats = parsePingOutput(output);
+
+      // 判断是否成功（至少收到1个包）
+      const isSuccess = stats.received && stats.received > 0;
+
+      return res.json({
+        success: isSuccess,
+        target: cleanedWebsite,
+        transmitted: stats.transmitted,
+        received: stats.received,
+        loss: stats.loss,
+        time: stats.time,
+        message: output
+      });
+
+    } catch (execError) {
+      // Ping失败的情况
+      const output = execError.stdout || execError.stderr || execError.message;
+      const stats = parsePingOutput(output);
+
+      return res.json({
+        success: false,
+        target: cleanedWebsite,
+        transmitted: stats.transmitted,
+        received: stats.received,
+        loss: stats.loss,
+        time: stats.time,
+        message: output || '网络连接失败，无法到达目标主机'
+      });
+    }
+
+  } catch (error) {
+    console.error('Ping错误:', error);
+    return res.status(500).json({
+      success: false,
+      message: '服务器内部错误: ' + error.message
+    });
+  }
+});
 
 // 健康检查
 app.get('/api/health', (req, res) => {
@@ -83,41 +144,6 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     port: PORT,
     timestamp: new Date().toISOString()
-  });
-});
-
-// 获取所有商品
-app.get('/api/products', (req, res) => {
-  res.json({
-    success: true,
-    data: products
-  });
-});
-
-// 更新商品数量
-app.put('/api/products/:id/quantity', (req, res) => {
-  const { id } = req.params;
-  const { quantity } = req.body;
-
-  const product = products.find(p => p.id === parseInt(id));
-  if (!product) {
-    return res.status(404).json({
-      success: false,
-      message: '商品未找到'
-    });
-  }
-
-  if (quantity < 1) {
-    return res.status(400).json({
-      success: false,
-      message: '数量必须大于0'
-    });
-  }
-
-  product.quantity = quantity;
-  res.json({
-    success: true,
-    data: product
   });
 });
 
@@ -141,5 +167,5 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`应用项目后端运行在端口 ${PORT}`);
   console.log(`健康检查: http://localhost:${PORT}/api/health`);
+  console.log(`Ping接口: http://localhost:${PORT}/api/ping`);
 });
-
