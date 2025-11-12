@@ -257,6 +257,34 @@ onMounted(() => {
   right: 20px;
 }
 
+/* 自定义菜单样式，提升未选中项目的可读性 */
+:deep(.el-menu-item) {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 500;
+}
+
+:deep(.el-menu-item:hover) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+:deep(.el-menu-item.is-active) {
+  background-color: #1890ff !important;
+  color: #ffffff !important;
+}
+
+:deep(.el-menu-item .el-icon) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.el-menu-item:hover .el-icon) {
+  color: #ffffff;
+}
+
+:deep(.el-menu-item.is-active .el-icon) {
+  color: #ffffff;
+}
+
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
