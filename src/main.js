@@ -18,6 +18,7 @@ const router = createRouter({
   ]
 });
 
+// 创建应用并挂载
 const app = createApp({
   template: '<router-view />'
 });
