@@ -1,94 +1,59 @@
+/**
+ * AI 新闻去重推送系统 - 后端服务器
+ * 重构后的主文件 - 仅负责应用初始化和路由注册
+ */
+
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 
+// 导入调度器初始化
+import { initScheduler } from './scheduler.js';
+
+// 导入路由模块
+import publicRoutes from './routes/public.js';
+import projectRoutes from './routes/projects.js';
+import sourceRoutes from './routes/sources.js';
+import messageRoutes from './routes/messages.js';
+import transformRoutes from './routes/transform.js';
+import adminRoutes from './routes/admin.js';
+import systemRoutes from './routes/system.js';
+
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// 中间件
+// ==================== 中间件配置 ====================
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
-// 在内存中存储API key（每次启动时生成新的）
-let apiKey = null;
+// ==================== 初始化调度器 ====================
+initScheduler();
 
-// 生成随机API key
-function generateApiKey() {
-  const timestamp = Date.now();
-  const randomStr = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  return `app_${timestamp}_${randomStr}`;
-}
+// ==================== 路由注册 ====================
 
-// 初始化API key
-if (!apiKey) {
-  apiKey = generateApiKey();
-}
+// 公开路由（健康检查、认证、用户信息）
+app.use('/api', publicRoutes);
 
-// 健康检查
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    port: PORT,
-    timestamp: new Date().toISOString()
-  });
-});
+// 项目管理路由
+app.use('/api/projects', projectRoutes);
 
-// 获取base64加密后的API key
-app.get('/api/apikey', (req, res) => {
-  try {
-    // 将API key转换为base64编码
-    const base64ApiKey = Buffer.from(apiKey).toString('base64');
+// 信息源管理路由
+app.use('/api/sources', sourceRoutes);
 
-    res.json({
-      success: true,
-      data: {
-        originalKey: apiKey,
-        base64Key: base64ApiKey,
-        generatedAt: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: '生成API key失败',
-      message: error.message
-    });
-  }
-});
+// 消息管理路由（包含项目消息和消息操作）
+app.use('/api', messageRoutes);
 
-// 重新生成API key
-app.post('/api/apikey/regenerate', (req, res) => {
-  try {
-    apiKey = generateApiKey();
-    const base64ApiKey = Buffer.from(apiKey).toString('base64');
+// 站点转换 API 路由
+app.use('/api/transform', transformRoutes);
 
-    res.json({
-      success: true,
-      data: {
-        originalKey: apiKey,
-        base64Key: base64ApiKey,
-        generatedAt: new Date().toISOString()
-      },
-      message: 'API key已重新生成'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: '重新生成API key失败',
-      message: error.message
-    });
-  }
-});
+// 管理端 API 路由
+app.use('/api/admin', adminRoutes);
 
-// 错误处理
-app.use((err, req, res, next) => {
-  console.error('错误:', err);
-  res.status(500).json({
-    error: '服务器内部错误',
-    message: err.message
-  });
-});
+// 系统管理路由
+app.use('/api/system', systemRoutes);
+
+// ==================== 错误处理 ====================
 
 // 404 处理
 app.use((req, res) => {
@@ -98,8 +63,23 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`应用项目后端运行在端口 ${PORT}`);
-  console.log(`健康检查: http://localhost:${PORT}/api/health`);
+// 错误处理中间件
+app.use((err, req, res, next) => {
+  console.error('错误:', err);
+  res.status(500).json({
+    error: '服务器内部错误',
+    message: err.message
+  });
 });
 
+// ==================== 启动服务器 ====================
+
+app.listen(PORT, () => {
+  console.log('==========================================');
+  console.log('AI 新闻去重推送系统 - 后端服务器');
+  console.log('==========================================');
+  console.log(`端口: ${PORT}`);
+  console.log(`健康检查: http://localhost:${PORT}/api/health`);
+  console.log(`测试登录: POST http://localhost:${PORT}/api/auth/test-login`);
+  console.log('==========================================');
+});
