@@ -1,9 +1,11 @@
 <template>
-  <router-view />
+  <div class="app">
+    <router-view />
+  </div>
 </template>
 
 <script setup>
-// 应用主组件,只渲染路由视图
+// 使用路由展示页面
 </script>
 
 <style>
@@ -17,8 +19,9 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
-#app {
+.app {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
 }
 </style>
+
