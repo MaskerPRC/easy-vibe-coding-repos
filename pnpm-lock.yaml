@@ -20,9 +20,6 @@ importers:
       express:
         specifier: ^4.18.2
         version: 4.21.2
-      lucide-vue-next:
-        specifier: ^0.294.0
-        version: 0.294.0(vue@3.5.24)
       vue:
         specifier: ^3.3.4
         version: 3.5.24
@@ -681,11 +678,6 @@ packages:
 
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
-
-  lucide-vue-next@0.294.0:
-    resolution: {integrity: sha512-bcUuGyLJoq9ExyozROMezdaczK2loP3emYb8PvS7HhZ56rUJVOv5hJgTmWfrfr8vJE7J69ImoMyPTwmUHF198w==}
-    peerDependencies:
-      vue: '>=3.0.1'
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -1568,10 +1560,6 @@ snapshots:
   is-number@7.0.0: {}
 
   lodash@4.17.21: {}
-
-  lucide-vue-next@0.294.0(vue@3.5.24):
-    dependencies:
-      vue: 3.5.24
 
   magic-string@0.30.21:
     dependencies:
