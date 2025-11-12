@@ -1,216 +1,24 @@
 /**
- * 定时任务调度器
- * 定期抓取信息源并进行 AI 分析
+ * 任务调度器
+ * 负责定时抓取信息源并进行AI分析
  */
 
-import { sourceStorage, projectStorage, messageStorage } from './storage.js';
 import { fetchSource } from './fetchService.js';
 import { analyzeRelevance } from './aiService.js';
+import { sourceStorage, projectStorage, messageStorage } from './storage.js';
 
 // 任务状态
 let isRunning = false;
 let lastRunTime = null;
+
+// 任务统计
 let taskStats = {
   totalRuns: 0,
   successfulRuns: 0,
   failedRuns: 0,
-  lastError: null,
   messagesProcessed: 0,
   messagesCreated: 0
 };
-
-/**
- * 处理单个信息源
- */
-async function processSource(source) {
-  try {
-    console.log(`开始处理信息源: ${source.name} (${source.url})`);
-
-    // 1. 抓取信息源
-    const fetchResult = await fetchSource(source);
-
-    if (!fetchResult.success) {
-      console.error(`抓取失败: ${fetchResult.error}`);
-      return {
-        sourceId: source.id,
-        success: false,
-        error: fetchResult.error,
-        messagesProcessed: 0,
-        messagesCreated: 0
-      };
-    }
-
-    const items = fetchResult.items || [];
-    console.log(`抓取到 ${items.length} 条消息`);
-
-    // 2. 更新最后抓取时间
-    sourceStorage.updateLastFetched(source.id);
-
-    // 3. 获取所有项目
-    const allProjects = projectStorage.getAll();
-
-    if (allProjects.length === 0) {
-      console.log('没有项目，跳过消息分析');
-      return {
-        sourceId: source.id,
-        success: true,
-        messagesProcessed: 0,
-        messagesCreated: 0
-      };
-    }
-
-    let messagesProcessed = 0;
-    let messagesCreated = 0;
-
-    // 4. 对每条消息进行处理
-    for (const item of items) {
-      messagesProcessed++;
-
-      // 检查是否已存在（去重）
-      const existing = messageStorage.findDuplicateByUrl(item.url);
-      if (existing) {
-        console.log(`消息已存在，跳过: ${item.title}`);
-        continue;
-      }
-
-      // 对每个项目进行相关性分析
-      let bestMatch = null;
-      let bestScore = 0;
-
-      for (const project of allProjects) {
-        const analysis = await analyzeRelevance(item, project);
-
-        if (analysis.relevanceScore > bestScore) {
-          bestScore = analysis.relevanceScore;
-          bestMatch = {
-            projectId: project.id,
-            ...analysis
-          };
-        }
-      }
-
-      // 如果相关性分数超过阈值，创建消息
-      if (bestMatch && bestScore >= (bestMatch.project?.threshold || 0.6)) {
-        const message = messageStorage.create({
-          sourceId: source.id,
-          projectId: bestMatch.projectId,
-          title: item.title,
-          content: item.content,
-          url: item.url,
-          author: item.author,
-          publishedAt: item.publishedAt,
-          relevanceScore: bestMatch.relevanceScore,
-          scores: bestMatch.scores,
-          analysis: bestMatch.analysis
-        });
-
-        messagesCreated++;
-        console.log(`创建消息: ${message.title} (相关性: ${bestScore.toFixed(2)})`);
-      } else {
-        console.log(`消息相关性过低，跳过: ${item.title} (${bestScore.toFixed(2)})`);
-      }
-    }
-
-    return {
-      sourceId: source.id,
-      success: true,
-      messagesProcessed,
-      messagesCreated
-    };
-  } catch (error) {
-    console.error(`处理信息源失败:`, error);
-    return {
-      sourceId: source.id,
-      success: false,
-      error: error.message,
-      messagesProcessed: 0,
-      messagesCreated: 0
-    };
-  }
-}
-
-/**
- * 运行定时任务
- */
-export async function runScheduledTask() {
-  if (isRunning) {
-    console.log('任务正在运行中，跳过本次执行');
-    return {
-      skipped: true,
-      reason: '任务正在运行中'
-    };
-  }
-
-  isRunning = true;
-  lastRunTime = new Date().toISOString();
-  taskStats.totalRuns++;
-
-  console.log('======== 开始定时任务 ========');
-  console.log('时间:', lastRunTime);
-
-  try {
-    // 获取所有启用的信息源
-    const enabledSources = sourceStorage.findEnabled();
-
-    if (enabledSources.length === 0) {
-      console.log('没有启用的信息源');
-      taskStats.successfulRuns++;
-      return {
-        success: true,
-        sourcesProcessed: 0,
-        messagesProcessed: 0,
-        messagesCreated: 0
-      };
-    }
-
-    console.log(`找到 ${enabledSources.length} 个启用的信息源`);
-
-    // 处理所有信息源
-    const results = [];
-    for (const source of enabledSources) {
-      const result = await processSource(source);
-      results.push(result);
-    }
-
-    // 统计结果
-    const totalMessagesProcessed = results.reduce((sum, r) => sum + (r.messagesProcessed || 0), 0);
-    const totalMessagesCreated = results.reduce((sum, r) => sum + (r.messagesCreated || 0), 0);
-    const successCount = results.filter(r => r.success).length;
-
-    taskStats.messagesProcessed += totalMessagesProcessed;
-    taskStats.messagesCreated += totalMessagesCreated;
-
-    if (successCount === enabledSources.length) {
-      taskStats.successfulRuns++;
-    } else {
-      taskStats.failedRuns++;
-    }
-
-    console.log('======== 任务完成 ========');
-    console.log(`处理了 ${enabledSources.length} 个信息源`);
-    console.log(`处理了 ${totalMessagesProcessed} 条消息`);
-    console.log(`创建了 ${totalMessagesCreated} 条新消息`);
-
-    return {
-      success: true,
-      sourcesProcessed: enabledSources.length,
-      messagesProcessed: totalMessagesProcessed,
-      messagesCreated: totalMessagesCreated,
-      results
-    };
-  } catch (error) {
-    console.error('定时任务失败:', error);
-    taskStats.failedRuns++;
-    taskStats.lastError = error.message;
-
-    return {
-      success: false,
-      error: error.message
-    };
-  } finally {
-    isRunning = false;
-  }
-}
 
 /**
  * 获取任务状态
@@ -219,7 +27,7 @@ export function getTaskStatus() {
   return {
     isRunning,
     lastRunTime,
-    stats: { ...taskStats }
+    stats: taskStats
   };
 }
 
@@ -231,26 +39,223 @@ export function resetTaskStats() {
     totalRuns: 0,
     successfulRuns: 0,
     failedRuns: 0,
-    lastError: null,
     messagesProcessed: 0,
     messagesCreated: 0
   };
 }
 
 /**
- * 初始化定时任务调度器
- * 注意：实际使用时需要安装 node-cron 包
+ * 处理单个信息源
  */
-export function initScheduler() {
-  // 注意：这里需要 node-cron 包
-  // import cron from 'node-cron';
-  //
-  // // 每小时运行一次
-  // cron.schedule('0 * * * *', async () => {
-  //   await runScheduledTask();
-  // });
+async function processSource(source) {
+  console.log(`\n处理信息源: ${source.name} (${source.type})`);
 
-  console.log('定时任务调度器已初始化');
-  console.log('提示：安装 node-cron 包以启用自动调度');
-  console.log('当前可以通过 API 手动触发任务');
+  try {
+    // 抓取信息源
+    const result = await fetchSource(source);
+
+    if (!result.success) {
+      console.error(`抓取失败: ${result.error}`);
+      return {
+        success: false,
+        error: result.error,
+        processed: 0,
+        created: 0
+      };
+    }
+
+    // 更新最后抓取时间
+    sourceStorage.updateLastFetched(source.id);
+
+    const items = result.items || [];
+    console.log(`获取了 ${items.length} 条项目`);
+
+    // 获取所有项目
+    const projects = projectStorage.getAll();
+
+    if (projects.length === 0) {
+      console.log('没有项目,跳过消息创建');
+      return {
+        success: true,
+        processed: items.length,
+        created: 0
+      };
+    }
+
+    let createdCount = 0;
+
+    // 对每条消息进行处理
+    for (const item of items) {
+      try {
+        // 检查是否重复
+        const duplicate = messageStorage.findDuplicateByUrl(item.url);
+        if (duplicate) {
+          console.log(`跳过重复消息: ${item.title}`);
+          continue;
+        }
+
+        // 为每个项目分析相关性
+        let bestMatch = null;
+        let bestScore = 0;
+
+        for (const project of projects) {
+          const analysis = await analyzeRelevance(item, project);
+
+          if (analysis.relevanceScore > bestScore) {
+            bestScore = analysis.relevanceScore;
+            bestMatch = {
+              project,
+              analysis
+            };
+          }
+        }
+
+        // 如果最高分超过项目阈值,创建消息
+        if (bestMatch && bestScore >= bestMatch.project.threshold) {
+          const message = messageStorage.create({
+            sourceId: source.id,
+            projectId: bestMatch.project.id,
+            title: item.title,
+            content: item.content,
+            url: item.url,
+            author: item.author,
+            publishedAt: item.publishedAt,
+            relevanceScore: bestMatch.analysis.relevanceScore,
+            scores: bestMatch.analysis.scores,
+            analysis: bestMatch.analysis.analysis
+          });
+
+          console.log(`✓ 创建消息: ${item.title} -> 项目: ${bestMatch.project.name} (评分: ${(bestScore * 100).toFixed(0)}%)`);
+          createdCount++;
+        } else {
+          console.log(`✗ 相关性不足: ${item.title} (最高评分: ${(bestScore * 100).toFixed(0)}%)`);
+        }
+      } catch (error) {
+        console.error(`处理消息失败: ${item.title}`, error.message);
+      }
+    }
+
+    return {
+      success: true,
+      processed: items.length,
+      created: createdCount
+    };
+  } catch (error) {
+    console.error(`处理信息源失败: ${source.name}`, error);
+    return {
+      success: false,
+      error: error.message,
+      processed: 0,
+      created: 0
+    };
+  }
+}
+
+/**
+ * 运行定时任务
+ */
+export async function runScheduledTask() {
+  if (isRunning) {
+    console.log('任务已在运行中,跳过本次执行');
+    return {
+      success: false,
+      error: '任务已在运行中'
+    };
+  }
+
+  isRunning = true;
+  lastRunTime = new Date().toISOString();
+  taskStats.totalRuns++;
+
+  console.log('\n========================================');
+  console.log('开始执行定时任务');
+  console.log(`时间: ${lastRunTime}`);
+  console.log('========================================');
+
+  try {
+    // 获取所有启用的信息源
+    const sources = sourceStorage.findEnabled();
+
+    if (sources.length === 0) {
+      console.log('没有启用的信息源');
+      taskStats.successfulRuns++;
+      return {
+        success: true,
+        message: '没有启用的信息源',
+        processed: 0,
+        created: 0
+      };
+    }
+
+    console.log(`找到 ${sources.length} 个启用的信息源\n`);
+
+    let totalProcessed = 0;
+    let totalCreated = 0;
+
+    // 处理每个信息源
+    for (const source of sources) {
+      const result = await processSource(source);
+
+      if (result.success) {
+        totalProcessed += result.processed;
+        totalCreated += result.created;
+      }
+
+      // 信息源之间添加延迟
+      await sleep(1000);
+    }
+
+    // 更新统计
+    taskStats.successfulRuns++;
+    taskStats.messagesProcessed += totalProcessed;
+    taskStats.messagesCreated += totalCreated;
+
+    console.log('\n========================================');
+    console.log('任务执行完成');
+    console.log(`处理了 ${totalProcessed} 条消息`);
+    console.log(`创建了 ${totalCreated} 条消息`);
+    console.log('========================================\n');
+
+    return {
+      success: true,
+      processed: totalProcessed,
+      created: totalCreated,
+      sources: sources.length
+    };
+  } catch (error) {
+    console.error('任务执行失败:', error);
+    taskStats.failedRuns++;
+
+    return {
+      success: false,
+      error: error.message
+    };
+  } finally {
+    isRunning = false;
+  }
+}
+
+/**
+ * 启动定时调度
+ */
+export function startScheduler(intervalMinutes = 60) {
+  console.log(`启动定时调度器,间隔: ${intervalMinutes} 分钟`);
+
+  // 立即执行一次
+  setTimeout(() => {
+    runScheduledTask();
+  }, 5000); // 5秒后首次执行
+
+  // 设置定时执行
+  const intervalMs = intervalMinutes * 60 * 1000;
+  setInterval(() => {
+    runScheduledTask();
+  }, intervalMs);
+}
+
+/**
+ * 睡眠函数
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

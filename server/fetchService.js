@@ -1,9 +1,19 @@
 /**
  * 信息源爬取和处理模块
- * 支持 RSS、API、网站、GitHub、Twitter 等多种信息源
+ * 支持 RSS、API、网站、GitHub等多种信息源
+ * 使用 rss-parser 进行真实的RSS抓取
  */
 
+import Parser from 'rss-parser';
 import axios from 'axios';
+
+// 创建RSS解析器实例
+const rssParser = new Parser({
+  timeout: 10000,
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (compatible; NewsAggregator/1.0)'
+  }
+});
 
 /**
  * 检测 URL 类型
@@ -17,7 +27,7 @@ export function detectUrlType(url) {
   if (lowerUrl.includes('twitter.com') || lowerUrl.includes('x.com')) {
     return 'twitter';
   }
-  if (lowerUrl.includes('/rss') || lowerUrl.includes('/feed') || lowerUrl.endsWith('.xml')) {
+  if (lowerUrl.includes('/rss') || lowerUrl.includes('/feed') || lowerUrl.endsWith('.xml') || lowerUrl.includes('atom')) {
     return 'rss';
   }
   if (lowerUrl.includes('/api/')) {
@@ -28,25 +38,25 @@ export function detectUrlType(url) {
 }
 
 /**
- * 抓取 RSS 源
+ * 抓取 RSS 源 (使用真实的 rss-parser)
  */
 export async function fetchRSS(url) {
   try {
-    // 注意：实际使用时需要安装 rss-parser 包
-    // import Parser from 'rss-parser';
-    // const parser = new Parser();
-    // const feed = await parser.parseURL(url);
+    console.log(`开始抓取 RSS: ${url}`);
 
-    // 这里使用简化的实现
-    const response = await axios.get(url, {
-      timeout: 10000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; NewsAggregator/1.0)'
-      }
-    });
+    // 使用 rss-parser 解析 RSS 源
+    const feed = await rssParser.parseURL(url);
 
-    // 简单的 XML 解析（实际应该使用 rss-parser）
-    const items = parseRSSXML(response.data);
+    console.log(`成功抓取 RSS: ${feed.title || url}, 获取 ${feed.items?.length || 0} 条项目`);
+
+    // 将RSS项目转换为标准格式
+    const items = (feed.items || []).slice(0, 20).map(item => ({
+      title: item.title || '无标题',
+      url: item.link || item.url || url,
+      content: item.contentSnippet || item.content || item.description || '',
+      publishedAt: item.pubDate || item.isoDate || new Date().toISOString(),
+      author: item.creator || item.author || feed.title || ''
+    }));
 
     return {
       success: true,
@@ -63,57 +73,7 @@ export async function fetchRSS(url) {
 }
 
 /**
- * 简单的 RSS XML 解析
- */
-function parseRSSXML(xml) {
-  const items = [];
-
-  try {
-    // 这是一个非常简化的 XML 解析
-    // 实际使用应该用 rss-parser 或 xml2js
-    const itemMatches = xml.match(/<item>[\s\S]*?<\/item>/gi) ||
-                       xml.match(/<entry>[\s\S]*?<\/entry>/gi) || [];
-
-    for (const itemXml of itemMatches.slice(0, 20)) {
-      const title = extractXMLTag(itemXml, 'title');
-      const link = extractXMLTag(itemXml, 'link');
-      const description = extractXMLTag(itemXml, 'description') ||
-                         extractXMLTag(itemXml, 'summary') ||
-                         extractXMLTag(itemXml, 'content');
-      const pubDate = extractXMLTag(itemXml, 'pubDate') ||
-                     extractXMLTag(itemXml, 'published') ||
-                     extractXMLTag(itemXml, 'updated');
-      const author = extractXMLTag(itemXml, 'author') ||
-                    extractXMLTag(itemXml, 'dc:creator');
-
-      if (title && link) {
-        items.push({
-          title: cleanHTML(title),
-          url: cleanHTML(link),
-          content: cleanHTML(description),
-          publishedAt: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
-          author: cleanHTML(author) || ''
-        });
-      }
-    }
-  } catch (error) {
-    console.error('解析 RSS XML 失败:', error.message);
-  }
-
-  return items;
-}
-
-/**
- * 从 XML 中提取标签内容
- */
-function extractXMLTag(xml, tag) {
-  const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i');
-  const match = xml.match(regex);
-  return match ? match[1] : '';
-}
-
-/**
- * 清理 HTML 标签
+ * 清理HTML标签
  */
 function cleanHTML(html) {
   if (!html) return '';
@@ -133,7 +93,8 @@ function cleanHTML(html) {
  */
 export async function fetchWebsite(url) {
   try {
-    // 注意：实际使用时需要安装 cheerio 包进行 HTML 解析
+    console.log(`开始抓取网站: ${url}`);
+
     const response = await axios.get(url, {
       timeout: 10000,
       headers: {
@@ -143,16 +104,19 @@ export async function fetchWebsite(url) {
 
     const html = response.data;
 
-    // 简单的内容提取（实际应该使用 cheerio）
-    const title = extractHTMLTag(html, 'title') || url;
-    const description = extractMetaTag(html, 'description') ||
-                       extractHTMLTag(html, 'h1') ||
-                       '';
+    // 简单的内容提取
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    const title = titleMatch ? cleanHTML(titleMatch[1]) : url;
+
+    const metaMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i);
+    const description = metaMatch ? metaMatch[1] : '';
+
+    console.log(`成功抓取网站: ${title}`);
 
     return {
       success: true,
       items: [{
-        title: cleanHTML(title),
+        title: title,
         url: url,
         content: cleanHTML(description),
         publishedAt: new Date().toISOString(),
@@ -170,28 +134,12 @@ export async function fetchWebsite(url) {
 }
 
 /**
- * 从 HTML 中提取标签内容
- */
-function extractHTMLTag(html, tag) {
-  const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i');
-  const match = html.match(regex);
-  return match ? match[1] : '';
-}
-
-/**
- * 提取 meta 标签内容
- */
-function extractMetaTag(html, name) {
-  const regex = new RegExp(`<meta[^>]*name=["']${name}["'][^>]*content=["']([^"']*)["']`, 'i');
-  const match = html.match(regex);
-  return match ? match[1] : '';
-}
-
-/**
  * 抓取 GitHub 仓库信息
  */
 export async function fetchGitHub(url) {
   try {
+    console.log(`开始抓取 GitHub: ${url}`);
+
     // 解析 GitHub URL
     const match = url.match(/github\.com\/([^\/]+)\/([^\/]+)/);
     if (!match) {
@@ -201,7 +149,7 @@ export async function fetchGitHub(url) {
     const owner = match[1];
     const repo = match[2].replace(/\.git$/, '');
 
-    // 获取最新的 releases 或 commits
+    // 获取最新的 releases
     const apiUrl = `https://api.github.com/repos/${owner}/${repo}/releases?per_page=10`;
 
     const response = await axios.get(apiUrl, {
@@ -219,6 +167,8 @@ export async function fetchGitHub(url) {
       publishedAt: release.published_at,
       author: release.author?.login || owner
     }));
+
+    console.log(`成功抓取 GitHub: ${repo}, 获取 ${items.length} 个 releases`);
 
     return {
       success: true,
@@ -239,6 +189,8 @@ export async function fetchGitHub(url) {
  */
 export async function fetchAPI(url, config = {}) {
   try {
+    console.log(`开始抓取 API: ${url}`);
+
     const response = await axios.get(url, {
       timeout: 10000,
       headers: {
@@ -271,6 +223,8 @@ export async function fetchAPI(url, config = {}) {
       author: item.author || item.creator || item.user?.name || ''
     }));
 
+    console.log(`成功抓取 API, 获取 ${standardized.length} 条项目`);
+
     return {
       success: true,
       items: standardized
@@ -286,11 +240,11 @@ export async function fetchAPI(url, config = {}) {
 }
 
 /**
- * 抓取 Twitter（简化版本）
+ * 抓取 Twitter (简化版本)
  */
 export async function fetchTwitter(url) {
-  // 注意：Twitter API 需要认证，这里提供一个简化的模拟
-  console.log('Twitter 抓取需要 API 认证，当前为模拟数据');
+  // 注意：Twitter API 需要认证,这里提供一个简化的模拟
+  console.log('Twitter 抓取需要 API 认证,当前为模拟数据');
 
   return {
     success: true,
@@ -298,7 +252,7 @@ export async function fetchTwitter(url) {
       {
         title: '示例 Twitter 内容',
         url: url,
-        content: 'Twitter 抓取需要配置 API 密钥',
+        content: 'Twitter 抓取需要配置 API 密钥。请在 Twitter Developer Portal 申请 API 密钥后配置。',
         publishedAt: new Date().toISOString(),
         author: 'twitter_user'
       }
@@ -332,6 +286,7 @@ export async function fetchSource(source) {
       default:
         // 自动检测类型
         const detectedType = detectUrlType(url);
+        console.log(`自动检测到类型: ${detectedType}`);
         return await fetchSource({ ...source, type: detectedType });
     }
   } catch (error) {
@@ -354,6 +309,7 @@ export async function fetchMultipleSources(sources) {
     const result = await fetchSource(source);
     results.push({
       sourceId: source.id,
+      sourceName: source.name,
       ...result
     });
 

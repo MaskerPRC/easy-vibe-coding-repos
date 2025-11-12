@@ -24,9 +24,9 @@
         <!-- 筛选器 -->
         <div class="filters">
           <el-radio-group v-model="filterType" @change="loadMessages">
-            <el-radio-button label="all">全部</el-radio-button>
-            <el-radio-button label="unread">未读</el-radio-button>
-            <el-radio-button label="important">重要</el-radio-button>
+            <el-radio-button value="all">全部</el-radio-button>
+            <el-radio-button value="unread">未读</el-radio-button>
+            <el-radio-button value="important">重要</el-radio-button>
           </el-radio-group>
 
           <el-slider
@@ -48,12 +48,13 @@
             :key="message.id"
             class="message-item"
             :class="{ unread: !message.isRead }"
+            @click="markAsRead(message)"
           >
             <div class="message-header">
               <div class="message-title">
                 <el-icon v-if="!message.isRead" color="#409eff"><Message /></el-icon>
                 <el-icon v-if="message.isImportant" color="#f56c6c"><Star /></el-icon>
-                <a :href="message.url" target="_blank" class="title-link">
+                <a :href="message.url" target="_blank" class="title-link" @click.stop>
                   {{ message.title }}
                 </a>
               </div>
@@ -64,7 +65,7 @@
                     :type="message.isImportant ? 'warning' : 'default'"
                     circle
                     size="small"
-                    @click="toggleImportant(message)"
+                    @click.stop="toggleImportant(message)"
                   />
                 </el-tooltip>
                 <el-tooltip content="删除">
@@ -72,7 +73,7 @@
                     icon="Delete"
                     circle
                     size="small"
-                    @click="deleteMessage(message)"
+                    @click.stop="deleteMessage(message)"
                   />
                 </el-tooltip>
               </div>
@@ -157,10 +158,18 @@ const loadMessages = async () => {
   await messageStore.fetchStats(selectedProjectId.value);
 };
 
+const markAsRead = async (message) => {
+  if (!message.isRead) {
+    await messageStore.markAsRead(message.id);
+    await messageStore.fetchStats(selectedProjectId.value);
+  }
+};
+
 const toggleImportant = async (message) => {
   const result = await messageStore.markAsImportant(message.id, !message.isImportant);
   if (result.success) {
     ElMessage.success(message.isImportant ? '已取消重要标记' : '已标记为重要');
+    await messageStore.fetchStats(selectedProjectId.value);
   }
 };
 
@@ -172,6 +181,7 @@ const deleteMessage = async (message) => {
 
     if (result.success) {
       ElMessage.success('消息已删除');
+      await messageStore.fetchStats(selectedProjectId.value);
     } else {
       ElMessage.error('删除失败');
     }
@@ -248,6 +258,7 @@ onMounted(async () => {
   padding: 20px;
   background: white;
   transition: all 0.3s;
+  cursor: pointer;
 }
 
 .message-item.unread {

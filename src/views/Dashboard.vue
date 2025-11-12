@@ -160,7 +160,7 @@ const handleRunTask = async () => {
     const result = await systemStore.runTask();
 
     if (result.success) {
-      ElMessage.success('任务执行成功！');
+      ElMessage.success(`任务执行成功！处理了 ${result.processed} 条消息，创建了 ${result.created} 条消息。`);
       await loadData();
     } else {
       ElMessage.error(result.error || '任务执行失败');

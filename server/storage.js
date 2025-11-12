@@ -1,6 +1,6 @@
 /**
  * 内存数据存储模块
- * 所有数据存储在内存中，重启后数据会丢失
+ * 所有数据存储在内存中,重启后数据会丢失
  */
 
 import { generateSeedData } from './seedData.js';
@@ -153,7 +153,7 @@ export const sourceStorage = {
       type: sourceData.type, // rss, api, website, github, twitter
       url: sourceData.url,
       config: sourceData.config || {},
-      interval: sourceData.interval || 3600, // 轮询间隔（秒）
+      interval: sourceData.interval || 3600, // 轮询间隔(秒)
       enabled: sourceData.enabled !== false,
       lastFetchedAt: null,
       createdAt: new Date().toISOString(),
@@ -297,7 +297,7 @@ export const messageStorage = {
     );
   },
 
-  // 检查重复消息（基于URL）
+  // 检查重复消息(基于URL)
   findDuplicateByUrl(url) {
     for (const message of messages.values()) {
       if (message.url === url) {
@@ -354,7 +354,7 @@ export const messageStorage = {
   }
 };
 
-// ==================== 导出清理函数（用于测试） ====================
+// ==================== 导出清理函数(用于测试) ====================
 
 export function clearAllData() {
   users.clear();
@@ -381,12 +381,12 @@ export function getSystemStats() {
 
 /**
  * 加载演示数据到内存中
- * 在服务器启动时调用，用于功能演示
+ * 在服务器启动时调用,用于功能演示
  */
 export function loadSeedData() {
-  // 如果已有数据，跳过加载
+  // 如果已有数据,跳过加载
   if (users.size > 0 || projects.size > 0 || sources.size > 0 || messages.size > 0) {
-    console.log('检测到现有数据，跳过 seed 数据加载');
+    console.log('检测到现有数据,跳过 seed 数据加载');
     return;
   }
 
@@ -397,24 +397,28 @@ export function loadSeedData() {
   // 加载用户数据
   seedData.users.forEach(user => {
     users.set(user.id, user);
+    if (user.id >= userIdCounter) userIdCounter = user.id + 1;
   });
   console.log(`✓ 加载了 ${seedData.users.length} 个用户`);
 
   // 加载项目数据
   seedData.projects.forEach(project => {
     projects.set(project.id, project);
+    if (project.id >= projectIdCounter) projectIdCounter = project.id + 1;
   });
   console.log(`✓ 加载了 ${seedData.projects.length} 个项目`);
 
   // 加载信息源数据
   seedData.sources.forEach(source => {
     sources.set(source.id, source);
+    if (source.id >= sourceIdCounter) sourceIdCounter = source.id + 1;
   });
   console.log(`✓ 加载了 ${seedData.sources.length} 个信息源`);
 
   // 加载消息数据
   seedData.messages.forEach(message => {
     messages.set(message.id, message);
+    if (message.id >= messageIdCounter) messageIdCounter = message.id + 1;
   });
   console.log(`✓ 加载了 ${seedData.messages.length} 条消息`);
 

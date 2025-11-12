@@ -4,44 +4,48 @@
 
 import express from 'express';
 import { projectStorage } from '../storage.js';
-import { authMiddleware } from '../auth.js';
 
 const router = express.Router();
 
-// 获取用户的所有项目
-router.get('/', authMiddleware, (req, res) => {
+/**
+ * 获取用户的所有项目
+ */
+router.get('/', (req, res) => {
   try {
-    const projects = projectStorage.findByUserId(req.user.id);
+    const userId = req.user?.id || 1; // 使用演示用户ID
+    const projects = projectStorage.findByUserId(userId);
+
     res.json({
-      success: true,
       projects
     });
   } catch (error) {
+    console.error('获取项目列表失败:', error);
     res.status(500).json({
-      error: '获取项目失败',
+      error: '获取项目列表失败',
       message: error.message
     });
   }
 });
 
-// 获取单个项目
-router.get('/:id', authMiddleware, (req, res) => {
+/**
+ * 获取单个项目
+ */
+router.get('/:id', (req, res) => {
   try {
-    const project = projectStorage.findById(parseInt(req.params.id));
+    const id = parseInt(req.params.id);
+    const project = projectStorage.findById(id);
 
     if (!project) {
-      return res.status(404).json({ error: '项目不存在' });
-    }
-
-    if (project.userId !== req.user.id) {
-      return res.status(403).json({ error: '无权访问此项目' });
+      return res.status(404).json({
+        error: '项目不存在'
+      });
     }
 
     res.json({
-      success: true,
       project
     });
   } catch (error) {
+    console.error('获取项目失败:', error);
     res.status(500).json({
       error: '获取项目失败',
       message: error.message
@@ -49,16 +53,21 @@ router.get('/:id', authMiddleware, (req, res) => {
   }
 });
 
-// 创建项目
-router.post('/', authMiddleware, (req, res) => {
+/**
+ * 创建项目
+ */
+router.post('/', (req, res) => {
   try {
+    const userId = req.user?.id || 1;
     const { name, description, keywords, context, priority, threshold } = req.body;
 
     if (!name) {
-      return res.status(400).json({ error: '项目名称不能为空' });
+      return res.status(400).json({
+        error: '项目名称不能为空'
+      });
     }
 
-    const project = projectStorage.create(req.user.id, {
+    const project = projectStorage.create(userId, {
       name,
       description,
       keywords: keywords || [],
@@ -67,11 +76,11 @@ router.post('/', authMiddleware, (req, res) => {
       threshold: threshold || 0.6
     });
 
-    res.json({
-      success: true,
+    res.status(201).json({
       project
     });
   } catch (error) {
+    console.error('创建项目失败:', error);
     res.status(500).json({
       error: '创建项目失败',
       message: error.message
@@ -79,27 +88,27 @@ router.post('/', authMiddleware, (req, res) => {
   }
 });
 
-// 更新项目
-router.put('/:id', authMiddleware, (req, res) => {
+/**
+ * 更新项目
+ */
+router.put('/:id', (req, res) => {
   try {
-    const projectId = parseInt(req.params.id);
-    const project = projectStorage.findById(projectId);
+    const id = parseInt(req.params.id);
+    const updates = req.body;
+
+    const project = projectStorage.update(id, updates);
 
     if (!project) {
-      return res.status(404).json({ error: '项目不存在' });
+      return res.status(404).json({
+        error: '项目不存在'
+      });
     }
-
-    if (project.userId !== req.user.id) {
-      return res.status(403).json({ error: '无权修改此项目' });
-    }
-
-    const updated = projectStorage.update(projectId, req.body);
 
     res.json({
-      success: true,
-      project: updated
+      project
     });
   } catch (error) {
+    console.error('更新项目失败:', error);
     res.status(500).json({
       error: '更新项目失败',
       message: error.message
@@ -107,27 +116,25 @@ router.put('/:id', authMiddleware, (req, res) => {
   }
 });
 
-// 删除项目
-router.delete('/:id', authMiddleware, (req, res) => {
+/**
+ * 删除项目
+ */
+router.delete('/:id', (req, res) => {
   try {
-    const projectId = parseInt(req.params.id);
-    const project = projectStorage.findById(projectId);
+    const id = parseInt(req.params.id);
+    const success = projectStorage.delete(id);
 
-    if (!project) {
-      return res.status(404).json({ error: '项目不存在' });
+    if (!success) {
+      return res.status(404).json({
+        error: '项目不存在'
+      });
     }
-
-    if (project.userId !== req.user.id) {
-      return res.status(403).json({ error: '无权删除此项目' });
-    }
-
-    projectStorage.delete(projectId);
 
     res.json({
-      success: true,
       message: '项目已删除'
     });
   } catch (error) {
+    console.error('删除项目失败:', error);
     res.status(500).json({
       error: '删除项目失败',
       message: error.message
