@@ -3,6 +3,8 @@
  * 所有数据存储在内存中，重启后数据会丢失
  */
 
+import { generateSeedData } from './seedData.js';
+
 // 用户数据存储
 const users = new Map();
 
@@ -373,4 +375,49 @@ export function getSystemStats() {
     sources: sources.size,
     messages: messages.size
   };
+}
+
+// ==================== 加载 Seed 数据 ====================
+
+/**
+ * 加载演示数据到内存中
+ * 在服务器启动时调用，用于功能演示
+ */
+export function loadSeedData() {
+  // 如果已有数据，跳过加载
+  if (users.size > 0 || projects.size > 0 || sources.size > 0 || messages.size > 0) {
+    console.log('检测到现有数据，跳过 seed 数据加载');
+    return;
+  }
+
+  console.log('开始加载 seed 数据...');
+
+  const seedData = generateSeedData();
+
+  // 加载用户数据
+  seedData.users.forEach(user => {
+    users.set(user.id, user);
+  });
+  console.log(`✓ 加载了 ${seedData.users.length} 个用户`);
+
+  // 加载项目数据
+  seedData.projects.forEach(project => {
+    projects.set(project.id, project);
+  });
+  console.log(`✓ 加载了 ${seedData.projects.length} 个项目`);
+
+  // 加载信息源数据
+  seedData.sources.forEach(source => {
+    sources.set(source.id, source);
+  });
+  console.log(`✓ 加载了 ${seedData.sources.length} 个信息源`);
+
+  // 加载消息数据
+  seedData.messages.forEach(message => {
+    messages.set(message.id, message);
+  });
+  console.log(`✓ 加载了 ${seedData.messages.length} 条消息`);
+
+  console.log('✓ Seed 数据加载完成！');
+  console.log('提示：可以使用测试用户登录 (用户名: 演示用户, ID: demo-user-1)');
 }

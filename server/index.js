@@ -10,6 +10,9 @@ import bodyParser from 'body-parser';
 // 导入调度器初始化
 import { initScheduler } from './scheduler.js';
 
+// 导入 seed 数据加载函数
+import { loadSeedData } from './storage.js';
+
 // 导入路由模块
 import publicRoutes from './routes/public.js';
 import projectRoutes from './routes/projects.js';
@@ -26,6 +29,9 @@ const PORT = process.env.PORT || 3002;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
+
+// ==================== 加载演示数据 ====================
+loadSeedData();
 
 // ==================== 初始化调度器 ====================
 initScheduler();

@@ -213,6 +213,14 @@ export async function handleGitHubCallback(code) {
  * 创建测试用户（开发环境）
  */
 export function createTestUser() {
+  // 优先使用 seed 数据中的演示用户
+  const demoUser = userStorage.findById('demo-user-1');
+  if (demoUser) {
+    const token = generateToken({ userId: demoUser.id });
+    return { user: demoUser, token };
+  }
+
+  // 兜底：查找或创建测试用户
   const existingUser = userStorage.findByGithubId('test-user');
 
   if (existingUser) {
