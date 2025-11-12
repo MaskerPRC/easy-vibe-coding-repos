@@ -28,6 +28,12 @@ const routes = [
     name: 'Sources',
     component: () => import('../views/Sources.vue'),
     meta: { title: '信息源' }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('../views/NotFound.vue'),
+    meta: { title: '页面未找到' }
   }
 ];
 
