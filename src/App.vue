@@ -5,10 +5,11 @@
 </template>
 
 <script setup>
-// AI编程失败案例集合主应用
+// 使用 Vue Router 进行页面路由
 </script>
 
 <style>
+/* 全局样式重置 */
 * {
   margin: 0;
   padding: 0;
@@ -17,8 +18,6 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 #app {
