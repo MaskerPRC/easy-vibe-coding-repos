@@ -1,454 +1,50 @@
 <template>
-  <div class="minecraft-game">
-    <!-- 3D画布容器 -->
-    <div ref="gameContainer" class="game-container"></div>
-
-    <!-- 游戏UI -->
-    <div class="game-ui">
-      <!-- 十字准星 -->
-      <div class="crosshair">
-        <div class="crosshair-line crosshair-horizontal"></div>
-        <div class="crosshair-line crosshair-vertical"></div>
+  <div class="app">
+    <div class="flag-ceremony">
+      <!-- 天空背景 -->
+      <div class="sky">
+        <div class="sun"></div>
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
       </div>
 
-      <!-- 方块选择器 -->
-      <div class="block-selector">
-        <div
-          v-for="(block, index) in blockTypes"
-          :key="index"
-          :class="['block-item', { active: selectedBlock === index }]"
-          :style="{ backgroundColor: block.color }"
-          @click="selectBlock(index)"
-        >
-          <span>{{ index + 1 }}</span>
-          <div class="block-name">{{ block.name }}</div>
+      <!-- 旗杆 -->
+      <div class="flagpole"></div>
+
+      <!-- 国旗 -->
+      <div class="flag-container">
+        <div class="flag">
+          <!-- 大五角星 -->
+          <div class="star star-big"></div>
+          <!-- 四颗小五角星 -->
+          <div class="star star-small star-1"></div>
+          <div class="star star-small star-2"></div>
+          <div class="star star-small star-3"></div>
+          <div class="star star-small star-4"></div>
         </div>
       </div>
 
-      <!-- 控制说明 -->
-      <div class="controls-help" v-if="showHelp">
-        <h3>游戏控制</h3>
-        <ul>
-          <li><strong>移动：</strong>W/A/S/D 键</li>
-          <li><strong>跳跃：</strong>空格键</li>
-          <li><strong>视角：</strong>鼠标移动</li>
-          <li><strong>破坏方块：</strong>左键点击</li>
-          <li><strong>放置方块：</strong>右键点击</li>
-          <li><strong>选择方块：</strong>1-6 数字键 或 点击下方方块</li>
-          <li><strong>帮助：</strong>H 键</li>
-        </ul>
-        <button @click="showHelp = false">关闭</button>
-      </div>
+      <!-- 地面 -->
+      <div class="ground"></div>
 
-      <!-- 帮助按钮 -->
-      <button class="help-button" @click="showHelp = !showHelp">
-        {{ showHelp ? '隐藏帮助' : '显示帮助(H)' }}
-      </button>
-
-      <!-- 锁定提示 -->
-      <div class="lock-notice" v-if="!isPointerLocked">
-        <p>点击游戏区域开始游戏</p>
-        <p class="small-text">点击后可以使用鼠标和键盘控制</p>
+      <!-- 标题 -->
+      <div class="title">
+        <h1>升国旗仪式</h1>
+        <p>起来！不愿做奴隶的人们！</p>
+        <button @click="restartAnimation" class="restart-btn">重新播放</button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import * as THREE from 'three'
+import { ref } from 'vue';
 
-// 游戏状态
-const gameContainer = ref(null)
-const isPointerLocked = ref(false)
-const showHelp = ref(true)
-const selectedBlock = ref(0)
-
-// 方块类型定义
-const blockTypes = [
-  { name: '草地', color: '#7cb342', top: '#7cb342', side: '#8d6e63', bottom: '#6d4c41' },
-  { name: '泥土', color: '#8d6e63', top: '#8d6e63', side: '#8d6e63', bottom: '#6d4c41' },
-  { name: '石头', color: '#757575', top: '#757575', side: '#616161', bottom: '#424242' },
-  { name: '木板', color: '#a1887f', top: '#a1887f', side: '#8d6e63', bottom: '#795548' },
-  { name: '树叶', color: '#558b2f', top: '#558b2f', side: '#689f38', bottom: '#33691e' },
-  { name: '沙子', color: '#fdd835', top: '#fdd835', side: '#fbc02d', bottom: '#f9a825' }
-]
-
-// Three.js 变量
-let scene, camera, renderer, raycaster, mouse
-let world = new Map() // 存储方块数据 (key: "x,y,z", value: blockType)
-let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, canJump = false
-let velocity = new THREE.Vector3()
-let direction = new THREE.Vector3()
-const blockSize = 1
-let clock = new THREE.Clock()
-
-// 玩家相机设置
-let yaw = 0, pitch = 0
-const moveSpeed = 5
-const jumpSpeed = 8
-const gravity = 20
-
-// 选择方块
-const selectBlock = (index) => {
-  selectedBlock.value = index
-}
-
-// 初始化Three.js场景
-const initScene = () => {
-  // 创建场景
-  scene = new THREE.Scene()
-  scene.background = new THREE.Color(0x87ceeb) // 天空蓝
-  scene.fog = new THREE.Fog(0x87ceeb, 0, 100)
-
-  // 创建相机
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-  camera.position.set(0, 10, 10)
-
-  // 创建渲染器
-  renderer = new THREE.WebGLRenderer({ antialias: true })
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  renderer.shadowMap.enabled = true
-  gameContainer.value.appendChild(renderer.domElement)
-
-  // 添加光源
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
-  scene.add(ambientLight)
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
-  directionalLight.position.set(50, 100, 50)
-  directionalLight.castShadow = true
-  directionalLight.shadow.mapSize.width = 2048
-  directionalLight.shadow.mapSize.height = 2048
-  scene.add(directionalLight)
-
-  // Raycaster用于检测方块
-  raycaster = new THREE.Raycaster()
-  raycaster.far = 10
-  mouse = new THREE.Vector2(0, 0) // 屏幕中心
-
-  // 生成初始世界
-  generateWorld()
-
-  // 设置指针锁定
-  setupPointerLock()
-
-  // 开始动画循环
-  animate()
-}
-
-// 生成初始世界
-const generateWorld = () => {
-  // 创建地面层
-  for (let x = -15; x <= 15; x++) {
-    for (let z = -15; z <= 15; z++) {
-      // 地面（草地）
-      addBlock(x, 0, z, 0)
-      // 地下层（泥土）
-      addBlock(x, -1, z, 1)
-      addBlock(x, -2, z, 1)
-      // 底层（石头）
-      addBlock(x, -3, z, 2)
-    }
-  }
-
-  // 添加一些随机的树
-  addTree(5, 1, 5)
-  addTree(-8, 1, 3)
-  addTree(10, 1, -10)
-  addTree(-5, 1, -8)
-  addTree(0, 1, 12)
-
-  // 添加一些装饰方块
-  addBlock(3, 1, 3, 2)
-  addBlock(4, 1, 3, 2)
-  addBlock(3, 2, 3, 2)
-  addBlock(-3, 1, -3, 5)
-  addBlock(-3, 1, -2, 5)
-  addBlock(-2, 1, -3, 5)
-}
-
-// 添加树
-const addTree = (x, y, z) => {
-  // 树干
-  addBlock(x, y, z, 3)
-  addBlock(x, y + 1, z, 3)
-  addBlock(x, y + 2, z, 3)
-  addBlock(x, y + 3, z, 3)
-
-  // 树叶
-  for (let dx = -2; dx <= 2; dx++) {
-    for (let dz = -2; dz <= 2; dz++) {
-      for (let dy = 0; dy <= 1; dy++) {
-        if (Math.abs(dx) === 2 && Math.abs(dz) === 2) continue
-        addBlock(x + dx, y + 4 + dy, z + dz, 4)
-      }
-    }
-  }
-  // 树顶
-  addBlock(x, y + 6, z, 4)
-  addBlock(x + 1, y + 6, z, 4)
-  addBlock(x - 1, y + 6, z, 4)
-  addBlock(x, y + 6, z + 1, 4)
-  addBlock(x, y + 6, z - 1, 4)
-}
-
-// 添加方块
-const addBlock = (x, y, z, type) => {
-  const key = `${x},${y},${z}`
-  if (world.has(key)) return
-
-  const blockType = blockTypes[type]
-  const geometry = new THREE.BoxGeometry(blockSize, blockSize, blockSize)
-
-  // 创建材质（每个面不同颜色）
-  const materials = [
-    new THREE.MeshLambertMaterial({ color: blockType.side }), // 右
-    new THREE.MeshLambertMaterial({ color: blockType.side }), // 左
-    new THREE.MeshLambertMaterial({ color: blockType.top }), // 上
-    new THREE.MeshLambertMaterial({ color: blockType.bottom }), // 下
-    new THREE.MeshLambertMaterial({ color: blockType.side }), // 前
-    new THREE.MeshLambertMaterial({ color: blockType.side })  // 后
-  ]
-
-  const mesh = new THREE.Mesh(geometry, materials)
-  mesh.position.set(x, y, z)
-  mesh.castShadow = true
-  mesh.receiveShadow = true
-  mesh.userData = { key, type }
-
-  scene.add(mesh)
-  world.set(key, { mesh, type })
-}
-
-// 移除方块
-const removeBlock = (x, y, z) => {
-  const key = `${x},${y},${z}`
-  const block = world.get(key)
-  if (block) {
-    scene.remove(block.mesh)
-    block.mesh.geometry.dispose()
-    if (Array.isArray(block.mesh.material)) {
-      block.mesh.material.forEach(mat => mat.dispose())
-    } else {
-      block.mesh.material.dispose()
-    }
-    world.delete(key)
-  }
-}
-
-// 设置指针锁定
-const setupPointerLock = () => {
-  const element = renderer.domElement
-
-  element.addEventListener('click', () => {
-    element.requestPointerLock()
-  })
-
-  document.addEventListener('pointerlockchange', () => {
-    isPointerLocked.value = document.pointerLockElement === element
-  })
-
-  document.addEventListener('mousemove', onMouseMove)
-  document.addEventListener('mousedown', onMouseDown)
-  document.addEventListener('contextmenu', (e) => e.preventDefault())
-}
-
-// 鼠标移动
-const onMouseMove = (event) => {
-  if (!isPointerLocked.value) return
-
-  const movementX = event.movementX || 0
-  const movementY = event.movementY || 0
-
-  yaw -= movementX * 0.002
-  pitch -= movementY * 0.002
-  pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch))
-
-  camera.rotation.order = 'YXZ'
-  camera.rotation.y = yaw
-  camera.rotation.x = pitch
-}
-
-// 鼠标点击
-const onMouseDown = (event) => {
-  if (!isPointerLocked.value) return
-
-  // 设置raycaster从相机中心发射
-  raycaster.setFromCamera(mouse, camera)
-
-  // 获取所有方块
-  const objects = []
-  world.forEach(block => objects.push(block.mesh))
-
-  const intersects = raycaster.intersectObjects(objects)
-
-  if (intersects.length > 0) {
-    const intersect = intersects[0]
-
-    if (event.button === 0) {
-      // 左键 - 破坏方块
-      const key = intersect.object.userData.key
-      const [x, y, z] = key.split(',').map(Number)
-      removeBlock(x, y, z)
-    } else if (event.button === 2) {
-      // 右键 - 放置方块
-      const normal = intersect.face.normal
-      const pos = intersect.object.position.clone()
-      pos.x += normal.x
-      pos.y += normal.y
-      pos.z += normal.z
-
-      // 检查是否与玩家碰撞
-      const playerPos = camera.position.clone()
-      const distance = playerPos.distanceTo(pos)
-      if (distance > 1.5) {
-        addBlock(Math.round(pos.x), Math.round(pos.y), Math.round(pos.z), selectedBlock.value)
-      }
-    }
-  }
-}
-
-// 键盘控制
-const onKeyDown = (event) => {
-  switch (event.code) {
-    case 'KeyW': moveForward = true; break
-    case 'KeyS': moveBackward = true; break
-    case 'KeyA': moveLeft = true; break
-    case 'KeyD': moveRight = true; break
-    case 'Space': if (canJump) velocity.y = jumpSpeed; break
-    case 'KeyH': showHelp.value = !showHelp.value; break
-    case 'Digit1': selectBlock(0); break
-    case 'Digit2': selectBlock(1); break
-    case 'Digit3': selectBlock(2); break
-    case 'Digit4': selectBlock(3); break
-    case 'Digit5': selectBlock(4); break
-    case 'Digit6': selectBlock(5); break
-  }
-}
-
-const onKeyUp = (event) => {
-  switch (event.code) {
-    case 'KeyW': moveForward = false; break
-    case 'KeyS': moveBackward = false; break
-    case 'KeyA': moveLeft = false; break
-    case 'KeyD': moveRight = false; break
-  }
-}
-
-// 检查碰撞
-const checkCollision = (position) => {
-  const playerBox = new THREE.Box3(
-    new THREE.Vector3(position.x - 0.3, position.y - 1.5, position.z - 0.3),
-    new THREE.Vector3(position.x + 0.3, position.y + 0.3, position.z + 0.3)
-  )
-
-  for (let [key, block] of world) {
-    const blockBox = new THREE.Box3().setFromObject(block.mesh)
-    if (playerBox.intersectsBox(blockBox)) {
-      return true
-    }
-  }
-  return false
-}
-
-// 更新玩家移动
-const updateMovement = (delta) => {
-  velocity.x -= velocity.x * 10.0 * delta
-  velocity.z -= velocity.z * 10.0 * delta
-  velocity.y -= gravity * delta
-
-  direction.z = Number(moveForward) - Number(moveBackward)
-  direction.x = Number(moveRight) - Number(moveLeft)
-  direction.normalize()
-
-  if (moveForward || moveBackward) velocity.z -= direction.z * moveSpeed * delta
-  if (moveLeft || moveRight) velocity.x -= direction.x * moveSpeed * delta
-
-  const newPosition = camera.position.clone()
-
-  // 应用旋转到移动方向
-  const moveVector = new THREE.Vector3(-velocity.x, 0, -velocity.z)
-  moveVector.applyEuler(new THREE.Euler(0, yaw, 0))
-
-  newPosition.x += moveVector.x
-  newPosition.z += moveVector.z
-
-  // 检查水平碰撞
-  if (!checkCollision(newPosition)) {
-    camera.position.x = newPosition.x
-    camera.position.z = newPosition.z
-  }
-
-  newPosition.copy(camera.position)
-  newPosition.y += velocity.y * delta
-
-  // 检查垂直碰撞
-  if (!checkCollision(newPosition)) {
-    camera.position.y = newPosition.y
-    canJump = false
-  } else {
-    if (velocity.y < 0) canJump = true
-    velocity.y = 0
-  }
-
-  // 防止掉出世界
-  if (camera.position.y < -5) {
-    camera.position.set(0, 10, 10)
-    velocity.set(0, 0, 0)
-  }
-}
-
-// 动画循环
-const animate = () => {
-  requestAnimationFrame(animate)
-
-  const delta = clock.getDelta()
-
-  if (isPointerLocked.value) {
-    updateMovement(delta)
-  }
-
-  renderer.render(scene, camera)
-}
-
-// 窗口大小调整
-const onWindowResize = () => {
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
-  renderer.setSize(window.innerWidth, window.innerHeight)
-}
-
-// 组件挂载
-onMounted(() => {
-  initScene()
-  window.addEventListener('resize', onWindowResize)
-  document.addEventListener('keydown', onKeyDown)
-  document.addEventListener('keyup', onKeyUp)
-})
-
-// 组件卸载
-onUnmounted(() => {
-  window.removeEventListener('resize', onWindowResize)
-  document.removeEventListener('keydown', onKeyDown)
-  document.removeEventListener('keyup', onKeyUp)
-  document.removeEventListener('mousemove', onMouseMove)
-  document.removeEventListener('mousedown', onMouseDown)
-
-  // 清理资源
-  if (renderer) {
-    renderer.dispose()
-  }
-  world.forEach(block => {
-    if (block.mesh.geometry) block.mesh.geometry.dispose()
-    if (Array.isArray(block.mesh.material)) {
-      block.mesh.material.forEach(mat => mat.dispose())
-    } else if (block.mesh.material) {
-      block.mesh.material.dispose()
-    }
-  })
-  world.clear()
-})
+// 重新播放动画
+const restartAnimation = () => {
+  window.location.reload();
+};
 </script>
 
 <style scoped>
@@ -458,243 +54,564 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-.minecraft-game {
-  width: 100vw;
-  height: 100vh;
+.app {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
   overflow: hidden;
-  font-family: 'Minecraft', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
-.game-container {
+.flag-ceremony {
+  position: relative;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.game-ui {
-  position: fixed;
+/* 天空和太阳 */
+.sky {
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
+  overflow: hidden;
 }
 
-/* 十字准星 */
-.crosshair {
+.sun {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 50px;
+  right: 100px;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+  animation: sun-glow 3s ease-in-out infinite;
 }
 
-.crosshair-line {
-  background-color: rgba(255, 255, 255, 0.8);
+@keyframes sun-glow {
+  0%, 100% {
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.8);
+  }
+}
+
+/* 云朵 */
+.cloud {
   position: absolute;
+  background: white;
+  border-radius: 100px;
+  opacity: 0.8;
 }
 
-.crosshair-horizontal {
-  width: 20px;
-  height: 2px;
-  left: -10px;
-  top: -1px;
-}
-
-.crosshair-vertical {
-  width: 2px;
-  height: 20px;
-  left: -1px;
-  top: -10px;
-}
-
-/* 方块选择器 */
-.block-selector {
+.cloud::before,
+.cloud::after {
+  content: '';
   position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 10px;
-  pointer-events: auto;
+  background: white;
+  border-radius: 100px;
 }
 
-.block-item {
+.cloud-1 {
+  width: 100px;
+  height: 40px;
+  top: 80px;
+  left: 10%;
+  animation: cloud-drift-1 20s linear infinite;
+}
+
+.cloud-1::before {
+  width: 50px;
+  height: 50px;
+  top: -25px;
+  left: 10px;
+}
+
+.cloud-1::after {
   width: 60px;
-  height: 60px;
-  border: 3px solid rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 20px;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  height: 35px;
+  top: -15px;
+  right: 10px;
 }
 
-.block-item:hover {
-  transform: scale(1.1);
-  border-color: rgba(255, 255, 255, 0.9);
+.cloud-2 {
+  width: 120px;
+  height: 45px;
+  top: 150px;
+  right: 20%;
+  animation: cloud-drift-2 25s linear infinite;
 }
 
-.block-item.active {
-  border-color: #fff;
-  border-width: 4px;
-  transform: scale(1.15);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+.cloud-2::before {
+  width: 55px;
+  height: 55px;
+  top: -28px;
+  left: 15px;
 }
 
-.block-name {
+.cloud-2::after {
+  width: 65px;
+  height: 40px;
+  top: -18px;
+  right: 15px;
+}
+
+.cloud-3 {
+  width: 90px;
+  height: 35px;
+  top: 120px;
+  left: 50%;
+  animation: cloud-drift-3 30s linear infinite;
+}
+
+.cloud-3::before {
+  width: 45px;
+  height: 45px;
+  top: -22px;
+  left: 12px;
+}
+
+.cloud-3::after {
+  width: 50px;
+  height: 32px;
+  top: -14px;
+  right: 12px;
+}
+
+@keyframes cloud-drift-1 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100vw);
+  }
+}
+
+@keyframes cloud-drift-2 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100vw);
+  }
+}
+
+@keyframes cloud-drift-3 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(80vw);
+  }
+}
+
+/* 旗杆 */
+.flagpole {
   position: absolute;
-  bottom: -25px;
+  left: 50%;
+  bottom: 100px;
+  width: 8px;
+  height: 500px;
+  background: linear-gradient(to right, #888 0%, #ccc 50%, #888 100%);
+  transform: translateX(-50%);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+/* 国旗容器 */
+.flag-container {
+  position: absolute;
+  left: 50%;
+  bottom: 600px;
+  transform: translateX(-50%);
+  z-index: 2;
+  animation: flag-raise 8s ease-in-out forwards;
+}
+
+@keyframes flag-raise {
+  0% {
+    bottom: 100px;
+    opacity: 0.8;
+  }
+  100% {
+    bottom: 600px;
+    opacity: 1;
+  }
+}
+
+/* 国旗 */
+.flag {
+  width: 300px;
+  height: 200px;
+  background: #DE2910;
+  position: relative;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  animation: flag-wave 3s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+@keyframes flag-wave {
+  0%, 100% {
+    transform: perspective(400px) rotateY(0deg);
+  }
+  25% {
+    transform: perspective(400px) rotateY(-5deg);
+  }
+  75% {
+    transform: perspective(400px) rotateY(5deg);
+  }
+}
+
+/* 五角星样式 */
+.star {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 22px solid #FFDE00;
+  transform: rotate(35deg);
+}
+
+.star::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  top: 3px;
+  left: -15px;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 22px solid #FFDE00;
+  transform: rotate(-70deg);
+}
+
+/* 大五角星 */
+.star-big {
+  left: 50px;
+  top: 40px;
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-bottom: 36px solid #FFDE00;
+}
+
+.star-big::before {
+  left: -25px;
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-bottom: 36px solid #FFDE00;
+}
+
+/* 小五角星 */
+.star-small {
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 15px solid #FFDE00;
+}
+
+.star-small::before {
+  left: -10px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 15px solid #FFDE00;
+}
+
+.star-1 {
+  left: 140px;
+  top: 20px;
+  transform: rotate(10deg);
+}
+
+.star-2 {
+  left: 160px;
+  top: 45px;
+  transform: rotate(25deg);
+}
+
+.star-3 {
+  left: 160px;
+  top: 80px;
+  transform: rotate(40deg);
+}
+
+.star-4 {
+  left: 140px;
+  top: 105px;
+  transform: rotate(55deg);
+}
+
+/* 地面 */
+.ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(to bottom, #228B22 0%, #1a6b1a 100%);
+  z-index: 0;
+}
+
+/* 标题区域 */
+.title {
+  position: absolute;
+  top: 50px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.block-item:hover .block-name {
-  opacity: 1;
-}
-
-/* 控制说明 */
-.controls-help {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.85);
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 300px;
-  pointer-events: auto;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-}
-
-.controls-help h3 {
-  margin-bottom: 15px;
-  font-size: 20px;
-  border-bottom: 2px solid #7cb342;
-  padding-bottom: 10px;
-}
-
-.controls-help ul {
-  list-style: none;
-  margin-bottom: 15px;
-}
-
-.controls-help li {
-  margin-bottom: 8px;
-  line-height: 1.6;
-}
-
-.controls-help button {
-  width: 100%;
-  padding: 10px;
-  background: #7cb342;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  transition: background 0.3s;
-}
-
-.controls-help button:hover {
-  background: #689f38;
-}
-
-/* 帮助按钮 */
-.help-button {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  padding: 10px 20px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: 2px solid #7cb342;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  pointer-events: auto;
-  transition: all 0.3s;
-}
-
-.help-button:hover {
-  background: rgba(124, 179, 66, 0.3);
-  border-color: #689f38;
-}
-
-/* 锁定提示 */
-.lock-notice {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.85);
-  color: white;
-  padding: 30px 50px;
-  border-radius: 10px;
   text-align: center;
-  pointer-events: none;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  animation: title-fade-in 2s ease-in-out;
 }
 
-.lock-notice p {
-  font-size: 20px;
+@keyframes title-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.title h1 {
+  font-size: 48px;
+  font-weight: 700;
+  color: #DE2910;
   margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 5px;
 }
 
-.small-text {
-  font-size: 14px;
-  opacity: 0.7;
+.title p {
+  font-size: 20px;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 20px;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.restart-btn {
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: #DE2910;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(222, 41, 16, 0.3);
+  transition: all 0.3s ease;
+  animation: button-appear 1s ease-in-out 8s both;
+}
+
+@keyframes button-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.restart-btn:hover {
+  background: #c41e0a;
+  box-shadow: 0 6px 15px rgba(222, 41, 16, 0.5);
+  transform: translateY(-2px);
+}
+
+.restart-btn:active {
+  transform: translateY(0);
 }
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .block-selector {
-    bottom: 10px;
-    gap: 5px;
+  .sun {
+    top: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
   }
 
-  .block-item {
-    width: 45px;
-    height: 45px;
+  .flagpole {
+    height: 350px;
+  }
+
+  .flag-container {
+    bottom: 450px;
+  }
+
+  @keyframes flag-raise {
+    0% {
+      bottom: 100px;
+      opacity: 0.8;
+    }
+    100% {
+      bottom: 450px;
+      opacity: 1;
+    }
+  }
+
+  .flag {
+    width: 200px;
+    height: 133px;
+  }
+
+  .star-big {
+    left: 35px;
+    top: 25px;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-bottom: 26px solid #FFDE00;
+  }
+
+  .star-big::before {
+    left: -18px;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-bottom: 26px solid #FFDE00;
+  }
+
+  .star-small {
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 12px solid #FFDE00;
+  }
+
+  .star-small::before {
+    left: -8px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 12px solid #FFDE00;
+  }
+
+  .star-1 {
+    left: 95px;
+    top: 15px;
+  }
+
+  .star-2 {
+    left: 110px;
+    top: 32px;
+  }
+
+  .star-3 {
+    left: 110px;
+    top: 55px;
+  }
+
+  .star-4 {
+    left: 95px;
+    top: 72px;
+  }
+
+  .title h1 {
+    font-size: 32px;
+    letter-spacing: 3px;
+  }
+
+  .title p {
     font-size: 16px;
   }
 
-  .controls-help {
+  .restart-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .flagpole {
+    height: 280px;
+  }
+
+  .flag-container {
+    bottom: 380px;
+  }
+
+  @keyframes flag-raise {
+    0% {
+      bottom: 100px;
+      opacity: 0.8;
+    }
+    100% {
+      bottom: 380px;
+      opacity: 1;
+    }
+  }
+
+  .flag {
+    width: 150px;
+    height: 100px;
+  }
+
+  .star-big {
+    left: 25px;
+    top: 18px;
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+    border-bottom: 19px solid #FFDE00;
+  }
+
+  .star-big::before {
+    left: -13px;
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+    border-bottom: 19px solid #FFDE00;
+  }
+
+  .star-small {
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 9px solid #FFDE00;
+  }
+
+  .star-small::before {
+    left: -6px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 9px solid #FFDE00;
+  }
+
+  .star-1 {
+    left: 70px;
     top: 10px;
-    right: 10px;
-    padding: 15px;
-    max-width: 250px;
-    font-size: 12px;
   }
 
-  .help-button {
-    top: 10px;
-    right: 10px;
-    padding: 8px 15px;
-    font-size: 12px;
+  .star-2 {
+    left: 82px;
+    top: 23px;
   }
 
-  .lock-notice {
-    padding: 20px 30px;
+  .star-3 {
+    left: 82px;
+    top: 40px;
   }
 
-  .lock-notice p {
-    font-size: 16px;
+  .star-4 {
+    left: 70px;
+    top: 53px;
+  }
+
+  .title h1 {
+    font-size: 24px;
+    letter-spacing: 2px;
+  }
+
+  .title p {
+    font-size: 14px;
+  }
+
+  .restart-btn {
+    padding: 8px 20px;
+    font-size: 13px;
   }
 }
 </style>
+
