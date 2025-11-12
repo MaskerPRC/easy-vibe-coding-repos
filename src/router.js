@@ -1,20 +1,20 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import Home from './views/Home.vue';
+import CaseDetail from './views/CaseDetail.vue';
 
-// 路由配置
 const routes = [
   {
     path: '/',
-    name: 'Dashboard',
-    component: () => import('../views/Dashboard.vue')
+    name: 'Home',
+    component: Home
   },
   {
-    path: '/test',
-    name: 'Test',
-    component: () => import('../views/TestPage.vue')
+    path: '/case/:id',
+    name: 'CaseDetail',
+    component: CaseDetail
   }
 ];
 
-// 创建路由实例
 const router = createRouter({
   history: createWebHistory(),
   routes
