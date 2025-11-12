@@ -1,230 +1,196 @@
 <template>
-  <div class="app">
-    <div class="construction-container">
-      <div class="construction-box">
-        <div class="construction-icon">
-          <div class="icon-bar icon-bar-1"></div>
-          <div class="icon-bar icon-bar-2"></div>
-          <div class="icon-bar icon-bar-3"></div>
-        </div>
-        <h1 class="construction-title">网站正在构建中</h1>
-        <p class="construction-text">我们正在努力完善这个网站，请稍后再来</p>
-        <div class="construction-stripes">
-          <div class="stripe stripe-1"></div>
-          <div class="stripe stripe-2"></div>
-          <div class="stripe stripe-3"></div>
-          <div class="stripe stripe-4"></div>
-        </div>
-      </div>
+  <div class="aiverse-app">
+    <!-- 顶部导航栏 -->
+    <TopNavbar
+      @open-submit-modal="showSubmitModal = true"
+      @toggle-mobile-menu="mobileMenuOpen = !mobileMenuOpen"
+    />
+
+    <!-- 移动端菜单 -->
+    <MobileMenu
+      :is-open="mobileMenuOpen"
+      :categories="categories"
+      :selected-category="selectedCategory"
+      @close="mobileMenuOpen = false"
+      @select-category="selectCategory"
+      @open-submit-modal="showSubmitModal = true"
+    />
+
+    <div class="main-layout">
+      <!-- 左侧边栏分类 -->
+      <Sidebar
+        :categories="categories"
+        :selected-category="selectedCategory"
+        @select-category="selectCategory"
+      />
+
+      <!-- 主内容区域 -->
+      <main class="main-content">
+        <!-- 搜索栏 -->
+        <SearchBar
+          v-model:search-query="searchQuery"
+          v-model:sort-by="sortBy"
+          @search="handleSearch"
+        />
+
+        <!-- 今日产品专区 -->
+        <FeaturedSection
+          v-if="featuredTools.length > 0 && !searchQuery && selectedCategory === '全部'"
+          :featured-tools="featuredTools"
+        />
+
+        <!-- 工具列表区域 -->
+        <ToolsSection
+          :tools="tools"
+          :loading="loading"
+          :selected-category="selectedCategory"
+          :total-tools="totalTools"
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          @go-to-page="goToPage"
+        />
+      </main>
     </div>
+
+    <!-- 页脚 -->
+    <Footer />
+
+    <!-- 提交工具模态框 -->
+    <SubmitModal
+      :is-open="showSubmitModal"
+      :categories="categories"
+      @close="showSubmitModal = false"
+      @submit-success="loadTools"
+    />
   </div>
 </template>
 
 <script setup>
-// 无需后端检查，纯静态展示页面
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import TopNavbar from './components/TopNavbar.vue';
+import MobileMenu from './components/MobileMenu.vue';
+import Sidebar from './components/Sidebar.vue';
+import SearchBar from './components/SearchBar.vue';
+import FeaturedSection from './components/FeaturedSection.vue';
+import ToolsSection from './components/ToolsSection.vue';
+import Footer from './components/Footer.vue';
+import SubmitModal from './components/SubmitModal.vue';
+
+// 状态管理
+const categories = ref(['全部', '人工智能', '生产力', '营销', '开发者工具', '设计', 'SEO', '聊天机器人', '社交媒体', '内容创作', '无代码', '写作', '客户支持', '博客', '销售', '产品化服务', '网站构建器', '分析', 'iOS', '开发者API', '视频', '产品开发', 'Mac', '反馈工具', '教育', '电子邮件']);
+const selectedCategory = ref('全部');
+const searchQuery = ref('');
+const sortBy = ref('popularity');
+const tools = ref([]);
+const featuredTools = ref([]);
+const loading = ref(false);
+const currentPage = ref(1);
+const totalPages = ref(1);
+const totalTools = ref(0);
+const mobileMenuOpen = ref(false);
+const showSubmitModal = ref(false);
+
+// 加载工具列表
+const loadTools = async () => {
+  loading.value = true;
+  try {
+    const params = {
+      page: currentPage.value,
+      limit: 24,
+      search: searchQuery.value,
+      category: selectedCategory.value === '全部' ? '' : selectedCategory.value,
+      sort: sortBy.value
+    };
+
+    const response = await axios.get('/api/tools', { params });
+    if (response.data.success) {
+      tools.value = response.data.data.tools;
+      totalTools.value = response.data.data.total;
+      totalPages.value = response.data.data.totalPages;
+    }
+  } catch (error) {
+    console.error('加载工具失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 加载今日产品
+const loadFeaturedTools = async () => {
+  try {
+    const response = await axios.get('/api/tools/featured');
+    if (response.data.success) {
+      featuredTools.value = response.data.data;
+    }
+  } catch (error) {
+    console.error('加载今日产品失败:', error);
+  }
+};
+
+// 选择分类
+const selectCategory = (category) => {
+  selectedCategory.value = category;
+  currentPage.value = 1;
+  loadTools();
+};
+
+// 搜索处理
+const handleSearch = () => {
+  currentPage.value = 1;
+  loadTools();
+};
+
+// 翻页
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    loadTools();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+// 初始化
+onMounted(() => {
+  loadTools();
+  loadFeaturedTools();
+});
 </script>
 
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.app {
+/* 全局样式 */
+.aiverse-app {
   min-height: 100vh;
-  background: #000000;
+  background: #FFFFFF;
+  color: #333333;
+}
+
+/* 主布局 */
+.main-layout {
+  max-width: 1400px;
+  margin: 0 auto;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  gap: 32px;
+  padding: 32px 24px;
 }
 
-.construction-container {
-  width: 100%;
-  max-width: 600px;
-  text-align: center;
+/* 主内容区域 */
+.main-content {
+  flex: 1;
+  min-width: 0;
 }
 
-.construction-box {
-  border: 2px solid #ffffff;
-  background: #ffffff;
-  padding: 60px 40px;
-  position: relative;
-  overflow: hidden;
-}
-
-.construction-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 40px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-bar {
-  position: absolute;
-  width: 8px;
-  height: 60px;
-  background: #000000;
-  animation: construction-pulse 1.5s ease-in-out infinite;
-}
-
-.icon-bar-1 {
-  left: 20px;
-  animation-delay: 0s;
-}
-
-.icon-bar-2 {
-  left: 36px;
-  animation-delay: 0.3s;
-}
-
-.icon-bar-3 {
-  left: 52px;
-  animation-delay: 0.6s;
-}
-
-@keyframes construction-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-  50% {
-    opacity: 0.3;
-    transform: scaleY(0.5);
+/* 响应式布局 */
+@media (max-width: 1024px) {
+  .main-layout {
+    gap: 24px;
   }
 }
 
-.construction-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #000000;
-  margin-bottom: 20px;
-  letter-spacing: 2px;
-}
-
-.construction-text {
-  font-size: 16px;
-  color: #000000;
-  line-height: 1.6;
-  opacity: 0.8;
-  margin-bottom: 40px;
-}
-
-.construction-stripes {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.stripe {
-  position: absolute;
-  width: 100%;
-  height: 20px;
-  background: repeating-linear-gradient(
-    90deg,
-    #000000 0px,
-    #000000 20px,
-    transparent 20px,
-    transparent 40px
-  );
-  opacity: 0.1;
-  animation: stripe-move 2s linear infinite;
-}
-
-.stripe-1 {
-  top: 0;
-  animation-delay: 0s;
-}
-
-.stripe-2 {
-  top: 25%;
-  animation-delay: 0.5s;
-}
-
-.stripe-3 {
-  top: 50%;
-  animation-delay: 1s;
-}
-
-.stripe-4 {
-  top: 75%;
-  animation-delay: 1.5s;
-}
-
-@keyframes stripe-move {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* 移动端适配 */
 @media (max-width: 768px) {
-  .construction-box {
-    padding: 40px 20px;
-  }
-
-  .construction-icon {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 30px;
-  }
-
-  .icon-bar {
-    width: 6px;
-    height: 45px;
-  }
-
-  .icon-bar-1 {
-    left: 15px;
-  }
-
-  .icon-bar-2 {
-    left: 27px;
-  }
-
-  .icon-bar-3 {
-    left: 39px;
-  }
-
-  .construction-title {
-    font-size: 24px;
-    margin-bottom: 15px;
-  }
-
-  .construction-text {
-    font-size: 14px;
-    margin-bottom: 30px;
-  }
-
-  .stripe {
-    height: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .construction-box {
-    padding: 30px 15px;
-  }
-
-  .construction-title {
-    font-size: 20px;
-  }
-
-  .construction-text {
-    font-size: 13px;
+  .main-layout {
+    flex-direction: column;
+    padding: 24px 16px;
   }
 }
 </style>
-
