@@ -1,32 +1,20 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
     plugins: [vue()],
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
-        }
-    },
     server: {
         port: 5173,
         host: '0.0.0.0',
-        strictPort: false,
         hmr: {
-            overlay: false,
-            clientPort: 5173
+            overlay: false
         },
         proxy: {
             '/api': {
                 target: 'http://localhost:3002',
-                changeOrigin: true,
-                secure: false
+                changeOrigin: true
             }
         }
-    },
-    optimizeDeps: {
-        include: ['vue', 'vue-router']
     }
 });
 

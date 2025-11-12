@@ -1,611 +1,418 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { store, generateId } from './store.js';
-import { validateDSL } from './dsl.js';
-import { performSecurityCheck, validateDSLSecurity, getRiskLevel } from './policy.js';
-import { checkRateLimit, getClientIP, getOrCreateSession, touchSession, banIP, banSession, unbanIP, unbanSession } from './rateLimit.js';
-import { parseIntent, compileToDSL, getSupportedElements, getSupportedColors } from './intentParser.js';
-import { createSnapshot, getSessionState, undo, resetToInitial, generateDSLHash, verifyDSLHash } from './snapshot.js';
+import { intentParser } from './intentParser.js';
+import { securityValidator } from './securityValidator.js';
+import { sessionManager } from './sessionManager.js';
+import { rateLimiter } from './rateLimiter.js';
+import { auditLogger } from './auditLogger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3002;
 
 // 中间件
 app.use(cors());
-app.use(bodyParser.json({ limit: '1mb' }));
+app.use(bodyParser.json());
 app.use(express.json());
 
-// 请求ID中间件
+// 设置安全响应头
 app.use((req, res, next) => {
-  req.requestId = generateId();
-  res.setHeader('X-Request-ID', req.requestId);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'");
   next();
 });
 
-// 日志中间件
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`[${req.requestId}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`);
+// 获取客户端IP
+function getClientIp(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0] ||
+         req.headers['x-real-ip'] ||
+         req.connection.remoteAddress ||
+         req.socket.remoteAddress ||
+         'unknown';
+}
+
+// POST /mvp/compile - 编译自然语言为DSL
+app.post('/api/mvp/compile', async (req, res) => {
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const clientIp = getClientIp(req);
+  const { text, session_id } = req.body;
+
+  try {
+    // 验证输入
+    if (!text || typeof text !== 'string') {
+      return res.status(400).json({
+        request_id: requestId,
+        status: 'error',
+        error: '请求参数无效：缺少text字段'
+      });
+    }
+
+    if (!session_id || typeof session_id !== 'string') {
+      return res.status(400).json({
+        request_id: requestId,
+        status: 'error',
+        error: '请求参数无效：缺少session_id字段'
+      });
+    }
+
+    // 检查频率限制
+    const rateLimitResult = rateLimiter.check(clientIp, session_id);
+    if (!rateLimitResult.allowed) {
+      auditLogger.log({
+        request_id: requestId,
+        session_id,
+        ip: clientIp,
+        action: 'compile',
+        status: 'rate_limited',
+        reason: rateLimitResult.reason
+      });
+
+      return res.status(429).json({
+        request_id: requestId,
+        status: 'error',
+        error: `频率限制：${rateLimitResult.reason}`
+      });
+    }
+
+    // 检查封禁状态
+    if (rateLimiter.isBanned(clientIp) || rateLimiter.isBanned(session_id)) {
+      auditLogger.log({
+        request_id: requestId,
+        session_id,
+        ip: clientIp,
+        action: 'compile',
+        status: 'banned',
+        reason: '已被封禁'
+      });
+
+      return res.status(403).json({
+        request_id: requestId,
+        status: 'error',
+        error: '访问被拒绝：您已被封禁'
+      });
+    }
+
+    // 第一步：文本安全审查
+    const textValidation = securityValidator.validateText(text);
+    if (!textValidation.safe) {
+      auditLogger.log({
+        request_id: requestId,
+        session_id,
+        ip: clientIp,
+        action: 'compile',
+        status: 'rejected',
+        reason: textValidation.reason,
+        input: text
+      });
+
+      return res.json({
+        request_id: requestId,
+        status: 'error',
+        error: `因安全策略未通过，未执行任何更改：${textValidation.reason}`
+      });
+    }
+
+    // 第二步：意图解析，生成DSL
+    const parseResult = intentParser.parse(textValidation.sanitizedText || text);
+    if (!parseResult.success) {
+      auditLogger.log({
+        request_id: requestId,
+        session_id,
+        ip: clientIp,
+        action: 'compile',
+        status: 'parse_failed',
+        reason: parseResult.error,
+        input: text
+      });
+
+      return res.json({
+        request_id: requestId,
+        status: 'error',
+        error: `无法理解您的需求：${parseResult.error}`
+      });
+    }
+
+    const dsl = parseResult.dsl;
+
+    // 第三步：DSL策略校验
+    const policyValidation = securityValidator.validateDSL(dsl);
+    if (!policyValidation.valid) {
+      auditLogger.log({
+        request_id: requestId,
+        session_id,
+        ip: clientIp,
+        action: 'compile',
+        status: 'policy_rejected',
+        reason: policyValidation.reason,
+        dsl: dsl
+      });
+
+      return res.json({
+        request_id: requestId,
+        status: 'error',
+        error: `因安全策略未通过，未执行任何更改：${policyValidation.reason}`
+      });
+    }
+
+    // 生成预览补丁（前端执行指令）
+    const previewPatch = dsl.changes;
+    const previewHash = Buffer.from(JSON.stringify(previewPatch)).toString('base64').substr(0, 16);
+
+    // 记录成功
+    auditLogger.log({
+      request_id: requestId,
+      session_id,
+      ip: clientIp,
+      action: 'compile',
+      status: 'success',
+      dsl: dsl
+    });
+
+    res.json({
+      request_id: requestId,
+      status: 'ok',
+      data: {
+        dsl,
+        preview_patch: previewPatch,
+        preview_hash: previewHash,
+        warnings: policyValidation.warnings || []
+      }
+    });
+
+  } catch (error) {
+    console.error('编译错误:', error);
+    auditLogger.log({
+      request_id: requestId,
+      session_id,
+      ip: clientIp,
+      action: 'compile',
+      status: 'error',
+      error: error.message
+    });
+
+    res.status(500).json({
+      request_id: requestId,
+      status: 'error',
+      error: '服务器内部错误'
+    });
+  }
+});
+
+// POST /mvp/apply - 应用变更
+app.post('/api/mvp/apply', async (req, res) => {
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const clientIp = getClientIp(req);
+  const { session_id, dsl, preview_hash } = req.body;
+
+  try {
+    // 验证输入
+    if (!session_id || !dsl || !preview_hash) {
+      return res.status(400).json({
+        request_id: requestId,
+        status: 'error',
+        error: '请求参数无效'
+      });
+    }
+
+    // 检查频率限制
+    const rateLimitResult = rateLimiter.check(clientIp, session_id);
+    if (!rateLimitResult.allowed) {
+      return res.status(429).json({
+        request_id: requestId,
+        status: 'error',
+        error: `频率限制：${rateLimitResult.reason}`
+      });
+    }
+
+    // 再次校验DSL（防止篡改）
+    const policyValidation = securityValidator.validateDSL(dsl);
+    if (!policyValidation.valid) {
+      auditLogger.log({
+        request_id: requestId,
+        session_id,
+        ip: clientIp,
+        action: 'apply',
+        status: 'policy_rejected',
+        reason: policyValidation.reason
+      });
+
+      return res.json({
+        request_id: requestId,
+        status: 'error',
+        error: `因安全策略未通过：${policyValidation.reason}`
+      });
+    }
+
+    // 保存快照到会话
+    const snapshotId = sessionManager.saveSnapshot(session_id, dsl);
+
+    // 记录应用
+    auditLogger.log({
+      request_id: requestId,
+      session_id,
+      ip: clientIp,
+      action: 'apply',
+      status: 'success',
+      snapshot_id: snapshotId,
+      dsl: dsl
+    });
+
+    res.json({
+      request_id: requestId,
+      status: 'ok',
+      data: {
+        applied: true,
+        snapshot_id: snapshotId
+      }
+    });
+
+  } catch (error) {
+    console.error('应用错误:', error);
+    auditLogger.log({
+      request_id: requestId,
+      session_id,
+      ip: clientIp,
+      action: 'apply',
+      status: 'error',
+      error: error.message
+    });
+
+    res.status(500).json({
+      request_id: requestId,
+      status: 'error',
+      error: '服务器内部错误'
+    });
+  }
+});
+
+// POST /mvp/undo - 撤销变更
+app.post('/api/mvp/undo', async (req, res) => {
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const clientIp = getClientIp(req);
+  const { session_id } = req.body;
+
+  try {
+    if (!session_id) {
+      return res.status(400).json({
+        request_id: requestId,
+        status: 'error',
+        error: '请求参数无效：缺少session_id'
+      });
+    }
+
+    // 清除会话快照
+    const cleared = sessionManager.clearSnapshot(session_id);
+
+    auditLogger.log({
+      request_id: requestId,
+      session_id,
+      ip: clientIp,
+      action: 'undo',
+      status: 'success',
+      cleared
+    });
+
+    res.json({
+      request_id: requestId,
+      status: 'ok',
+      data: {
+        undone: true
+      }
+    });
+
+  } catch (error) {
+    console.error('撤销错误:', error);
+    res.status(500).json({
+      request_id: requestId,
+      status: 'error',
+      error: '服务器内部错误'
+    });
+  }
+});
+
+// GET /mvp/admin/audit - 获取审计日志（管理端）
+app.get('/api/mvp/admin/audit', (req, res) => {
+  const limit = parseInt(req.query.limit) || 200;
+  const logs = auditLogger.getLogs(limit);
+
+  res.json({
+    status: 'ok',
+    data: {
+      logs,
+      total: logs.length
+    }
   });
-  next();
+});
+
+// POST /mvp/admin/ban - 封禁IP或会话
+app.post('/api/mvp/admin/ban', (req, res) => {
+  const { ip_or_session } = req.body;
+
+  if (!ip_or_session) {
+    return res.status(400).json({
+      status: 'error',
+      error: '请求参数无效'
+    });
+  }
+
+  rateLimiter.ban(ip_or_session);
+  auditLogger.log({
+    action: 'admin_ban',
+    status: 'success',
+    target: ip_or_session
+  });
+
+  res.json({
+    status: 'ok',
+    data: {
+      banned: ip_or_session
+    }
+  });
+});
+
+// POST /mvp/admin/unban - 解封IP或会话
+app.post('/api/mvp/admin/unban', (req, res) => {
+  const { ip_or_session } = req.body;
+
+  if (!ip_or_session) {
+    return res.status(400).json({
+      status: 'error',
+      error: '请求参数无效'
+    });
+  }
+
+  rateLimiter.unban(ip_or_session);
+  auditLogger.log({
+    action: 'admin_unban',
+    status: 'success',
+    target: ip_or_session
+  });
+
+  res.json({
+    status: 'ok',
+    data: {
+      unbanned: ip_or_session
+    }
+  });
 });
 
 // 健康检查
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
+    service: 'mvp-backend',
     port: PORT,
     timestamp: new Date().toISOString()
   });
 });
 
-// ==================== 意图解析API ====================
-
-/**
- * POST /api/v1/intent/parse
- * 解析用户输入的意图
- */
-app.post('/api/v1/intent/parse', async (req, res) => {
-  try {
-    const { text, session_id } = req.body;
-
-    if (!text || typeof text !== 'string') {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: '缺少必需参数: text'
-      });
-    }
-
-    // 安全检查
-    const securityCheck = performSecurityCheck(text);
-    if (!securityCheck.safe) {
-      store.audit.add({
-        level: 'warn',
-        event: 'security_check_failed',
-        sessionId: session_id,
-        data: { reasons: securityCheck.reasons }
-      });
-
-      return res.status(403).json({
-        request_id: req.requestId,
-        status: 'rejected',
-        error: '输入内容不符合安全要求',
-        reasons: securityCheck.reasons
-      });
-    }
-
-    // 解析意图
-    const intents = parseIntent(text);
-
-    res.json({
-      request_id: req.requestId,
-      status: 'success',
-      data: {
-        intents,
-        masked_text: securityCheck.masked
-      }
-    });
-
-  } catch (error) {
-    console.error('意图解析错误:', error);
-    res.status(500).json({
-      request_id: req.requestId,
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-// ==================== DSL编译API ====================
-
-/**
- * POST /api/v1/transform/compile
- * 编译自然语言为DSL
- */
-app.post('/api/v1/transform/compile', async (req, res) => {
-  try {
-    const { text, session_id, dry_run = true } = req.body;
-
-    if (!text) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: '缺少必需参数: text'
-      });
-    }
-
-    if (!session_id) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: '缺少必需参数: session_id'
-      });
-    }
-
-    // 获取客户端IP
-    const clientIP = getClientIP(req);
-
-    // 速率限制检查
-    const rateCheck = checkRateLimit(clientIP, session_id);
-    if (!rateCheck.allowed) {
-      return res.status(429).json({
-        request_id: req.requestId,
-        status: 'rate_limited',
-        error: rateCheck.reason,
-        retry_after: rateCheck.retryAfter
-      });
-    }
-
-    // 创建或获取会话
-    const session = getOrCreateSession(session_id, clientIP, req.headers['user-agent']);
-
-    // 安全检查
-    const securityCheck = performSecurityCheck(text);
-    if (!securityCheck.safe) {
-      // 记录请求
-      store.requests.set(req.requestId, {
-        id: req.requestId,
-        sessionId: session_id,
-        textMasked: securityCheck.masked,
-        riskLevel: 'high',
-        status: 'rejected',
-        createdAt: Date.now()
-      });
-
-      return res.status(403).json({
-        request_id: req.requestId,
-        status: 'rejected',
-        error: '输入内容不符合安全要求',
-        reasons: securityCheck.reasons
-      });
-    }
-
-    // 编译为DSL
-    const compileResult = compileToDSL(text);
-
-    if (!compileResult.success) {
-      return res.json({
-        request_id: req.requestId,
-        status: 'failed',
-        error: compileResult.error || '无法理解您的请求',
-        suggestions: compileResult.suggestions
-      });
-    }
-
-    // DSL验证
-    const dslValidation = validateDSL(compileResult.dsl);
-    if (!dslValidation.valid) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'validation_failed',
-        error: 'DSL验证失败',
-        errors: dslValidation.errors
-      });
-    }
-
-    // 策略安全检查
-    const policyCheck = validateDSLSecurity(compileResult.dsl);
-    if (!policyCheck.safe) {
-      return res.status(403).json({
-        request_id: req.requestId,
-        status: 'policy_rejected',
-        error: 'DSL不符合安全策略',
-        errors: policyCheck.errors
-      });
-    }
-
-    // 生成预览哈希
-    const previewHash = generateDSLHash(compileResult.dsl);
-
-    // 记录请求
-    const riskLevel = getRiskLevel(securityCheck.checks);
-    store.requests.set(req.requestId, {
-      id: req.requestId,
-      sessionId: session_id,
-      textMasked: securityCheck.masked,
-      riskLevel,
-      status: 'passed',
-      createdAt: Date.now()
-    });
-
-    res.json({
-      request_id: req.requestId,
-      status: 'success',
-      data: {
-        dsl: compileResult.dsl,
-        preview_hash: previewHash,
-        intent: compileResult.intent,
-        warnings: []
-      }
-    });
-
-  } catch (error) {
-    console.error('编译错误:', error);
-    res.status(500).json({
-      request_id: req.requestId,
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-// ==================== 应用改造API ====================
-
-/**
- * POST /api/v1/transform/apply
- * 应用DSL改造
- */
-app.post('/api/v1/transform/apply', async (req, res) => {
-  try {
-    const { session_id, dsl, preview_hash } = req.body;
-
-    if (!session_id || !dsl || !preview_hash) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: '缺少必需参数'
-      });
-    }
-
-    // 验证哈希
-    if (!verifyDSLHash(dsl, preview_hash)) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: 'DSL哈希验证失败'
-      });
-    }
-
-    // 再次验证DSL
-    const dslValidation = validateDSL(dsl);
-    if (!dslValidation.valid) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'validation_failed',
-        errors: dslValidation.errors
-      });
-    }
-
-    // 再次策略检查
-    const policyCheck = validateDSLSecurity(dsl);
-    if (!policyCheck.safe) {
-      return res.status(403).json({
-        request_id: req.requestId,
-        status: 'policy_rejected',
-        errors: policyCheck.errors
-      });
-    }
-
-    // 创建快照
-    const snapshot = createSnapshot(session_id, dsl, {
-      requestId: req.requestId,
-      appliedAt: Date.now()
-    });
-
-    // 记录改造
-    store.transforms.set(generateId(), {
-      id: req.requestId,
-      sessionId: session_id,
-      dsl,
-      previewHash: preview_hash,
-      approvedAt: Date.now()
-    });
-
-    // 更新会话活跃时间
-    touchSession(session_id);
-
-    res.json({
-      request_id: req.requestId,
-      status: 'success',
-      data: {
-        applied: true,
-        snapshot_id: snapshot.id
-      }
-    });
-
-  } catch (error) {
-    console.error('应用错误:', error);
-    res.status(500).json({
-      request_id: req.requestId,
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-// ==================== 撤销API ====================
-
-/**
- * POST /api/v1/transform/undo
- * 撤销改造
- */
-app.post('/api/v1/transform/undo', async (req, res) => {
-  try {
-    const { session_id, steps = 1 } = req.body;
-
-    if (!session_id) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: '缺少必需参数: session_id'
-      });
-    }
-
-    const result = undo(session_id, steps);
-
-    res.json({
-      request_id: req.requestId,
-      status: 'success',
-      data: {
-        restored: true,
-        snapshot_id: result.current ? result.current.id : null,
-        removed_count: result.removed.length
-      }
-    });
-
-  } catch (error) {
-    res.status(400).json({
-      request_id: req.requestId,
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-/**
- * POST /api/v1/transform/reset
- * 重置到初始状态
- */
-app.post('/api/v1/transform/reset', async (req, res) => {
-  try {
-    const { session_id } = req.body;
-
-    if (!session_id) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: '缺少必需参数: session_id'
-      });
-    }
-
-    const result = resetToInitial(session_id);
-
-    res.json({
-      request_id: req.requestId,
-      status: 'success',
-      data: {
-        restored: true,
-        removed_count: result.removed.length
-      }
-    });
-
-  } catch (error) {
-    res.status(400).json({
-      request_id: req.requestId,
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-// ==================== 会话状态API ====================
-
-/**
- * GET /api/v1/session/state
- * 获取会话状态
- */
-app.get('/api/v1/session/state', (req, res) => {
-  try {
-    const { session_id } = req.query;
-
-    if (!session_id) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: '缺少必需参数: session_id'
-      });
-    }
-
-    const state = getSessionState(session_id);
-
-    if (!state) {
-      return res.json({
-        request_id: req.requestId,
-        status: 'success',
-        data: {
-          exists: false
-        }
-      });
-    }
-
-    res.json({
-      request_id: req.requestId,
-      status: 'success',
-      data: {
-        exists: true,
-        ...state
-      }
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      request_id: req.requestId,
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-// ==================== 管理端API ====================
-
-/**
- * GET /api/v1/admin/metrics
- * 获取系统指标
- */
-app.get('/api/v1/admin/metrics', (req, res) => {
-  try {
-    const stats = store.stats.get();
-    const rateLimits = store.rateLimit.getAll();
-    const banned = store.banned.getAll();
-
-    res.json({
-      request_id: req.requestId,
-      status: 'success',
-      data: {
-        stats,
-        rate_limits: {
-          total: rateLimits.length,
-          active: rateLimits.filter(([_, r]) => r.count > 0).length
-        },
-        banned: {
-          total: banned.length,
-          ips: banned.filter(([k]) => k.includes('.')).length,
-          sessions: banned.filter(([k]) => !k.includes('.')).length
-        }
-      }
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      request_id: req.requestId,
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-/**
- * POST /api/v1/admin/ban
- * 封禁IP或会话
- */
-app.post('/api/v1/admin/ban', (req, res) => {
-  try {
-    const { target, type, reason } = req.body;
-
-    if (!target || !type) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: '缺少必需参数'
-      });
-    }
-
-    if (type === 'ip') {
-      banIP(target, reason);
-    } else if (type === 'session') {
-      banSession(target, reason);
-    } else {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: '无效的封禁类型'
-      });
-    }
-
-    res.json({
-      request_id: req.requestId,
-      status: 'success',
-      data: { banned: true }
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      request_id: req.requestId,
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-/**
- * POST /api/v1/admin/unban
- * 解封IP或会话
- */
-app.post('/api/v1/admin/unban', (req, res) => {
-  try {
-    const { target, type } = req.body;
-
-    if (!target || !type) {
-      return res.status(400).json({
-        request_id: req.requestId,
-        status: 'error',
-        error: '缺少必需参数'
-      });
-    }
-
-    let success = false;
-    if (type === 'ip') {
-      success = unbanIP(target);
-    } else if (type === 'session') {
-      success = unbanSession(target);
-    }
-
-    res.json({
-      request_id: req.requestId,
-      status: 'success',
-      data: { unbanned: success }
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      request_id: req.requestId,
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-/**
- * GET /api/v1/admin/audit
- * 获取审计日志
- */
-app.get('/api/v1/admin/audit', (req, res) => {
-  try {
-    const { limit = 100 } = req.query;
-    const logs = store.audit.getRecent(parseInt(limit));
-
-    res.json({
-      request_id: req.requestId,
-      status: 'success',
-      data: {
-        logs,
-        total: logs.length
-      }
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      request_id: req.requestId,
-      status: 'error',
-      error: error.message
-    });
-  }
-});
-
-/**
- * GET /api/v1/info
- * 获取系统信息
- */
-app.get('/api/v1/info', (req, res) => {
-  res.json({
-    request_id: req.requestId,
-    status: 'success',
-    data: {
-      version: '1.0',
-      supported_elements: getSupportedElements(),
-      supported_colors: getSupportedColors(),
-      features: [
-        'change_text',
-        'change_theme',
-        'toggle_element',
-        'undo',
-        'reset'
-      ]
-    }
+// 404 处理
+app.use((req, res) => {
+  res.status(404).json({
+    error: '未找到资源',
+    path: req.path
   });
 });
 
@@ -613,26 +420,12 @@ app.get('/api/v1/info', (req, res) => {
 app.use((err, req, res, next) => {
   console.error('错误:', err);
   res.status(500).json({
-    request_id: req.requestId,
-    status: 'error',
     error: '服务器内部错误',
     message: err.message
   });
 });
 
-// 404 处理
-app.use((req, res) => {
-  res.status(404).json({
-    request_id: req.requestId,
-    status: 'error',
-    error: '未找到资源',
-    path: req.path
-  });
-});
-
 app.listen(PORT, () => {
-  console.log(`应用项目后端运行在端口 ${PORT}`);
+  console.log(`MVP后端运行在端口 ${PORT}`);
   console.log(`健康检查: http://localhost:${PORT}/api/health`);
-  console.log(`系统信息: http://localhost:${PORT}/api/v1/info`);
 });
-
