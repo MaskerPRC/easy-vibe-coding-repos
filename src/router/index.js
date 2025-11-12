@@ -13,6 +13,7 @@ import Messages from '../views/Messages.vue';
 import Statistics from '../views/Statistics.vue';
 import Settings from '../views/Settings.vue';
 import TransformMonitor from '../views/TransformMonitor.vue';
+import NotFound from '../views/NotFound.vue';
 
 const routes = [
   {
@@ -62,6 +63,13 @@ const routes = [
     name: 'TransformMonitor',
     component: TransformMonitor,
     meta: { requiresAuth: true }
+  },
+  // 404 页面 - 必须放在最后，捕获所有未匹配的路由
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound,
+    meta: { requiresAuth: false }
   }
 ];
 
