@@ -212,7 +212,7 @@ const systemStore = useSystemStore();
 
 const saving = ref(false);
 const taskRunning = ref(false);
-const nodeVersion = ref(process.version || 'Unknown');
+const nodeVersion = ref('v18+');
 
 const aiForm = ref({
   apiKey: '',
