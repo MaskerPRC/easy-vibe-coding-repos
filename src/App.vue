@@ -61,6 +61,11 @@
             <span class="result-value">{{ ipInfo.city }}</span>
           </div>
 
+          <div class="result-item" v-if="ipInfo.district">
+            <span class="result-label">区</span>
+            <span class="result-value">{{ ipInfo.district }}</span>
+          </div>
+
           <div class="result-item" v-if="ipInfo.isp">
             <span class="result-label">ISP 运营商</span>
             <span class="result-value">{{ ipInfo.isp }}</span>
