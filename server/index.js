@@ -1,107 +1,372 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import axios from 'axios';
 
 const app = express();
 const PORT = process.env.PORT || 3002;
-
-// 省市区映射数据（内存存储）
-// 格式：{ "省份": { "城市": ["区1", "区2", ...] } }
-const districtData = {
-  "广东": {
-    "深圳": ["福田区", "罗湖区", "南山区", "盐田区", "宝安区", "龙岗区", "龙华区", "坪山区", "光明区", "大鹏新区"],
-    "广州": ["荔湾区", "越秀区", "海珠区", "天河区", "白云区", "黄埔区", "番禺区", "花都区", "南沙区", "从化区", "增城区"],
-    "东莞": ["莞城区", "南城区", "东城区", "万江区", "石碣镇", "石龙镇", "茶山镇", "石排镇", "企石镇", "横沥镇", "桥头镇"],
-    "佛山": ["禅城区", "南海区", "顺德区", "三水区", "高明区"],
-    "珠海": ["香洲区", "斗门区", "金湾区"],
-    "中山": ["石岐区", "东区", "西区", "南区", "五桂山区"]
-  },
-  "北京": {
-    "北京": ["东城区", "西城区", "朝阳区", "丰台区", "石景山区", "海淀区", "门头沟区", "房山区", "通州区", "顺义区", "昌平区", "大兴区", "怀柔区", "平谷区", "密云区", "延庆区"]
-  },
-  "上海": {
-    "上海": ["黄浦区", "徐汇区", "长宁区", "静安区", "普陀区", "虹口区", "杨浦区", "闵行区", "宝山区", "嘉定区", "浦东新区", "金山区", "松江区", "青浦区", "奉贤区", "崇明区"]
-  },
-  "浙江": {
-    "杭州": ["上城区", "下城区", "江干区", "拱墅区", "西湖区", "滨江区", "萧山区", "余杭区", "富阳区", "临安区", "桐庐县", "淳安县", "建德市"],
-    "宁波": ["海曙区", "江北区", "北仑区", "镇海区", "鄞州区", "奉化区", "余姚市", "慈溪市", "宁海县", "象山县"],
-    "温州": ["鹿城区", "龙湾区", "瓯海区", "洞头区", "永嘉县", "平阳县", "苍南县", "文成县", "泰顺县", "瑞安市", "乐清市"]
-  },
-  "江苏": {
-    "南京": ["玄武区", "秦淮区", "建邺区", "鼓楼区", "浦口区", "栖霞区", "雨花台区", "江宁区", "六合区", "溧水区", "高淳区"],
-    "苏州": ["姑苏区", "虎丘区", "吴中区", "相城区", "吴江区", "常熟市", "张家港市", "昆山市", "太仓市"],
-    "无锡": ["梁溪区", "锡山区", "惠山区", "滨湖区", "新吴区", "江阴市", "宜兴市"]
-  },
-  "四川": {
-    "成都": ["锦江区", "青羊区", "金牛区", "武侯区", "成华区", "龙泉驿区", "青白江区", "新都区", "温江区", "双流区", "郫都区", "新津区"],
-    "绵阳": ["涪城区", "游仙区", "安州区", "江油市", "三台县", "盐亭县", "梓潼县", "北川县", "平武县"]
-  },
-  "湖北": {
-    "武汉": ["江岸区", "江汉区", "硚口区", "汉阳区", "武昌区", "青山区", "洪山区", "东西湖区", "汉南区", "蔡甸区", "江夏区", "黄陂区", "新洲区"]
-  },
-  "湖南": {
-    "长沙": ["芙蓉区", "天心区", "岳麓区", "开福区", "雨花区", "望城区", "长沙县", "浏阳市", "宁乡市"]
-  },
-  "河北": {
-    "石家庄": ["长安区", "桥西区", "新华区", "井陉矿区", "裕华区", "藁城区", "鹿泉区", "栾城区"],
-    "唐山": ["路南区", "路北区", "古冶区", "开平区", "丰南区", "丰润区", "曹妃甸区"]
-  },
-  "河南": {
-    "郑州": ["中原区", "二七区", "管城区", "金水区", "上街区", "惠济区", "中牟县", "巩义市", "荥阳市", "新密市", "新郑市", "登封市"],
-    "洛阳": ["老城区", "西工区", "瀍河区", "涧西区", "吉利区", "洛龙区"]
-  },
-  "山东": {
-    "济南": ["历下区", "市中区", "槐荫区", "天桥区", "历城区", "长清区", "章丘区", "济阳区", "莱芜区", "钢城区"],
-    "青岛": ["市南区", "市北区", "黄岛区", "崂山区", "李沧区", "城阳区", "即墨区", "胶州市", "平度市", "莱西市"]
-  },
-  "福建": {
-    "福州": ["鼓楼区", "台江区", "仓山区", "马尾区", "晋安区", "长乐区", "闽侯县", "连江县", "罗源县", "闽清县", "永泰县", "平潭县", "福清市"],
-    "厦门": ["思明区", "海沧区", "湖里区", "集美区", "同安区", "翔安区"]
-  },
-  "陕西": {
-    "西安": ["新城区", "碑林区", "莲湖区", "灞桥区", "未央区", "雁塔区", "阎良区", "临潼区", "长安区", "高陵区", "鄠邑区"]
-  },
-  "天津": {
-    "天津": ["和平区", "河东区", "河西区", "南开区", "河北区", "红桥区", "东丽区", "西青区", "津南区", "北辰区", "武清区", "宝坻区", "滨海新区", "宁河区", "静海区", "蓟州区"]
-  },
-  "重庆": {
-    "重庆": ["万州区", "涪陵区", "渝中区", "大渡口区", "江北区", "沙坪坝区", "九龙坡区", "南岸区", "北碚区", "綦江区", "大足区", "渝北区", "巴南区", "黔江区", "长寿区", "江津区", "合川区", "永川区", "南川区", "璧山区", "铜梁区", "潼南区", "荣昌区", "开州区"]
-  }
-};
-
-// 根据省市信息查找对应的区
-// 返回第一个区作为默认值，实际使用中可以根据IP更精确定位
-function getDistrict(province, city) {
-  if (!province || !city) {
-    return null;
-  }
-
-  // 清理省市名称（去除"省"、"市"等后缀）
-  const cleanProvince = province.replace(/省|市|自治区|特别行政区|壮族|回族|维吾尔|藏族/g, '').trim();
-  const cleanCity = city.replace(/市|区|县|自治州|地区/g, '').trim();
-
-  // 查找匹配的省份
-  for (const [prov, cities] of Object.entries(districtData)) {
-    if (cleanProvince.includes(prov) || prov.includes(cleanProvince)) {
-      // 查找匹配的城市
-      for (const [cityName, districts] of Object.entries(cities)) {
-        if (cleanCity.includes(cityName) || cityName.includes(cleanCity)) {
-          // 返回该城市的第一个区作为示例
-          // 在实际场景中，可以根据IP的经纬度进一步精确定位
-          return districts[0];
-        }
-      }
-    }
-  }
-
-  return null;
-}
 
 // 中间件
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
+
+// ========== 内存数据存储 ==========
+// 计件记录 { id, date, productName, quantity, unitPrice, totalPrice }
+let pieceworkRecords = [];
+let pieceworkIdCounter = 1;
+
+// 计时记录 { id, date, jobName, hours, hourlyRate, totalPrice }
+let timeRecords = [];
+let timeIdCounter = 1;
+
+// 工序产品 { id, name, unitPrice }
+let products = [
+  { id: 1, name: '工序产品', unitPrice: 1 }
+];
+let productIdCounter = 2;
+
+// 工种 { id, name, hourlyRate }
+let jobs = [
+  { id: 1, name: '工种', hourlyRate: 2 },
+  { id: 2, name: '工种2', hourlyRate: 5 }
+];
+let jobIdCounter = 3;
+
+// 用户信息
+let userInfo = {
+  memberExpiry: '2055-12-31',
+  enterpriseName: '志丰'
+};
+
+// ========== 计件相关接口 ==========
+
+// 获取计件记录
+app.get('/api/piecework', (req, res) => {
+  const { year, month } = req.query;
+  let records = [...pieceworkRecords];
+
+  // 按日期过滤
+  if (year && month) {
+    records = records.filter(r => {
+      const recordDate = new Date(r.date);
+      return recordDate.getFullYear() === parseInt(year) &&
+             recordDate.getMonth() + 1 === parseInt(month);
+    });
+  }
+
+  // 按日期分组
+  const groupedRecords = records.reduce((acc, record) => {
+    const date = record.date.split('T')[0];
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(record);
+    return acc;
+  }, {});
+
+  res.json({
+    success: true,
+    data: groupedRecords,
+    records: records
+  });
+});
+
+// 添加计件记录
+app.post('/api/piecework', (req, res) => {
+  const { date, productId, productName, quantity, unitPrice } = req.body;
+
+  const record = {
+    id: pieceworkIdCounter++,
+    date: date || new Date().toISOString(),
+    productId,
+    productName,
+    quantity: parseFloat(quantity),
+    unitPrice: parseFloat(unitPrice),
+    totalPrice: parseFloat(quantity) * parseFloat(unitPrice)
+  };
+
+  pieceworkRecords.push(record);
+
+  res.json({
+    success: true,
+    data: record
+  });
+});
+
+// 删除计件记录
+app.delete('/api/piecework/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const index = pieceworkRecords.findIndex(r => r.id === id);
+
+  if (index !== -1) {
+    pieceworkRecords.splice(index, 1);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ success: false, message: '记录不存在' });
+  }
+});
+
+// ========== 计时相关接口 ==========
+
+// 获取计时记录
+app.get('/api/timework', (req, res) => {
+  const { year, month } = req.query;
+  let records = [...timeRecords];
+
+  // 按日期过滤
+  if (year && month) {
+    records = records.filter(r => {
+      const recordDate = new Date(r.date);
+      return recordDate.getFullYear() === parseInt(year) &&
+             recordDate.getMonth() + 1 === parseInt(month);
+    });
+  }
+
+  // 按日期分组
+  const groupedRecords = records.reduce((acc, record) => {
+    const date = record.date.split('T')[0];
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(record);
+    return acc;
+  }, {});
+
+  res.json({
+    success: true,
+    data: groupedRecords,
+    records: records
+  });
+});
+
+// 添加计时记录
+app.post('/api/timework', (req, res) => {
+  const { date, jobId, jobName, hours, hourlyRate } = req.body;
+
+  const record = {
+    id: timeIdCounter++,
+    date: date || new Date().toISOString(),
+    jobId,
+    jobName,
+    hours: parseFloat(hours),
+    hourlyRate: parseFloat(hourlyRate),
+    totalPrice: parseFloat(hours) * parseFloat(hourlyRate)
+  };
+
+  timeRecords.push(record);
+
+  res.json({
+    success: true,
+    data: record
+  });
+});
+
+// 删除计时记录
+app.delete('/api/timework/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const index = timeRecords.findIndex(r => r.id === id);
+
+  if (index !== -1) {
+    timeRecords.splice(index, 1);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ success: false, message: '记录不存在' });
+  }
+});
+
+// ========== 产品管理接口 ==========
+
+// 获取产品列表
+app.get('/api/products', (req, res) => {
+  res.json({
+    success: true,
+    data: products
+  });
+});
+
+// 添加产品
+app.post('/api/products', (req, res) => {
+  const { name, unitPrice } = req.body;
+
+  const product = {
+    id: productIdCounter++,
+    name,
+    unitPrice: parseFloat(unitPrice)
+  };
+
+  products.push(product);
+
+  res.json({
+    success: true,
+    data: product
+  });
+});
+
+// 更新产品
+app.put('/api/products/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const { name, unitPrice } = req.body;
+  const index = products.findIndex(p => p.id === id);
+
+  if (index !== -1) {
+    products[index] = {
+      ...products[index],
+      name,
+      unitPrice: parseFloat(unitPrice)
+    };
+    res.json({ success: true, data: products[index] });
+  } else {
+    res.status(404).json({ success: false, message: '产品不存在' });
+  }
+});
+
+// 删除产品
+app.delete('/api/products/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const index = products.findIndex(p => p.id === id);
+
+  if (index !== -1) {
+    products.splice(index, 1);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ success: false, message: '产品不存在' });
+  }
+});
+
+// ========== 工种管理接口 ==========
+
+// 获取工种列表
+app.get('/api/jobs', (req, res) => {
+  res.json({
+    success: true,
+    data: jobs
+  });
+});
+
+// 添加工种
+app.post('/api/jobs', (req, res) => {
+  const { name, hourlyRate } = req.body;
+
+  const job = {
+    id: jobIdCounter++,
+    name,
+    hourlyRate: parseFloat(hourlyRate)
+  };
+
+  jobs.push(job);
+
+  res.json({
+    success: true,
+    data: job
+  });
+});
+
+// 更新工种
+app.put('/api/jobs/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const { name, hourlyRate } = req.body;
+  const index = jobs.findIndex(j => j.id === id);
+
+  if (index !== -1) {
+    jobs[index] = {
+      ...jobs[index],
+      name,
+      hourlyRate: parseFloat(hourlyRate)
+    };
+    res.json({ success: true, data: jobs[index] });
+  } else {
+    res.status(404).json({ success: false, message: '工种不存在' });
+  }
+});
+
+// 删除工种
+app.delete('/api/jobs/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const index = jobs.findIndex(j => j.id === id);
+
+  if (index !== -1) {
+    jobs.splice(index, 1);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ success: false, message: '工种不存在' });
+  }
+});
+
+// ========== 统计接口 ==========
+
+// 获取统计数据
+app.get('/api/statistics', (req, res) => {
+  const { year, month } = req.query;
+
+  // 过滤指定月份的记录
+  let pieceworkFiltered = pieceworkRecords;
+  let timeFiltered = timeRecords;
+
+  if (year && month) {
+    pieceworkFiltered = pieceworkRecords.filter(r => {
+      const recordDate = new Date(r.date);
+      return recordDate.getFullYear() === parseInt(year) &&
+             recordDate.getMonth() + 1 === parseInt(month);
+    });
+
+    timeFiltered = timeRecords.filter(r => {
+      const recordDate = new Date(r.date);
+      return recordDate.getFullYear() === parseInt(year) &&
+             recordDate.getMonth() + 1 === parseInt(month);
+    });
+  }
+
+  // 计算总计
+  const pieceworkTotal = pieceworkFiltered.reduce((sum, r) => sum + r.totalPrice, 0);
+  const timeTotal = timeFiltered.reduce((sum, r) => sum + r.totalPrice, 0);
+  const pieceworkCount = pieceworkFiltered.reduce((sum, r) => sum + r.quantity, 0);
+  const timeHours = timeFiltered.reduce((sum, r) => sum + r.hours, 0);
+
+  res.json({
+    success: true,
+    data: {
+      pieceworkIncome: pieceworkTotal,
+      timeIncome: timeTotal,
+      totalIncome: pieceworkTotal + timeTotal,
+      basicSalary: 0,
+      socialSecurity: {
+        total: 0,
+        pension: 0,
+        medical: 0,
+        unemployment: 0,
+        injury: 0
+      },
+      pieceworkCount,
+      timeHours
+    }
+  });
+});
+
+// ========== 用户信息接口 ==========
+
+// 获取用户信息
+app.get('/api/user', (req, res) => {
+  res.json({
+    success: true,
+    data: userInfo
+  });
+});
+
+// 更新用户信息
+app.put('/api/user', (req, res) => {
+  const { memberExpiry, enterpriseName } = req.body;
+
+  userInfo = {
+    ...userInfo,
+    memberExpiry: memberExpiry || userInfo.memberExpiry,
+    enterpriseName: enterpriseName || userInfo.enterpriseName
+  };
+
+  res.json({
+    success: true,
+    data: userInfo
+  });
+});
 
 // 健康检查
 app.get('/api/health', (req, res) => {
@@ -110,59 +375,6 @@ app.get('/api/health', (req, res) => {
     port: PORT,
     timestamp: new Date().toISOString()
   });
-});
-
-// IP信息查询接口
-app.get('/api/ip-info', async (req, res) => {
-  try {
-    const { ip } = req.query;
-
-    // 使用免费的IP查询API：ip-api.com
-    // 如果没有提供IP地址，则查询请求者的IP
-    const targetIP = ip || '';
-    const apiUrl = targetIP
-      ? `http://ip-api.com/json/${targetIP}?lang=zh-CN`
-      : `http://ip-api.com/json/?lang=zh-CN`;
-
-    // 使用axios请求IP信息
-    const response = await axios.get(apiUrl);
-    const data = response.data;
-
-    // 检查查询状态
-    if (data.status === 'fail') {
-      return res.json({
-        success: false,
-        message: data.message || 'IP地址无效或查询失败'
-      });
-    }
-
-    // 根据省市信息查找对应的区
-    const district = getDistrict(data.regionName, data.city);
-
-    // 返回成功结果
-    res.json({
-      success: true,
-      data: {
-        query: data.query,
-        country: data.country,
-        regionName: data.regionName,
-        city: data.city,
-        district: district, // 新增区级信息
-        isp: data.isp,
-        org: data.org,
-        as: data.as,
-        timezone: data.timezone,
-        lat: data.lat,
-        lon: data.lon
-      }
-    });
-  } catch (error) {
-    console.error('IP查询错误:', error);
-    res.status(500).json({
-      success: false,
-      message: '服务器查询失败，请稍后再试'
-    });
-  }
 });
 
 // 错误处理
