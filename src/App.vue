@@ -1,339 +1,79 @@
 <template>
-  <div class="clock-container">
-    <canvas
-      ref="canvas"
-      :width="canvasSize"
-      :height="canvasSize"
-      class="clock-canvas"
-    ></canvas>
-    <!-- 音频元素用于滴答声 -->
-    <audio ref="tickSound" preload="auto">
-      <!-- 使用 Web Audio API 生成的音效 -->
-    </audio>
+  <div class="app">
+    <div class="welcome-container">
+      <!-- 主要欢迎卡片 -->
+      <div class="welcome-card">
+        <div class="icon-wrapper">
+          <svg class="welcome-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="45" fill="#4A90E2" opacity="0.1"/>
+            <path d="M30 50 Q30 30 50 30 Q70 30 70 50" stroke="#4A90E2" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="40" cy="45" r="3" fill="#4A90E2"/>
+            <circle cx="60" cy="45" r="3" fill="#4A90E2"/>
+            <path d="M35 55 Q50 70 65 55" stroke="#4A90E2" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h1 class="main-title">你好！</h1>
+        <p class="main-description">欢迎来到这里，很高兴见到你</p>
+      </div>
+
+      <!-- 信息卡片组 -->
+      <div class="info-cards">
+        <div class="info-card">
+          <div class="card-icon" style="background-color: #4A90E2;">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="card-title">简约设计</h3>
+          <p class="card-text">采用现代化的简约风格，注重用户体验</p>
+        </div>
+
+        <div class="info-card">
+          <div class="card-icon" style="background-color: #50E3C2;">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" stroke-width="2"/>
+              <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="card-title">友好交互</h3>
+          <p class="card-text">清晰的视觉反馈，让交互更加自然流畅</p>
+        </div>
+
+        <div class="info-card">
+          <div class="card-icon" style="background-color: #4A90E2;">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="7" height="7" stroke="white" stroke-width="2" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" stroke="white" stroke-width="2" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" stroke="white" stroke-width="2" rx="1"/>
+              <rect x="14" y="14" width="7" height="7" stroke="white" stroke-width="2" rx="1"/>
+            </svg>
+          </div>
+          <h3 class="card-title">模块化</h3>
+          <p class="card-text">清晰的信息层次，内容组织井然有序</p>
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div class="action-buttons">
+        <button class="btn btn-primary" @click="handleExplore">开始探索</button>
+        <button class="btn btn-secondary" @click="handleLearnMore">了解更多</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+const handleExplore = () => {
+  console.log('开始探索');
+  // 这里可以添加导航或其他逻辑
+};
 
-const canvas = ref(null);
-const tickSound = ref(null);
-const canvasSize = 800;
-let ctx = null;
-let animationId = null;
-let lastSecond = -1;
-let audioContext = null;
-let tickBuffer = null;
-
-// 生成滴答音效
-function createTickSound() {
-  // 创建 AudioContext
-  audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-  // 创建一个短促的滴答声
-  const sampleRate = audioContext.sampleRate;
-  const duration = 0.05; // 50毫秒
-  const buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
-  const data = buffer.getChannelData(0);
-
-  // 生成短促的正弦波
-  for (let i = 0; i < buffer.length; i++) {
-    const t = i / sampleRate;
-    // 使用包络和正弦波生成清脆的滴答声
-    const envelope = Math.exp(-t * 50); // 快速衰减
-    data[i] = Math.sin(2 * Math.PI * 1200 * t) * envelope * 0.3;
-  }
-
-  tickBuffer = buffer;
-}
-
-// 播放滴答音效
-function playTickSound() {
-  if (!audioContext || !tickBuffer) return;
-
-  try {
-    const source = audioContext.createBufferSource();
-    source.buffer = tickBuffer;
-    source.connect(audioContext.destination);
-    source.start(0);
-  } catch (e) {
-    console.log('音效播放失败:', e);
-  }
-}
-
-// 绘制时钟
-function drawClock() {
-  if (!ctx) return;
-
-  const centerX = canvasSize / 2;
-  const centerY = canvasSize / 2;
-  const radius = canvasSize * 0.42;
-
-  // 清空画布
-  ctx.clearRect(0, 0, canvasSize, canvasSize);
-
-  // 绘制背景
-  ctx.fillStyle = '#f5f5f0';
-  ctx.fillRect(0, 0, canvasSize, canvasSize);
-
-  // 绘制外圈阴影
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius + 15, 0, Math.PI * 2);
-  ctx.fillStyle = '#d0d0c8';
-  ctx.fill();
-  ctx.restore();
-
-  // 绘制金属外框
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius + 12, 0, Math.PI * 2);
-  const metalGradient = ctx.createLinearGradient(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
-  metalGradient.addColorStop(0, '#c0c0c0');
-  metalGradient.addColorStop(0.3, '#e8e8e8');
-  metalGradient.addColorStop(0.5, '#ffffff');
-  metalGradient.addColorStop(0.7, '#e8e8e8');
-  metalGradient.addColorStop(1, '#a8a8a8');
-  ctx.fillStyle = metalGradient;
-  ctx.fill();
-  ctx.restore();
-
-  // 绘制表盘背景（米白色带渐变）
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-  const faceGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-  faceGradient.addColorStop(0, '#ffffff');
-  faceGradient.addColorStop(0.7, '#fefefe');
-  faceGradient.addColorStop(1, '#f0f0eb');
-  ctx.fillStyle = faceGradient;
-  ctx.fill();
-  ctx.restore();
-
-  // 绘制表盘边框
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-  ctx.strokeStyle = '#888888';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.restore();
-
-  // 绘制刻度
-  for (let i = 0; i < 60; i++) {
-    ctx.save();
-    ctx.translate(centerX, centerY);
-    ctx.rotate((i * 6) * Math.PI / 180);
-
-    ctx.beginPath();
-    if (i % 5 === 0) {
-      // 小时刻度（粗）
-      ctx.moveTo(0, -radius + 10);
-      ctx.lineTo(0, -radius + 30);
-      ctx.strokeStyle = '#333333';
-      ctx.lineWidth = 3;
-    } else {
-      // 分钟刻度（细）
-      ctx.moveTo(0, -radius + 10);
-      ctx.lineTo(0, -radius + 20);
-      ctx.strokeStyle = '#666666';
-      ctx.lineWidth = 1.5;
-    }
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  // 绘制数字（1-12）
-  ctx.save();
-  ctx.fillStyle = '#222222';
-  ctx.font = 'bold 42px Georgia, serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-
-  const numbers = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-  for (let i = 0; i < 12; i++) {
-    const angle = (i * 30 - 90) * Math.PI / 180;
-    const numberRadius = radius * 0.72;
-    const x = centerX + Math.cos(angle) * numberRadius;
-    const y = centerY + Math.sin(angle) * numberRadius;
-
-    // 绘制数字阴影
-    ctx.save();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-    ctx.fillText(numbers[i].toString(), x + 1, y + 1);
-    ctx.restore();
-
-    // 绘制数字
-    ctx.fillText(numbers[i].toString(), x, y);
-  }
-  ctx.restore();
-
-  // 获取当前时间
-  const now = new Date();
-  const hours = now.getHours() % 12;
-  const minutes = now.getMinutes();
-  const seconds = now.getSeconds(); // 使用整数秒，不加毫秒
-
-  // 检测秒针跳动并播放音效
-  if (seconds !== lastSecond) {
-    playTickSound();
-    lastSecond = seconds;
-  }
-
-  // 计算角度
-  const hourAngle = ((hours + minutes / 60) * 30 - 90) * Math.PI / 180;
-  const minuteAngle = ((minutes + seconds / 60) * 6 - 90) * Math.PI / 180;
-  const secondAngle = (seconds * 6 - 90) * Math.PI / 180; // 秒针跳动，不使用毫秒
-
-  // 绘制时针
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.rotate(hourAngle);
-  ctx.beginPath();
-  ctx.moveTo(-15, 0);
-  ctx.lineTo(-10, -radius * 0.5);
-  ctx.lineTo(0, -radius * 0.52);
-  ctx.lineTo(10, -radius * 0.5);
-  ctx.lineTo(15, 0);
-  ctx.closePath();
-
-  // 时针渐变
-  const hourGradient = ctx.createLinearGradient(0, -radius * 0.5, 0, 0);
-  hourGradient.addColorStop(0, '#1a1a1a');
-  hourGradient.addColorStop(1, '#3a3a3a');
-  ctx.fillStyle = hourGradient;
-  ctx.fill();
-
-  // 时针描边
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.restore();
-
-  // 绘制分针
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.rotate(minuteAngle);
-  ctx.beginPath();
-  ctx.moveTo(-12, 0);
-  ctx.lineTo(-8, -radius * 0.7);
-  ctx.lineTo(0, -radius * 0.72);
-  ctx.lineTo(8, -radius * 0.7);
-  ctx.lineTo(12, 0);
-  ctx.closePath();
-
-  // 分针渐变
-  const minuteGradient = ctx.createLinearGradient(0, -radius * 0.7, 0, 0);
-  minuteGradient.addColorStop(0, '#2a2a2a');
-  minuteGradient.addColorStop(1, '#4a4a4a');
-  ctx.fillStyle = minuteGradient;
-  ctx.fill();
-
-  // 分针描边
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.restore();
-
-  // 绘制秒针
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.rotate(secondAngle);
-
-  // 秒针主体
-  ctx.beginPath();
-  ctx.moveTo(0, 20);
-  ctx.lineTo(-3, -radius * 0.75);
-  ctx.lineTo(0, -radius * 0.78);
-  ctx.lineTo(3, -radius * 0.75);
-  ctx.lineTo(0, 20);
-  ctx.closePath();
-  ctx.fillStyle = '#c41e3a'; // 红色秒针
-  ctx.fill();
-  ctx.strokeStyle = '#8b0000';
-  ctx.lineWidth = 0.5;
-  ctx.stroke();
-
-  // 秒针尾部圆点
-  ctx.beginPath();
-  ctx.arc(0, 15, 8, 0, Math.PI * 2);
-  ctx.fillStyle = '#c41e3a';
-  ctx.fill();
-  ctx.strokeStyle = '#8b0000';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
-  ctx.restore();
-
-  // 绘制中心圆点
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, 12, 0, Math.PI * 2);
-  const centerGradient = ctx.createRadialGradient(centerX - 3, centerY - 3, 0, centerX, centerY, 12);
-  centerGradient.addColorStop(0, '#6a6a6a');
-  centerGradient.addColorStop(0.5, '#3a3a3a');
-  centerGradient.addColorStop(1, '#1a1a1a');
-  ctx.fillStyle = centerGradient;
-  ctx.fill();
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.restore();
-
-  // 绘制中心高光
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(centerX - 2, centerY - 2, 4, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-  ctx.fill();
-  ctx.restore();
-}
-
-// 动画循环
-function animate() {
-  drawClock();
-  animationId = requestAnimationFrame(animate);
-}
-
-// 初始化
-function init() {
-  const canvasEl = canvas.value;
-  ctx = canvasEl.getContext('2d');
-
-  // 启用抗锯齿
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-
-  // 生成音效
-  createTickSound();
-
-  // 开始动画
-  animate();
-}
-
-// 生命周期钩子
-onMounted(() => {
-  init();
-
-  // 点击画布启用音频（浏览器要求用户交互后才能播放音频）
-  const canvasEl = canvas.value;
-  const enableAudio = () => {
-    if (audioContext && audioContext.state === 'suspended') {
-      audioContext.resume();
-    }
-    canvasEl.removeEventListener('click', enableAudio);
-  };
-  canvasEl.addEventListener('click', enableAudio);
-});
-
-onUnmounted(() => {
-  if (animationId) {
-    cancelAnimationFrame(animationId);
-  }
-  if (audioContext) {
-    audioContext.close();
-  }
-});
+const handleLearnMore = () => {
+  console.log('了解更多');
+  // 这里可以添加更多信息展示逻辑
+};
 </script>
 
 <style scoped>
@@ -343,42 +83,237 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-.clock-container {
+.app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #F8F8F8;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  overflow: hidden;
+  padding: 32px;
+  font-family: 'PingFang SC', 'SF Pro SC', 'Hiragino Sans GB', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Lato, sans-serif;
 }
 
-.clock-canvas {
-  max-width: 90vw;
-  max-height: 90vh;
-  width: 800px;
-  height: 800px;
+.welcome-container {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 主欢迎卡片 */
+.welcome-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+}
+
+.icon-wrapper {
+  margin-bottom: 24px;
+}
+
+.welcome-icon {
+  width: 100px;
+  height: 100px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.main-title {
+  font-size: 40px;
+  font-weight: 700;
+  color: #333333;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+
+.main-description {
+  font-size: 18px;
+  font-weight: 400;
+  color: #666666;
+  line-height: 1.6;
+}
+
+/* 信息卡片组 */
+.info-cards {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.info-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.card-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 8px;
+}
+
+.card-text {
+  font-size: 14px;
+  font-weight: 300;
+  color: #999999;
+  line-height: 1.6;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
-  filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.3));
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+  font-family: inherit;
 }
 
-.clock-canvas:hover {
-  transform: scale(1.02);
+.btn-primary {
+  background: #4A90E2;
+  color: #ffffff;
 }
 
-/* 移动端适配 */
+.btn-primary:hover {
+  background: #357ABD;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: #4A90E2;
+  border: 2px solid #4A90E2;
+}
+
+.btn-secondary:hover {
+  background: #4A90E2;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.2);
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .clock-canvas {
+  .app {
+    padding: 24px 16px;
+  }
+
+  .welcome-card {
+    padding: 32px 24px;
+  }
+
+  .main-title {
+    font-size: 32px;
+  }
+
+  .main-description {
+    font-size: 16px;
+  }
+
+  .welcome-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .info-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .info-card {
+    padding: 24px 20px;
+  }
+
+  .action-buttons {
     width: 100%;
-    height: auto;
-    aspect-ratio: 1;
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .clock-container {
-    padding: 10px;
+  .welcome-card {
+    padding: 24px 16px;
+  }
+
+  .main-title {
+    font-size: 28px;
+  }
+
+  .main-description {
+    font-size: 15px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .card-text {
+    font-size: 13px;
   }
 }
 </style>
+
