@@ -3,12 +3,10 @@
     <!-- 游戏信息区 -->
     <div class="game-info">
       <div class="player-info ai-info">
-        <div class="player-avatar">
-          <span class="avatar-icon">🤖</span>
-        </div>
+        <div class="player-avatar">AI</div>
         <div class="player-details">
           <div class="player-name">AI 对手</div>
-          <div class="player-level">{{ aiLevel }}</div>
+          <div class="player-level">简单难度</div>
         </div>
         <div class="thinking-indicator" v-if="isAIThinking">
           <span class="dot"></span>
@@ -25,9 +23,7 @@
       </div>
 
       <div class="player-info user-info">
-        <div class="player-avatar">
-          <span class="avatar-icon">👤</span>
-        </div>
+        <div class="player-avatar">玩</div>
         <div class="player-details">
           <div class="player-name">玩家</div>
           <div class="player-color">执红先行</div>
@@ -38,21 +34,26 @@
     <!-- 棋盘区域 -->
     <div class="board-container">
       <div class="board">
-        <!-- 棋盘线条 -->
-        <svg class="board-lines" viewBox="0 0 360 400">
-          <!-- 横线 -->
-          <line v-for="i in 10" :key="'h'+i" :x1="0" :y1="(i-1)*40" :x2="320" :y2="(i-1)*40" />
-          <!-- 竖线 -->
-          <line v-for="i in 9" :key="'v'+i" :x1="(i-1)*40" :y1="0" :x2="(i-1)*40" :y2="360" />
-          <!-- 上方竖线（两侧）-->
-          <line x1="0" y1="0" x2="0" y2="160" />
-          <line x1="320" y1="0" x2="320" y2="160" />
-          <!-- 下方竖线（两侧）-->
-          <line x1="0" y1="200" x2="0" y2="360" />
-          <line x1="320" y1="200" x2="320" y2="360" />
-          <!-- 九宫格斜线 -->
+        <!-- 棋盘线条 - SVG viewBox 与实际尺寸匹配，确保对齐 -->
+        <svg class="board-lines" viewBox="0 0 320 360">
+          <!-- 横线（10条，对应10行交叉点）-->
+          <line v-for="i in 10" :key="'h'+i"
+                :x1="0" :y1="(i-1)*40"
+                :x2="320" :y2="(i-1)*40" />
+          <!-- 竖线（9条，对应9列交叉点）-->
+          <line v-for="i in 9" :key="'v'+i"
+                :x1="(i-1)*40" :y1="0"
+                :x2="(i-1)*40" :y2="160" />
+          <line v-for="i in 9" :key="'vb'+i"
+                :x1="(i-1)*40" :y1="200"
+                :x2="(i-1)*40" :y2="360" />
+          <!-- 边框竖线贯穿楚河汉界 -->
+          <line x1="0" y1="0" x2="0" y2="360" />
+          <line x1="320" y1="0" x2="320" y2="360" />
+          <!-- 九宫格斜线（黑方）-->
           <line x1="120" y1="0" x2="200" y2="80" />
           <line x1="200" y1="0" x2="120" y2="80" />
+          <!-- 九宫格斜线（红方）-->
           <line x1="120" y1="280" x2="200" y2="360" />
           <line x1="200" y1="280" x2="120" y2="360" />
           <!-- 楚河汉界 -->
@@ -61,33 +62,35 @@
           <text x="200" y="185" class="river-text">汉 界</text>
         </svg>
 
-        <!-- 棋子 -->
-        <div
-          v-for="(row, rowIndex) in board"
-          :key="rowIndex"
-          class="board-row"
-        >
+        <!-- 棋子层 - 使用绝对定位确保与线条交叉点对齐 -->
+        <div class="pieces-layer">
           <div
-            v-for="(piece, colIndex) in row"
-            :key="colIndex"
-            class="board-cell"
-            :class="{
-              'valid-move': isValidMoveTarget(rowIndex, colIndex),
-              'selected': selectedPiece && selectedPiece.row === rowIndex && selectedPiece.col === colIndex
-            }"
-            @click="handleCellClick(rowIndex, colIndex)"
+            v-for="(row, rowIndex) in board"
+            :key="rowIndex"
+            class="board-row"
           >
             <div
-              v-if="piece"
-              class="piece"
-              :class="[
-                piece.color,
-                { 'can-select': canSelectPiece(piece) }
-              ]"
+              v-for="(piece, colIndex) in row"
+              :key="colIndex"
+              class="board-cell"
+              :class="{
+                'valid-move': isValidMoveTarget(rowIndex, colIndex),
+                'selected': selectedPiece && selectedPiece.row === rowIndex && selectedPiece.col === colIndex
+              }"
+              @click="handleCellClick(rowIndex, colIndex)"
             >
-              {{ getPieceName(piece) }}
+              <div
+                v-if="piece"
+                class="piece"
+                :class="[
+                  piece.color,
+                  { 'can-select': canSelectPiece(piece) }
+                ]"
+              >
+                {{ getPieceName(piece) }}
+              </div>
+              <div v-if="isValidMoveTarget(rowIndex, colIndex)" class="move-indicator"></div>
             </div>
-            <div v-if="isValidMoveTarget(rowIndex, colIndex)" class="move-indicator"></div>
           </div>
         </div>
       </div>
@@ -96,22 +99,16 @@
     <!-- 操作按钮区 -->
     <div class="controls">
       <button class="btn btn-restart" @click="restartGame">
-        <span class="btn-icon">🔄</span>
         重新开始
       </button>
       <button class="btn btn-undo" @click="undoMove" :disabled="moveHistory.length === 0 || isAIThinking">
-        <span class="btn-icon">↩️</span>
         悔棋
-      </button>
-      <button class="btn btn-surrender" @click="surrender" :disabled="gameOver || isAIThinking">
-        <span class="btn-icon">🏳️</span>
-        认输
       </button>
     </div>
 
     <!-- 游戏结束弹窗 -->
-    <div v-if="showGameOverModal" class="modal-overlay">
-      <div class="modal">
+    <div v-if="showGameOverModal" class="modal-overlay" @click="showGameOverModal = false">
+      <div class="modal" @click.stop>
         <h2 class="modal-title">{{ gameOverTitle }}</h2>
         <p class="modal-message">{{ gameOverMessage }}</p>
         <button class="btn btn-modal" @click="restartGame">再来一局</button>
@@ -121,7 +118,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref } from 'vue'
 import {
   createInitialBoard,
   getValidMoves,
@@ -148,7 +145,6 @@ const gameOverMessage = ref('')
 
 // AI 设置
 const aiColor = COLORS.BLACK
-const aiLevel = ref('中等难度')
 
 // 获取棋子显示名称
 function getPieceName(piece) {
@@ -209,10 +205,10 @@ function executeMove(fromRow, fromCol, toRow, toCol) {
   if (isCheckmate(board.value, opponentColor)) {
     gameOver.value = true
     if (currentPlayer.value === COLORS.RED) {
-      gameOverTitle.value = '🎉 恭喜获胜！'
+      gameOverTitle.value = '恭喜获胜！'
       gameOverMessage.value = '您成功将死了对手！'
     } else {
-      gameOverTitle.value = '😔 游戏结束'
+      gameOverTitle.value = '游戏结束'
       gameOverMessage.value = 'AI 获胜了，再接再厉！'
     }
     showGameOverModal.value = true
@@ -241,17 +237,15 @@ async function makeAIMove() {
   isAIThinking.value = true
   gameMessage.value = 'AI 正在思考...'
 
-  // 使用setTimeout让UI有时间更新
   await new Promise(resolve => setTimeout(resolve, 100))
 
-  const move = getAIMove(board.value, aiColor, 3)
+  const move = getAIMove(board.value, aiColor)
 
   if (move) {
     executeMove(move.fromRow, move.fromCol, move.toRow, move.toCol)
   } else {
-    // AI无法移动，玩家获胜
     gameOver.value = true
-    gameOverTitle.value = '🎉 恭喜获胜！'
+    gameOverTitle.value = '恭喜获胜！'
     gameOverMessage.value = 'AI 无法移动，您获胜了！'
     showGameOverModal.value = true
   }
@@ -273,7 +267,7 @@ function restartGame() {
 
 // 悔棋
 function undoMove() {
-  if (moveHistory.value.length < 2) return // 至少撤销两步（玩家+AI）
+  if (moveHistory.value.length < 2) return
 
   // 撤销AI的移动
   moveHistory.value.pop()
@@ -286,14 +280,6 @@ function undoMove() {
   validMoves.value = []
   gameMessage.value = ''
 }
-
-// 认输
-function surrender() {
-  gameOver.value = true
-  gameOverTitle.value = '😔 游戏结束'
-  gameOverMessage.value = '您选择了认输'
-  showGameOverModal.value = true
-}
 </script>
 
 <style scoped>
@@ -301,7 +287,7 @@ function surrender() {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
-  font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
+  font-family: 'Microsoft YaHei', sans-serif;
   background: linear-gradient(135deg, #F0F0E0 0%, #FFFFFF 100%);
   min-height: 100vh;
 }
@@ -331,10 +317,9 @@ function surrender() {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.avatar-icon {
-  font-size: 24px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
 }
 
 .player-name {
@@ -423,22 +408,16 @@ function surrender() {
   height: 400px;
   margin: 0 auto;
   background: #D4A574;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 39px,
-      rgba(74, 46, 26, 0.1) 39px,
-      rgba(74, 46, 26, 0.1) 40px
-    );
 }
 
+/* 关键：SVG线条定位，与棋子层对齐 */
 .board-lines {
   position: absolute;
   top: 20px;
   left: 20px;
   width: 320px;
   height: 360px;
+  pointer-events: none;
 }
 
 .board-lines line {
@@ -453,8 +432,17 @@ function surrender() {
 .board-lines .river-text {
   font-size: 20px;
   fill: #4A2E1A;
-  font-family: 'KaiTi', '楷体', serif;
+  font-family: 'KaiTi', serif;
   font-weight: bold;
+}
+
+/* 关键：棋子层定位，确保棋子中心与线条交叉点对齐 */
+.pieces-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .board-row {
@@ -462,6 +450,7 @@ function surrender() {
   position: relative;
 }
 
+/* 关键：每个格子40x40，棋子在格子中心，格子中心对应线条交叉点 */
 .board-cell {
   width: 40px;
   height: 40px;
@@ -521,7 +510,7 @@ function surrender() {
   justify-content: center;
   font-size: 20px;
   font-weight: bold;
-  font-family: 'KaiTi', '楷体', serif;
+  font-family: 'KaiTi', serif;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease;
   user-select: none;
@@ -567,10 +556,6 @@ function surrender() {
   font-family: inherit;
 }
 
-.btn-icon {
-  font-size: 16px;
-}
-
 .btn-restart {
   background: #4CAF50;
   color: white;
@@ -588,16 +573,6 @@ function surrender() {
 
 .btn-undo:hover:not(:disabled) {
   background: #4a8a7d;
-  transform: translateY(-2px);
-}
-
-.btn-surrender {
-  background: #D92B2B;
-  color: white;
-}
-
-.btn-surrender:hover:not(:disabled) {
-  background: #c02020;
   transform: translateY(-2px);
 }
 
