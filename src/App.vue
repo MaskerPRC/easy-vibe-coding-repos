@@ -1,11 +1,11 @@
 <template>
   <div class="app">
-    <ChessBoard />
+    <GameLobby />
   </div>
 </template>
 
 <script setup>
-import ChessBoard from './components/ChessBoard.vue'
+import GameLobby from './components/GameLobby.vue'
 </script>
 
 <style scoped>
@@ -17,7 +17,7 @@ import ChessBoard from './components/ChessBoard.vue'
 
 .app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #F0F0E0 0%, #FFFFFF 100%);
+  background: linear-gradient(135deg, #0f1729 0%, #1a2744 100%);
 }
 </style>
 
