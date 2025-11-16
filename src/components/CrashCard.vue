@@ -87,6 +87,10 @@ const props = defineProps({
 
 // 获取屏幕组件
 const getScreenComponent = () => {
+  if (!props.crashData?.os) {
+    return WindowsBSOD; // 默认
+  }
+
   const osLower = props.crashData.os.toLowerCase();
 
   if (osLower.includes('windows')) {
@@ -102,6 +106,10 @@ const getScreenComponent = () => {
 
 // 获取屏幕组件的props
 const getScreenProps = () => {
+  if (!props.crashData?.os) {
+    return {};
+  }
+
   const osLower = props.crashData.os.toLowerCase();
 
   if (osLower.includes('windows')) {
@@ -145,6 +153,9 @@ const getScreenProps = () => {
 
 // 获取徽章样式类
 const getBadgeClass = (type) => {
+  if (!type) {
+    return '';
+  }
   return type.toLowerCase().replace(/\s+/g, '-');
 };
 </script>
