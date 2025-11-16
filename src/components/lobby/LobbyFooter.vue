@@ -12,6 +12,10 @@
       <span class="btn-icon">👥</span>
       <span class="btn-text">好友</span>
     </button>
+    <button class="footer-btn" @click="$emit('selfTest')">
+      <span class="btn-icon">🧪</span>
+      <span class="btn-text">自测</span>
+    </button>
     <button class="footer-btn">
       <span class="btn-icon">🏆</span>
       <span class="btn-text">排行榜</span>
@@ -20,7 +24,7 @@
 </template>
 
 <script setup>
-defineEmits(['aiClick', 'createRoom'])
+defineEmits(['aiClick', 'createRoom', 'selfTest'])
 </script>
 
 <style scoped>

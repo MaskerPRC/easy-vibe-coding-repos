@@ -26,6 +26,7 @@
     <LobbyFooter
       @aiClick="showAISelection = true"
       @createRoom="createTable"
+      @selfTest="showSelfTest = true"
     />
 
     <!-- AI选择弹窗 -->
@@ -45,6 +46,12 @@
       @exit="exitGame"
       @updatePlayerCards="updatePlayerCards"
     />
+
+    <!-- 自测界面 -->
+    <SelfTest
+      v-if="showSelfTest"
+      @close="showSelfTest = false"
+    />
   </div>
 </template>
 
@@ -60,6 +67,7 @@ import TableList from './lobby/TableList.vue'
 import LobbyFooter from './lobby/LobbyFooter.vue'
 import AISelectionModal from './lobby/AISelectionModal.vue'
 import GameView from './lobby/GameView.vue'
+import SelfTest from './SelfTest.vue'
 
 // 用户信息
 const userInfo = ref({
@@ -88,6 +96,7 @@ const showAISelection = ref(false)
 const selectedAI = ref('normal')
 const showSettings = ref(false)
 const showGameView = ref(false)
+const showSelfTest = ref(false)
 
 // 游戏状态
 const currentGameInfo = ref({
