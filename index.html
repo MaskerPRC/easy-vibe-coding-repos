@@ -3,11 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>斗地主游戏大厅</title>
+  <title>太空猎手 - 3D太空射击游戏</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #1A1A2E;
+    }
+  </style>
 </head>
 <body>
   <div id="app"></div>
+  <!-- 使用Import Map从CDN加载Three.js -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/": "https://unpkg.com/three@0.160.0/"
+      }
+    }
+  </script>
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
-

@@ -1,23 +1,29 @@
 <template>
   <div class="app">
-    <GameLobby />
+    <SpaceHunterGame />
   </div>
 </template>
 
 <script setup>
-import GameLobby from './components/GameLobby.vue'
+import SpaceHunterGame from './components/SpaceHunterGame.vue';
 </script>
 
-<style scoped>
+<style>
+/* 全局样式重置 */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 .app {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0f1729 0%, #1a2744 100%);
+  width: 100%;
+  height: 100%;
 }
 </style>
-
