@@ -15,14 +15,6 @@ export default defineConfig({
                 changeOrigin: true
             }
         }
-    },
-    optimizeDeps: {
-        include: ['three']
-    },
-    build: {
-        rollupOptions: {
-            external: []
-        }
     }
 });
 
