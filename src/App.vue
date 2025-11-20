@@ -1,739 +1,821 @@
 <template>
-  <div class="chess-game">
-    <!-- 标题栏 -->
-    <div class="title-bar">
-      <h1 class="game-title">融合棋局 - 中国象棋 × 国际象棋</h1>
-      <div class="turn-indicator">
-        <span class="turn-label">当前回合：</span>
-        <span class="turn-value" :class="`turn-${currentTurn}`">{{ getTurnName(currentTurn) }}</span>
+  <div class="app">
+    <!-- 顶部导航栏 -->
+    <header class="header">
+      <div class="container">
+        <div class="logo">
+          <div class="logo-icon">
+            <div class="logo-circle"></div>
+          </div>
+          <span class="logo-text">玩转本站</span>
+        </div>
+        <nav class="nav">
+          <a href="#start" class="nav-link">开始使用</a>
+          <a href="#features" class="nav-link">核心功能</a>
+          <a href="#tips" class="nav-link">使用技巧</a>
+        </nav>
       </div>
-    </div>
+    </header>
 
-    <!-- 主游戏区域 -->
-    <div class="game-container">
-      <!-- 中国象棋区域 -->
-      <div class="board-section chinese-section">
-        <div class="section-header">
-          <h2>中国象棋</h2>
-          <div class="player-info">
-            <div class="player red">红方</div>
-            <div class="player black">黑方</div>
+    <!-- 主内容区 -->
+    <main class="main">
+      <!-- 顶部介绍区 -->
+      <section class="hero">
+        <div class="container">
+          <h1 class="hero-title">欢迎来到我们的网站</h1>
+          <p class="hero-subtitle">通过简单几步，快速了解网站的使用方法和核心功能</p>
+          <div class="hero-badge">
+            <span class="badge-text">简单</span>
+            <span class="badge-text">高效</span>
+            <span class="badge-text">有趣</span>
           </div>
         </div>
-        <div class="board-wrapper chinese-board">
-          <div class="chinese-grid">
-            <!-- 横线 -->
-            <svg class="grid-lines" viewBox="0 0 800 900">
-              <!-- 横线 -->
-              <line v-for="i in 10" :key="`h${i}`"
-                    :x1="50" :y1="50 + (i - 1) * 90"
-                    :x2="750" :y2="50 + (i - 1) * 90"
-                    stroke="#B87333" stroke-width="2"/>
-              <!-- 竖线 -->
-              <line v-for="i in 9" :key="`v${i}`"
-                    :x1="50 + (i - 1) * 87.5" :y1="50"
-                    :x2="50 + (i - 1) * 87.5" :y2="860"
-                    stroke="#B87333" stroke-width="2"/>
-              <!-- 楚河汉界 -->
-              <text x="200" y="475" fill="#B87333" font-size="32" font-weight="bold">楚河</text>
-              <text x="500" y="475" fill="#B87333" font-size="32" font-weight="bold">汉界</text>
-              <!-- 九宫格斜线 -->
-              <line x1="312.5" y1="50" x2="487.5" y2="230" stroke="#B87333" stroke-width="2"/>
-              <line x1="487.5" y1="50" x2="312.5" y2="230" stroke="#B87333" stroke-width="2"/>
-              <line x1="312.5" y1="680" x2="487.5" y2="860" stroke="#B87333" stroke-width="2"/>
-              <line x1="487.5" y1="680" x2="312.5" y2="860" stroke="#B87333" stroke-width="2"/>
-            </svg>
-            <!-- 棋子 -->
-            <div v-for="(row, rowIndex) in chineseBoard" :key="`row-${rowIndex}`" class="board-row">
-              <div v-for="(piece, colIndex) in row" :key="`cell-${rowIndex}-${colIndex}`"
-                   class="board-cell"
-                   :class="{
-                     'selected': selectedPiece?.boardType === 'chinese' && selectedPiece?.row === rowIndex && selectedPiece?.col === colIndex,
-                     'valid-move': isValidMove('chinese', rowIndex, colIndex)
-                   }"
-                   @click="handleCellClick('chinese', rowIndex, colIndex)"
-                   :style="{
-                     left: `${50 + colIndex * 87.5}px`,
-                     top: `${50 + rowIndex * 90}px`
-                   }">
-                <div v-if="piece" class="piece" :class="`piece-${piece.side}`">
-                  {{ piece.name }}
-                </div>
+      </section>
+
+      <!-- 引导卡片区 -->
+      <section id="start" class="guide-section">
+        <div class="container">
+          <h2 class="section-title">快速开始</h2>
+          <p class="section-subtitle">跟随这些步骤，开启您的探索之旅</p>
+
+          <div class="card-grid">
+            <div
+              v-for="(step, index) in quickStartSteps"
+              :key="index"
+              class="guide-card"
+              :class="`card-${index % 3}`"
+            >
+              <div class="card-number">{{ String(index + 1).padStart(2, '0') }}</div>
+              <div class="card-icon" :style="{ backgroundColor: step.color }">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path :d="step.iconPath" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </div>
+              <h3 class="card-title">{{ step.title }}</h3>
+              <p class="card-description">{{ step.description }}</p>
+              <button class="card-button" @click="handleCardClick(step.title)">
+                立即体验
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- 国际象棋区域 -->
-      <div class="board-section international-section">
-        <div class="section-header">
-          <h2>国际象棋</h2>
-          <div class="player-info">
-            <div class="player white">白方</div>
-            <div class="player dark">黑方</div>
-          </div>
-        </div>
-        <div class="board-wrapper international-board">
-          <div class="international-grid">
-            <!-- 棋盘格子 -->
-            <div v-for="(row, rowIndex) in internationalBoard" :key="`i-row-${rowIndex}`" class="board-row">
-              <div v-for="(piece, colIndex) in row" :key="`i-cell-${rowIndex}-${colIndex}`"
-                   class="board-cell"
-                   :class="{
-                     'light': (rowIndex + colIndex) % 2 === 0,
-                     'dark': (rowIndex + colIndex) % 2 === 1,
-                     'selected': selectedPiece?.boardType === 'international' && selectedPiece?.row === rowIndex && selectedPiece?.col === colIndex,
-                     'valid-move': isValidMove('international', rowIndex, colIndex)
-                   }"
-                   @click="handleCellClick('international', rowIndex, colIndex)">
-                <div v-if="piece" class="piece" :class="`piece-${piece.side}`">
-                  {{ piece.name }}
-                </div>
+      <!-- 核心功能区 -->
+      <section id="features" class="features-section">
+        <div class="container">
+          <h2 class="section-title">核心功能</h2>
+          <p class="section-subtitle">探索网站提供的强大功能</p>
+
+          <div class="features-grid">
+            <div
+              v-for="(feature, index) in features"
+              :key="index"
+              class="feature-card"
+            >
+              <div class="feature-icon" :style="{ backgroundColor: feature.bgColor }">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path :d="feature.iconPath" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </div>
+              <h3 class="feature-title">{{ feature.title }}</h3>
+              <p class="feature-description">{{ feature.description }}</p>
+              <ul class="feature-list">
+                <li v-for="(item, idx) in feature.items" :key="idx">{{ item }}</li>
+              </ul>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
 
-    <!-- 控制面板 -->
-    <div class="control-panel">
-      <button class="control-btn reset-btn" @click="resetGame">重新开始</button>
-      <button class="control-btn undo-btn" @click="undoMove" :disabled="moveHistory.length === 0">悔棋</button>
-      <div class="move-counter">
-        移动次数：{{ moveHistory.length }}
-      </div>
-    </div>
+      <!-- 使用技巧区 -->
+      <section id="tips" class="tips-section">
+        <div class="container">
+          <h2 class="section-title">使用技巧</h2>
+          <p class="section-subtitle">掌握这些技巧，让你的体验更加顺畅</p>
 
-    <!-- 移动历史 -->
-    <div class="history-panel" v-if="moveHistory.length > 0">
-      <h3>移动历史</h3>
-      <div class="history-list">
-        <div v-for="(move, index) in moveHistory.slice(-5)" :key="index" class="history-item">
-          <span class="move-number">{{ moveHistory.length - 4 + index }}.</span>
-          <span class="move-detail">
-            {{ move.boardType === 'chinese' ? '中' : '国' }} -
-            {{ move.piece.name }}
-            ({{ move.from.row }},{{ move.from.col }}) →
-            ({{ move.to.row }},{{ move.to.col }})
-          </span>
+          <div class="tips-container">
+            <div
+              v-for="(tip, index) in tips"
+              :key="index"
+              class="tip-card"
+            >
+              <div class="tip-header">
+                <div class="tip-badge" :style="{ backgroundColor: tip.badgeColor }">
+                  {{ tip.badge }}
+                </div>
+                <h3 class="tip-title">{{ tip.title }}</h3>
+              </div>
+              <p class="tip-description">{{ tip.description }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA区域 -->
+      <section class="cta-section">
+        <div class="container">
+          <div class="cta-box">
+            <h2 class="cta-title">准备好开始了吗？</h2>
+            <p class="cta-description">现在就开始探索，发现更多精彩内容</p>
+            <button class="cta-button" @click="handleStart">
+              开始探索
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4 class="footer-title">关于我们</h4>
+            <p class="footer-text">致力于提供最佳的用户体验</p>
+          </div>
+          <div class="footer-section">
+            <h4 class="footer-title">快速链接</h4>
+            <a href="#start" class="footer-link">快速开始</a>
+            <a href="#features" class="footer-link">核心功能</a>
+            <a href="#tips" class="footer-link">使用技巧</a>
+          </div>
+          <div class="footer-section">
+            <h4 class="footer-title">联系方式</h4>
+            <p class="footer-text">邮箱: contact@example.com</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p class="copyright">&copy; 2025 玩转本站. 保留所有权利</p>
         </div>
       </div>
-    </div>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref } from 'vue';
 
-// 游戏状态
-const chineseBoard = ref([]);
-const internationalBoard = ref([]);
-const currentTurn = ref('red');
-const selectedPiece = ref(null);
-const validMoves = ref([]);
-const moveHistory = ref([]);
-const gameStatus = ref('playing');
-
-// 获取回合名称
-const getTurnName = (turn) => {
-  const names = {
-    'red': '红方（中国象棋）',
-    'black': '黑方（中国象棋）',
-    'white': '白方（国际象棋）',
-    'dark': '黑方（国际象棋）'
-  };
-  return names[turn] || turn;
-};
-
-// 检查是否是有效移动
-const isValidMove = (boardType, row, col) => {
-  if (!selectedPiece.value || selectedPiece.value.boardType !== boardType) {
-    return false;
+// 快速开始步骤数据
+const quickStartSteps = ref([
+  {
+    title: '注册账号',
+    description: '创建您的个人账号，享受个性化服务和完整功能体验',
+    color: '#3498DB',
+    iconPath: 'M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M8.5 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M20 8v6 M23 11h-6'
+  },
+  {
+    title: '浏览内容',
+    description: '探索丰富多样的内容资源，发现感兴趣的话题和领域',
+    color: '#2ECC71',
+    iconPath: 'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z'
+  },
+  {
+    title: '互动交流',
+    description: '与其他用户互动交流，分享想法和经验，建立社交网络',
+    color: '#F39C12',
+    iconPath: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'
+  },
+  {
+    title: '个性化设置',
+    description: '根据偏好自定义界面和功能，打造专属的使用体验',
+    color: '#9B59B6',
+    iconPath: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z'
+  },
+  {
+    title: '收藏管理',
+    description: '收藏喜爱的内容，随时查看和管理您的收藏列表',
+    color: '#E74C3C',
+    iconPath: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z'
+  },
+  {
+    title: '分享推荐',
+    description: '将精彩内容分享给好友，邀请更多人一起加入探索',
+    color: '#16A085',
+    iconPath: 'M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0'
   }
-  return validMoves.value.some(move => move.row === row && move.col === col);
-};
+]);
 
-// 加载游戏状态
-const loadGameState = async () => {
-  try {
-    const response = await fetch('/api/game/state');
-    const data = await response.json();
-    chineseBoard.value = data.chineseBoard;
-    internationalBoard.value = data.internationalBoard;
-    currentTurn.value = data.currentTurn;
-    moveHistory.value = data.moveHistory;
-    gameStatus.value = data.gameStatus;
-  } catch (error) {
-    console.error('加载游戏状态失败:', error);
+// 核心功能数据
+const features = ref([
+  {
+    title: '智能推荐',
+    description: '基于您的兴趣和浏览历史，为您推荐最相关的内容',
+    bgColor: 'rgba(52, 152, 219, 0.1)',
+    iconPath: 'M22 12h-4l-3 9L9 3l-3 9H2',
+    items: ['个性化推荐算法', '实时内容更新', '精准匹配兴趣']
+  },
+  {
+    title: '多端同步',
+    description: '在不同设备间无缝同步您的数据和设置',
+    bgColor: 'rgba(46, 204, 113, 0.1)',
+    iconPath: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75',
+    items: ['云端数据存储', '跨设备访问', '自动同步功能']
+  },
+  {
+    title: '安全保障',
+    description: '采用先进的安全技术，全方位保护您的隐私和数据',
+    bgColor: 'rgba(243, 156, 18, 0.1)',
+    iconPath: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+    items: ['数据加密传输', '隐私保护机制', '安全认证体系']
   }
-};
+]);
 
-// 处理格子点击
-const handleCellClick = async (boardType, row, col) => {
-  const board = boardType === 'chinese' ? chineseBoard.value : internationalBoard.value;
-  const piece = board[row][col];
-
-  // 如果已经选中了棋子
-  if (selectedPiece.value) {
-    // 如果点击的是有效移动位置
-    if (isValidMove(boardType, row, col)) {
-      await movePiece(boardType, selectedPiece.value.row, selectedPiece.value.col, row, col);
-      selectedPiece.value = null;
-      validMoves.value = [];
-    }
-    // 如果点击的是同方棋子，重新选择
-    else if (piece && piece.side === currentTurn.value) {
-      selectedPiece.value = { boardType, row, col };
-      await loadValidMoves(boardType, row, col);
-    }
-    // 否则取消选择
-    else {
-      selectedPiece.value = null;
-      validMoves.value = [];
-    }
+// 使用技巧数据
+const tips = ref([
+  {
+    badge: '快捷键',
+    badgeColor: '#3498DB',
+    title: '使用键盘快捷键提高效率',
+    description: '按 Ctrl+K 快速打开搜索，按 Ctrl+/ 查看所有快捷键列表'
+  },
+  {
+    badge: '搜索技巧',
+    badgeColor: '#2ECC71',
+    title: '善用高级搜索功能',
+    description: '使用引号进行精确匹配，使用减号排除关键词，提高搜索精准度'
+  },
+  {
+    badge: '界面定制',
+    badgeColor: '#F39C12',
+    title: '自定义您的工作空间',
+    description: '拖拽调整布局，隐藏不需要的模块，创建最适合您的界面'
+  },
+  {
+    badge: '通知管理',
+    badgeColor: '#9B59B6',
+    title: '合理设置通知偏好',
+    description: '在设置中选择您感兴趣的通知类型，避免信息过载'
   }
-  // 如果没有选中棋子，且点击的是当前回合的棋子
-  else if (piece && piece.side === currentTurn.value) {
-    selectedPiece.value = { boardType, row, col };
-    await loadValidMoves(boardType, row, col);
-  }
+]);
+
+// 点击卡片按钮
+const handleCardClick = (title) => {
+  alert(`您点击了：${title}\n\n这是一个演示功能，实际使用时可以跳转到对应的功能页面。`);
 };
 
-// 加载可移动位置
-const loadValidMoves = async (boardType, row, col) => {
-  try {
-    const response = await fetch('/api/game/valid-moves', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ boardType, row, col })
-    });
-    const data = await response.json();
-    validMoves.value = data.validMoves || [];
-  } catch (error) {
-    console.error('加载可移动位置失败:', error);
-    validMoves.value = [];
-  }
+// 点击开始探索按钮
+const handleStart = () => {
+  alert('开始探索！\n\n欢迎使用本网站，祝您使用愉快！');
 };
-
-// 移动棋子
-const movePiece = async (boardType, fromRow, fromCol, toRow, toCol) => {
-  try {
-    const response = await fetch('/api/game/move', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        boardType,
-        from: { row: fromRow, col: fromCol },
-        to: { row: toRow, col: toCol }
-      })
-    });
-    const data = await response.json();
-    if (data.success) {
-      await loadGameState();
-    } else {
-      alert('移动失败：' + (data.error || '未知错误'));
-    }
-  } catch (error) {
-    console.error('移动棋子失败:', error);
-    alert('移动失败：' + error.message);
-  }
-};
-
-// 重置游戏
-const resetGame = async () => {
-  if (confirm('确定要重新开始游戏吗？')) {
-    try {
-      const response = await fetch('/api/game/reset', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const data = await response.json();
-      if (data.success) {
-        await loadGameState();
-        selectedPiece.value = null;
-        validMoves.value = [];
-      }
-    } catch (error) {
-      console.error('重置游戏失败:', error);
-    }
-  }
-};
-
-// 悔棋（简化版）
-const undoMove = () => {
-  alert('悔棋功能暂未实现，请使用重新开始');
-};
-
-// 初始化
-onMounted(() => {
-  loadGameState();
-});
 </script>
 
 <style scoped>
+/* 全局重置和基础样式 */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-.chess-game {
+.app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #2F3640 0%, #4E342E 100%);
-  padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: #F8F9FA;
+  font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Source Han Sans CN', 'Roboto', 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #333333;
+  line-height: 1.6;
 }
 
-/* 标题栏 */
-.title-bar {
-  text-align: center;
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-  border: 2px solid #B87333;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-.game-title {
-  font-size: 36px;
-  font-weight: bold;
-  color: #FFD700;
-  margin-bottom: 15px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  letter-spacing: 3px;
+/* 顶部导航栏 */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  height: 64px;
 }
 
-.turn-indicator {
-  font-size: 20px;
-  color: #F5F5DC;
-}
-
-.turn-label {
-  color: #B87333;
-  margin-right: 10px;
-}
-
-.turn-value {
-  font-weight: bold;
-  padding: 5px 15px;
-  border-radius: 5px;
-  display: inline-block;
-}
-
-.turn-red { background: #B62B2B; color: white; }
-.turn-black { background: #2C3E50; color: white; }
-.turn-white { background: #F5F5DC; color: #2C3E50; }
-.turn-dark { background: #2A568D; color: white; }
-
-/* 主游戏区域 */
-.game-container {
+.header .container {
   display: flex;
-  gap: 40px;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #3498DB, #2ECC71);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: flex-start;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
+  position: relative;
+  animation: logo-pulse 2s ease-in-out infinite;
 }
 
-.board-section {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  padding: 25px;
-  border: 3px solid #B87333;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+.logo-circle {
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
 }
 
-.chinese-section {
-  border-color: #B62B2B;
-  background: linear-gradient(135deg, rgba(182, 43, 43, 0.1) 0%, rgba(44, 62, 80, 0.1) 100%);
+@keyframes logo-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
-.international-section {
-  border-color: #2A568D;
-  background: linear-gradient(135deg, rgba(42, 86, 141, 0.1) 0%, rgba(245, 245, 220, 0.1) 100%);
+.logo-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333333;
+  letter-spacing: 0.5px;
 }
 
-.section-header {
+.nav {
+  display: flex;
+  gap: 32px;
+}
+
+.nav-link {
+  color: #666666;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.nav-link:hover {
+  color: #3498DB;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #3498DB;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* 主内容区 */
+.main {
+  margin-top: 64px;
+}
+
+/* Hero区域 */
+.hero {
+  background: linear-gradient(135deg, #3498DB 0%, #2ECC71 100%);
+  color: white;
+  padding: 80px 0;
   text-align: center;
+}
+
+.hero-title {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  opacity: 0.95;
+  margin-bottom: 32px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.hero-badge {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.badge-text {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 8px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 通用区块样式 */
+.guide-section,
+.features-section,
+.tips-section {
+  padding: 80px 0;
+}
+
+.section-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #333333;
+  text-align: center;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+.section-subtitle {
+  font-size: 16px;
+  color: #666666;
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+/* 引导卡片网格 */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+}
+
+.guide-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.guide-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card-number {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  font-size: 48px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.05);
+}
+
+.card-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+  color: white;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 12px;
+}
+
+.card-description {
+  font-size: 15px;
+  color: #666666;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.card-button {
+  background: #3498DB;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.card-button:hover {
+  background: #2980B9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+/* 核心功能区 */
+.features-section {
+  background: white;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.feature-card {
+  padding: 32px;
+  border-radius: 16px;
+  background: #F8F9FA;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  border-color: #3498DB;
+  transform: translateY(-4px);
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 20px;
 }
 
-.section-header h2 {
-  font-size: 28px;
-  color: #FFD700;
-  margin-bottom: 15px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+.feature-icon .icon {
+  color: #3498DB;
 }
 
-.player-info {
-  display: flex;
-  justify-content: space-around;
-  gap: 20px;
+.feature-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 12px;
 }
 
-.player {
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 16px;
+.feature-description {
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.6;
+  margin-bottom: 16px;
 }
 
-.player.red {
-  background: #B62B2B;
-  color: white;
+.feature-list {
+  list-style: none;
 }
 
-.player.black {
-  background: #2C3E50;
-  color: white;
-}
-
-.player.white {
-  background: #F5F5DC;
-  color: #2C3E50;
-}
-
-.player.dark {
-  background: #2A568D;
-  color: white;
-}
-
-/* 中国象棋棋盘 */
-.chinese-board {
-  background: linear-gradient(135deg, #F5DEB3 0%, #DEB887 100%);
-  border: 5px solid #8B4513;
-  border-radius: 10px;
-  padding: 10px;
-}
-
-.chinese-grid {
-  width: 800px;
-  height: 900px;
+.feature-list li {
+  font-size: 14px;
+  color: #666666;
+  padding-left: 20px;
   position: relative;
-  background: #F5DEB3;
+  margin-bottom: 8px;
 }
 
-.grid-lines {
+.feature-list li::before {
+  content: '✓';
   position: absolute;
-  top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-/* 国际象棋棋盘 */
-.international-board {
-  background: #4A4A4A;
-  border: 5px solid #2C3E50;
-  border-radius: 10px;
-  padding: 10px;
-}
-
-.international-grid {
-  width: 640px;
-  height: 640px;
-  display: grid;
-  grid-template-rows: repeat(8, 1fr);
-  background: transparent;
-}
-
-.international-grid .board-row {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-}
-
-.international-grid .board-cell {
-  width: 80px;
-  height: 80px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.international-grid .board-cell.light {
-  background: #F5F5DC;
-}
-
-.international-grid .board-cell.dark {
-  background: #2A568D;
-}
-
-.international-grid .board-cell:hover {
-  filter: brightness(1.2);
-}
-
-/* 棋子样式 */
-.chinese-grid .board-cell {
-  width: 70px;
-  height: 70px;
-  position: absolute;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 10;
-}
-
-.piece {
-  width: 65px;
-  height: 65px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
+  color: #2ECC71;
   font-weight: bold;
-  border: 3px solid;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transition: all 0.2s ease;
-  user-select: none;
 }
 
-.chinese-grid .piece {
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent);
+/* 使用技巧区 */
+.tips-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
 }
 
-.chinese-grid .piece-red {
-  background-color: #B62B2B;
-  color: #FFD700;
-  border-color: #8B0000;
+.tip-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  border-left: 4px solid #3498DB;
+  transition: all 0.3s ease;
 }
 
-.chinese-grid .piece-black {
-  background-color: #2C3E50;
-  color: #F5F5DC;
-  border-color: #1C1C1C;
+.tip-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateX(4px);
 }
 
-.international-grid .piece {
-  font-size: 50px;
-  width: 70px;
-  height: 70px;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-}
-
-.international-grid .piece-white {
-  color: #FFFFFF;
-  text-shadow:
-    -2px -2px 0 #000,
-    2px -2px 0 #000,
-    -2px 2px 0 #000,
-    2px 2px 0 #000;
-}
-
-.international-grid .piece-dark {
-  color: #000000;
-  text-shadow:
-    -2px -2px 0 #FFF,
-    2px -2px 0 #FFF,
-    -2px 2px 0 #FFF,
-    2px 2px 0 #FFF;
-}
-
-/* 选中和可移动状态 */
-.board-cell.selected {
-  background: rgba(255, 215, 0, 0.3) !important;
-  border: 3px solid #FFD700;
-  z-index: 20;
-}
-
-.board-cell.valid-move {
-  background: rgba(102, 187, 106, 0.3) !important;
-}
-
-.board-cell.valid-move::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background: #66BB6A;
-  border-radius: 50%;
-  opacity: 0.6;
-  z-index: 5;
-}
-
-.piece:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
-}
-
-/* 控制面板 */
-.control-panel {
+.tip-header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 20px;
-  margin: 30px 0;
-  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.control-btn {
-  padding: 15px 40px;
+.tip-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.tip-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.tip-description {
+  font-size: 14px;
+  color: #666666;
+  line-height: 1.6;
+}
+
+/* CTA区域 */
+.cta-section {
+  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  padding: 80px 0;
+}
+
+.cta-box {
+  text-align: center;
+  color: white;
+}
+
+.cta-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.cta-description {
   font-size: 18px;
-  font-weight: bold;
+  opacity: 0.95;
+  margin-bottom: 32px;
+}
+
+.cta-button {
+  background: white;
+  color: #667EEA;
   border: none;
-  border-radius: 10px;
+  padding: 16px 48px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.reset-btn {
-  background: linear-gradient(135deg, #B62B2B 0%, #8B0000 100%);
-  color: white;
-}
-
-.reset-btn:hover {
-  background: linear-gradient(135deg, #D63031 0%, #B62B2B 100%);
+.cta-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-.undo-btn {
-  background: linear-gradient(135deg, #2A568D 0%, #1C3F6B 100%);
+/* 页脚 */
+.footer {
+  background: #2C3E50;
   color: white;
+  padding: 48px 0 24px;
 }
 
-.undo-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #3A6FAD 0%, #2A568D 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 32px;
+  margin-bottom: 32px;
 }
 
-.undo-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.move-counter {
-  padding: 15px 30px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 2px solid #B87333;
-  border-radius: 10px;
-  color: #FFD700;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-/* 移动历史 */
-.history-panel {
-  max-width: 600px;
-  margin: 0 auto;
-  background: rgba(0, 0, 0, 0.3);
-  border: 2px solid #B87333;
-  border-radius: 10px;
-  padding: 20px;
-}
-
-.history-panel h3 {
-  color: #FFD700;
-  margin-bottom: 15px;
-  text-align: center;
-  font-size: 24px;
-}
-
-.history-list {
+.footer-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-.history-item {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px 15px;
-  border-radius: 5px;
-  color: #F5F5DC;
+.footer-title {
   font-size: 16px;
-  display: flex;
-  gap: 10px;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
-.move-number {
-  color: #B87333;
-  font-weight: bold;
-  min-width: 30px;
+.footer-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
 }
 
-.move-detail {
-  flex: 1;
+.footer-link {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #3498DB;
+}
+
+.footer-bottom {
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.copyright {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* 响应式设计 */
-@media (max-width: 1600px) {
-  .game-container {
-    flex-direction: column;
-    align-items: center;
-  }
-}
-
-@media (max-width: 900px) {
-  .chinese-grid {
-    width: 400px;
-    height: 450px;
+@media (max-width: 768px) {
+  .nav {
+    display: none;
   }
 
-  .chinese-grid .board-cell {
-    width: 40px;
-    height: 40px;
-  }
-
-  .chinese-grid .piece {
-    width: 35px;
-    height: 35px;
-    font-size: 18px;
-  }
-
-  .international-grid {
-    width: 400px;
-    height: 400px;
-  }
-
-  .international-grid .board-cell {
-    width: 50px;
-    height: 50px;
-  }
-
-  .international-grid .piece {
+  .hero-title {
     font-size: 32px;
-    width: 45px;
-    height: 45px;
   }
 
-  .game-title {
-    font-size: 24px;
+  .hero-subtitle {
+    font-size: 16px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .card-grid,
+  .features-grid,
+  .tips-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .guide-section,
+  .features-section,
+  .tips-section {
+    padding: 48px 0;
+  }
+
+  .cta-title {
+    font-size: 28px;
+  }
+
+  .cta-description {
+    font-size: 16px;
   }
 }
 
 @media (max-width: 480px) {
-  .chinese-grid {
-    width: 320px;
-    height: 360px;
+  .container {
+    padding: 0 16px;
   }
 
-  .international-grid {
-    width: 320px;
-    height: 320px;
+  .hero {
+    padding: 48px 0;
   }
 
-  .game-title {
-    font-size: 20px;
+  .hero-title {
+    font-size: 28px;
   }
 
-  .control-btn {
-    padding: 12px 24px;
-    font-size: 16px;
+  .hero-badge {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .guide-card {
+    padding: 24px;
+  }
+
+  .card-number {
+    font-size: 36px;
   }
 }
 </style>
