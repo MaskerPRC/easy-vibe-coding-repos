@@ -1,250 +1,572 @@
 <template>
-  <div class="bg-tech-dark text-gray-100 font-sans antialiased selection:bg-tea-green selection:text-white">
-    <!-- 导航栏 -->
-    <nav class="fixed w-full z-50 glass-effect top-0">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <div class="flex-shrink-0 font-serif text-xl tracking-widest text-tea-light">
-            <span class="text-tech-accent">ai</span>茶空间
-          </div>
-          <div class="hidden md:block">
-            <div class="ml-10 flex items-baseline space-x-8">
-              <a href="#about" class="hover:text-tea-green px-3 py-2 rounded-md text-sm font-medium transition">空间理念</a>
-              <a href="#events" class="hover:text-tea-green px-3 py-2 rounded-md text-sm font-medium transition">社群活动</a>
-              <a href="#membership" class="bg-tea-green hover:bg-opacity-80 text-white px-4 py-2 rounded-full text-sm transition">加入社群</a>
-            </div>
-          </div>
-          <!-- 移动端菜单按钮 -->
-          <div class="md:hidden">
-            <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-300 hover:text-white">
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-      <!-- 移动端菜单 -->
-      <div v-if="mobileMenuOpen" class="md:hidden glass-effect">
-        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <a href="#about" @click="mobileMenuOpen = false" class="block hover:text-tea-green px-3 py-2 rounded-md text-base font-medium">空间理念</a>
-          <a href="#events" @click="mobileMenuOpen = false" class="block hover:text-tea-green px-3 py-2 rounded-md text-base font-medium">社群活动</a>
-          <a href="#membership" @click="mobileMenuOpen = false" class="block bg-tea-green hover:bg-opacity-80 text-white px-3 py-2 rounded-md text-base font-medium">加入社群</a>
-        </div>
-      </div>
-    </nav>
+  <div class="app">
+    <!-- 网格背景 -->
+    <div class="grid-background"></div>
 
-    <!-- 英雄区 -->
-    <div class="relative h-screen flex items-center justify-center bg-ink bg-gray-900">
-      <div class="absolute inset-0 bg-black bg-opacity-60"></div>
-      <div class="relative z-10 text-center px-4">
-        <h1 class="font-serif text-5xl md:text-7xl font-bold text-white mb-6 tracking-wide">
-          煮茶论道 <br class="md:hidden" /> <span class="text-transparent bg-clip-text bg-gradient-to-r from-tea-green to-tech-accent">算法修心</span>
-        </h1>
-        <p class="mt-4 text-xl text-gray-300 max-w-2xl mx-auto font-light">
-          立足西安，连接未来。
-          <br>在这里，古老的茶香与最前沿的生成式AI思想碰撞。
-        </p>
-        <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-          <a href="#about" class="border border-white hover:bg-white hover:text-black text-white px-8 py-3 rounded text-lg transition">
-            探索空间
-          </a>
-          <a href="#contact" class="bg-gradient-to-r from-tea-green to-green-700 hover:from-green-600 hover:to-green-800 text-white px-8 py-3 rounded text-lg transition shadow-lg shadow-green-900/50">
-            成为会员
-          </a>
+    <!-- 故障效果层 -->
+    <div class="glitch-overlay"></div>
+
+    <!-- 主容器 -->
+    <div class="neural-container">
+      <!-- 顶部终端栏 -->
+      <div class="terminal-header">
+        <span class="terminal-indicator"></span>
+        <span class="terminal-text">SYSTEM/NEURAL_TEA_LAB/v2.0</span>
+      </div>
+
+      <!-- 主标题区域 -->
+      <div class="main-title-area">
+        <h1 class="glitch-title" data-text="NEURAL TEA LAB">NEURAL TEA LAB</h1>
+        <div class="subtitle">神经元茶室 // 碳基充电站</div>
+      </div>
+
+      <!-- 状态面板 -->
+      <div class="status-panel">
+        <div class="status-item">
+          <span class="status-label">&gt; 系统状态:</span>
+          <span class="status-value status-online">ONLINE</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">&gt; 算力中心:</span>
+          <span class="status-value status-active">ACTIVE</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">&gt; 液体芯片:</span>
+          <span class="status-value status-ready">READY</span>
         </div>
       </div>
-      <div class="absolute right-10 top-1/4 hidden lg:block opacity-40">
-        <p class="vertical-text font-serif text-4xl text-white border-r-2 border-white pr-4">长安三万里</p>
+
+      <!-- 代码终端区域 -->
+      <div class="code-terminal">
+        <div class="code-line">
+          <span class="code-prompt">$</span>
+          <span class="code-text">init --neural-tea-protocol</span>
+        </div>
+        <div class="code-line">
+          <span class="code-comment">// 茶 = 液体芯片</span>
+        </div>
+        <div class="code-line">
+          <span class="code-comment">// 喝茶 = 碳基生物充电</span>
+        </div>
+        <div class="code-line">
+          <span class="code-prompt">$</span>
+          <span class="code-text typing-effect">加载神经网络...</span>
+        </div>
       </div>
-      <div class="absolute left-10 bottom-1/4 hidden lg:block opacity-40">
-        <p class="vertical-text font-serif text-4xl text-tea-green border-l-2 border-tea-green pl-4">代码一行山</p>
+
+      <!-- 数据可视化面板 -->
+      <div class="data-viz">
+        <div class="data-bar" v-for="i in 12" :key="i" :style="{animationDelay: (i * 0.1) + 's'}"></div>
+      </div>
+
+      <!-- 底部信息 -->
+      <div class="footer-info">
+        <div class="info-text">
+          <span class="neon-green">// </span>
+          <span>碳基生物充电中枢 - CARBON BASED CHARGING HUB</span>
+        </div>
+        <div class="info-text">
+          <span class="neon-purple">// </span>
+          <span>算力空间正在初始化 - COMPUTING SPACE INITIALIZING</span>
+        </div>
       </div>
     </div>
 
-    <!-- 关于我们 -->
-    <section id="about" class="py-20 bg-tech-dark">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-          <h2 class="text-3xl font-serif text-tea-light">硬科技之都的柔软角落</h2>
-          <div class="w-16 h-1 bg-tea-green mx-auto mt-4"></div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div class="glass-effect p-8 rounded-xl hover:-translate-y-2 transition duration-300">
-            <div class="text-4xl mb-4">🍵</div>
-            <h3 class="text-xl font-bold text-white mb-2">新中式茶饮</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
-              严选秦岭以南高山原叶，结合现代冷萃工艺。在品茶的同时，让大脑从代码海洋中片刻抽离。
-            </p>
-          </div>
-          <div class="glass-effect p-8 rounded-xl hover:-translate-y-2 transition duration-300 border-tech-accent border-opacity-30">
-            <div class="text-4xl mb-4">🤖</div>
-            <h3 class="text-xl font-bold text-white mb-2">AI 极客沙龙</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
-              每周举办 LLM、AIGC、具身智能主题分享。不仅是茶馆，更是西安AI创业者的情报局。
-            </p>
-          </div>
-          <div class="glass-effect p-8 rounded-xl hover:-translate-y-2 transition duration-300">
-            <div class="text-4xl mb-4">🏯</div>
-            <h3 class="text-xl font-bold text-white mb-2">资源链接</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
-              连接西安高校、高新区资本与独立开发者。在古朴的环境中，促成最前沿的合作。
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 引用区 -->
-    <div class="h-64 bg-fixed bg-center bg-cover bg-quote">
-      <div class="h-full w-full bg-black bg-opacity-50 flex items-center justify-center">
-        <p class="text-3xl font-serif text-white italic px-4">"茶气氤氲处，灵感自来时"</p>
-      </div>
-    </div>
-
-    <!-- 社群活动 -->
-    <section id="events" class="py-20 bg-gray-900">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="flex flex-col md:flex-row justify-between items-end mb-12">
-          <div>
-            <h2 class="text-3xl font-serif text-white">近期活动</h2>
-            <p class="text-gray-500 mt-2">Events & Workshops</p>
-          </div>
-          <a href="#" class="text-tea-green hover:text-white transition mt-4 md:mt-0">查看全部日历 -></a>
-        </div>
-
-        <div class="grid gap-6">
-          <div
-            v-for="event in events"
-            :key="event.id"
-            class="group relative bg-gray-800 rounded-lg overflow-hidden flex flex-col md:flex-row hover:bg-gray-700 transition"
-          >
-            <div class="md:w-1/3 h-48 md:h-auto bg-cover bg-center" :style="{ backgroundImage: `url(${event.image})` }"></div>
-            <div class="p-6 flex-1">
-              <div class="text-tea-green text-sm font-bold mb-2">{{ event.date }} | {{ event.time }}</div>
-              <h3 class="text-2xl font-serif text-white mb-3 group-hover:text-tea-green transition">{{ event.title }}</h3>
-              <p class="text-gray-400 mb-4">{{ event.description }}</p>
-              <span class="inline-block bg-gray-900 px-3 py-1 rounded text-xs text-gray-300">{{ event.tag }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 联系我们 -->
-    <section id="contact" class="py-20 bg-gradient-to-b from-tech-dark to-black text-center">
-      <div class="max-w-3xl mx-auto px-4">
-        <h2 class="text-4xl font-serif text-white mb-6">共建西安 AI 新生态</h2>
-        <p class="text-gray-400 mb-10 text-lg">
-          无论你是寻找灵感的程序员，还是寻找技术合伙人的创业者，<br class="hidden sm:block">
-          ai茶空间都为你留了一盏灯，一杯茶。
-        </p>
-        <form @submit.prevent="handleSubmit" class="flex flex-col sm:flex-row gap-4 justify-center">
-          <input
-            v-model="email"
-            type="email"
-            placeholder="输入您的邮箱订阅活动通知"
-            class="px-6 py-4 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-tea-green w-full sm:w-auto"
-            required
-          >
-          <button
-            type="submit"
-            class="px-8 py-4 rounded bg-tea-green text-white font-bold hover:bg-green-700 transition w-full sm:w-auto"
-          >
-            加入社群
-          </button>
-        </form>
-        <p v-if="submitMessage" class="mt-4 text-tea-green">{{ submitMessage }}</p>
-        <div class="mt-12 flex justify-center space-x-6 opacity-50">
-          <span class="cursor-pointer hover:text-white transition">WeChat</span>
-          <span class="cursor-pointer hover:text-white transition">Xiaohongshu</span>
-          <span class="cursor-pointer hover:text-white transition">GitHub</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 页脚 -->
-    <footer class="bg-black py-8 text-center text-gray-600 text-sm">
-      <p>&copy; 2023 ai茶空间. All rights reserved.</p>
-      <p class="mt-2">📍 中国 · 西安 · 高新区 / 曲江新区</p>
-    </footer>
+    <!-- 扫描线效果 -->
+    <div class="scan-line"></div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue';
 
-// 移动端菜单状态
-const mobileMenuOpen = ref(false)
-
-// 邮箱订阅
-const email = ref('')
-const submitMessage = ref('')
-
-// 活动数据（存储在内存中）
-const events = ref([
-  {
-    id: 1,
-    date: '2024.12.15',
-    time: '14:00 - 17:00',
-    title: 'AIGC 落地实战：从Prompt到产品',
-    description: '邀请大厂算法专家，现场演示Stable Diffusion工作流，并在茶歇期间进行分组实操。',
-    tag: '限额 20 人',
-    image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 2,
-    date: '2024.12.22',
-    time: '19:00 - 21:00',
-    title: '围炉夜话：独立开发者的出海之路',
-    description: '冬日围炉煮茶，邀请三位西安本地成功出海的独立开发者分享他们的踩坑经验。',
-    tag: '会员专属',
-    image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-  }
-])
-
-// 表单提交处理
-const handleSubmit = () => {
-  if (email.value) {
-    submitMessage.value = '感谢订阅！我们会及时将活动信息发送到您的邮箱。'
-    setTimeout(() => {
-      email.value = ''
-      submitMessage.value = ''
-    }, 3000)
-  }
-}
+onMounted(() => {
+  // 添加随机故障效果
+  setInterval(() => {
+    const glitchOverlay = document.querySelector('.glitch-overlay');
+    if (glitchOverlay && Math.random() > 0.7) {
+      glitchOverlay.style.opacity = '1';
+      setTimeout(() => {
+        glitchOverlay.style.opacity = '0';
+      }, 100);
+    }
+  }, 3000);
+});
 </script>
 
 <style scoped>
-.glass-effect {
-  background: rgba(255, 255, 255, 0.1);
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app {
+  min-height: 100vh;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 网格背景 */
+.grid-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  animation: grid-move 20s linear infinite;
+}
+
+@keyframes grid-move {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* 故障效果层 */
+.glitch-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 0, 0.1) 0px,
+    rgba(191, 0, 255, 0.1) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s;
+  z-index: 10;
+}
+
+/* 扫描线 */
+.scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 255, 0, 0.8), transparent);
+  animation: scan 4s linear infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+/* 主容器 */
+.neural-container {
+  width: 100%;
+  max-width: 900px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00FF00;
+  box-shadow:
+    0 0 20px rgba(0, 255, 0, 0.5),
+    0 0 40px rgba(0, 255, 0, 0.3),
+    inset 0 0 60px rgba(0, 255, 0, 0.1);
+  padding: 30px;
+  position: relative;
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 1;
 }
 
-.vertical-text {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
+/* 终端头部 */
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.3);
 }
 
-/* 模拟水墨晕染背景 */
-.bg-ink {
-  background-image: url('https://images.unsplash.com/photo-1528459061998-56fd57ad86e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
-  background-size: cover;
-  background-position: center;
-  background-blend-mode: overlay;
+.terminal-indicator {
+  width: 12px;
+  height: 12px;
+  background: #00FF00;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00FF00;
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
-/* 引用区背景 */
-.bg-quote {
-  background-image: url('https://images.unsplash.com/photo-1531973576160-7125cd663d86?ixlib=rb-4.0.3&auto=format&fit=crop&w=1500&q=80');
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
 }
 
-/* 平滑滚动 */
-html {
-  scroll-behavior: smooth;
+.terminal-text {
+  color: #00FF00;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* 主标题区域 */
+.main-title-area {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.glitch-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  position: relative;
+  animation: glitch-anim 5s infinite;
+  text-shadow:
+    0 0 10px #00FF00,
+    0 0 20px #00FF00,
+    0 0 30px #00FF00;
+}
+
+.glitch-title::before,
+.glitch-title::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch-title::before {
+  animation: glitch-anim-1 3s infinite;
+  color: #00FF00;
+  z-index: -1;
+}
+
+.glitch-title::after {
+  animation: glitch-anim-2 2s infinite;
+  color: #BF00FF;
+  z-index: -2;
+}
+
+@keyframes glitch-anim {
+  0%, 90%, 100% {
+    transform: translate(0);
+  }
+  92% {
+    transform: translate(-2px, 2px);
+  }
+  94% {
+    transform: translate(2px, -2px);
+  }
+  96% {
+    transform: translate(-2px, -2px);
+  }
+}
+
+@keyframes glitch-anim-1 {
+  0%, 90%, 100% {
+    clip-path: inset(0 0 0 0);
+  }
+  92% {
+    clip-path: inset(10% 0 85% 0);
+  }
+  94% {
+    clip-path: inset(80% 0 15% 0);
+  }
+}
+
+@keyframes glitch-anim-2 {
+  0%, 90%, 100% {
+    clip-path: inset(0 0 0 0);
+  }
+  91% {
+    clip-path: inset(40% 0 55% 0);
+  }
+  93% {
+    clip-path: inset(20% 0 70% 0);
+  }
+}
+
+.subtitle {
+  color: #BF00FF;
+  font-size: 18px;
+  margin-top: 15px;
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px #BF00FF;
+}
+
+/* 状态面板 */
+.status-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.status-item {
+  background: rgba(0, 255, 0, 0.05);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s;
+}
+
+.status-item:hover {
+  background: rgba(0, 255, 0, 0.1);
+  border-color: #00FF00;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+}
+
+.status-label {
+  color: #00FF00;
+  font-size: 14px;
+}
+
+.status-value {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.status-online {
+  color: #00FF00;
+  text-shadow: 0 0 5px #00FF00;
+}
+
+.status-active {
+  color: #BF00FF;
+  text-shadow: 0 0 5px #BF00FF;
+}
+
+.status-ready {
+  color: #FFFFFF;
+  text-shadow: 0 0 5px #FFFFFF;
+}
+
+/* 代码终端 */
+.code-terminal {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  padding: 20px;
+  margin-bottom: 30px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.code-line {
+  color: #00FF00;
+  margin-bottom: 8px;
+}
+
+.code-prompt {
+  color: #BF00FF;
+  margin-right: 10px;
+  font-weight: 700;
+}
+
+.code-text {
+  color: #FFFFFF;
+}
+
+.code-comment {
+  color: rgba(0, 255, 0, 0.6);
+  font-style: italic;
+}
+
+.typing-effect {
+  animation: typing 2s steps(20) infinite;
+  border-right: 2px solid #00FF00;
+  padding-right: 5px;
+}
+
+@keyframes typing {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* 数据可视化 */
+.data-viz {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 100px;
+  margin-bottom: 30px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(191, 0, 255, 0.3);
+}
+
+.data-bar {
+  flex: 1;
+  background: linear-gradient(to top, #BF00FF, #00FF00);
+  margin: 0 2px;
+  animation: bar-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(191, 0, 255, 0.5);
+}
+
+@keyframes bar-pulse {
+  0%, 100% {
+    height: 20%;
+  }
+  50% {
+    height: 80%;
+  }
+}
+
+/* 底部信息 */
+.footer-info {
+  border-top: 1px solid rgba(0, 255, 0, 0.3);
+  padding-top: 20px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.info-text {
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 5px;
+}
+
+.neon-green {
+  color: #00FF00;
+  text-shadow: 0 0 5px #00FF00;
+}
+
+.neon-purple {
+  color: #BF00FF;
+  text-shadow: 0 0 5px #BF00FF;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .neural-container {
+    padding: 20px;
+  }
+
+  .glitch-title {
+    font-size: 32px;
+    letter-spacing: 4px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+
+  .status-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .code-terminal {
+    font-size: 12px;
+    padding: 15px;
+  }
+
+  .data-viz {
+    height: 80px;
+  }
+
+  .footer-info {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .neural-container {
+    padding: 15px;
+  }
+
+  .glitch-title {
+    font-size: 24px;
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .terminal-header {
+    margin-bottom: 20px;
+  }
+
+  .terminal-text {
+    font-size: 10px;
+  }
+
+  .status-item {
+    padding: 10px;
+  }
+
+  .status-label,
+  .status-value {
+    font-size: 11px;
+  }
+
+  .code-terminal {
+    font-size: 11px;
+    padding: 12px;
+  }
+
+  .data-viz {
+    height: 60px;
+  }
+}
+
+/* 角落装饰 */
+.neural-container::before,
+.neural-container::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #BF00FF;
+  box-shadow: 0 0 10px #BF00FF;
+}
+
+.neural-container::before {
+  top: 10px;
+  left: 10px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.neural-container::after {
+  bottom: 10px;
+  right: 10px;
+  border-left: none;
+  border-top: none;
 }
 </style>
