@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <div class="flex-shrink-0 font-serif text-xl tracking-widest text-tea-light">
-            长安 · <span class="text-tech-accent">AI</span> · 智茗
+            <span class="text-tech-accent">ai</span>茶空间
           </div>
           <div class="hidden md:block">
             <div class="ml-10 flex items-baseline space-x-8">
@@ -139,7 +139,7 @@
         <h2 class="text-4xl font-serif text-white mb-6">共建西安 AI 新生态</h2>
         <p class="text-gray-400 mb-10 text-lg">
           无论你是寻找灵感的程序员，还是寻找技术合伙人的创业者，<br class="hidden sm:block">
-          长安智茗都为你留了一盏灯，一杯茶。
+          ai茶空间都为你留了一盏灯，一杯茶。
         </p>
         <form @submit.prevent="handleSubmit" class="flex flex-col sm:flex-row gap-4 justify-center">
           <input
@@ -167,7 +167,7 @@
 
     <!-- 页脚 -->
     <footer class="bg-black py-8 text-center text-gray-600 text-sm">
-      <p>&copy; 2023 Chang'an AI Tea Space. All rights reserved.</p>
+      <p>&copy; 2023 ai茶空间. All rights reserved.</p>
       <p class="mt-2">📍 中国 · 西安 · 高新区 / 曲江新区</p>
     </footer>
   </div>
