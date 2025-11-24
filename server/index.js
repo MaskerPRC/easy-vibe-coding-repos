@@ -5,6 +5,9 @@ import bodyParser from 'body-parser';
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+// 内存存储 - 游戏最高分数据
+let gameHighScore = 0;
+
 // 中间件
 app.use(cors());
 app.use(bodyParser.json());
@@ -19,38 +22,39 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 获取 SpaceX 下次发射信息
-app.get('/api/spacex/next-launch', async (req, res) => {
-  try {
-    const response = await fetch('https://api.spacexdata.com/v5/launches/next');
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error('获取 SpaceX 发射数据失败:', error);
-    res.status(500).json({
-      error: '获取发射数据失败',
-      message: error.message
-    });
-  }
+// 获取最高分
+app.get('/api/scores', (req, res) => {
+  res.json({
+    highScore: gameHighScore
+  });
 });
 
-// 获取天气预报（使用 Open-Meteo API，以肯尼迪航天中心为例：纬度 28.5728，经度 -80.6489）
-app.get('/api/weather', async (req, res) => {
-  try {
-    // 默认使用肯尼迪航天中心的坐标
-    const latitude = req.query.lat || 28.5728;
-    const longitude = req.query.lon || -80.6489;
+// 保存分数
+app.post('/api/scores', (req, res) => {
+  const { score } = req.body;
 
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=America/New_York`;
+  if (typeof score !== 'number' || score < 0) {
+    return res.status(400).json({
+      error: '无效的分数',
+      message: '分数必须是非负数'
+    });
+  }
 
-    const response = await fetch(url);
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error('获取天气数据失败:', error);
-    res.status(500).json({
-      error: '获取天气数据失败',
-      message: error.message
+  // 更新最高分
+  if (score > gameHighScore) {
+    gameHighScore = score;
+    res.json({
+      success: true,
+      highScore: gameHighScore,
+      isNewRecord: true,
+      message: '恭喜!新纪录!'
+    });
+  } else {
+    res.json({
+      success: true,
+      highScore: gameHighScore,
+      isNewRecord: false,
+      message: '分数已保存'
     });
   }
 });
