@@ -84,17 +84,41 @@ const loadVoices = () => {
   return new Promise((resolve) => {
     let availableVoices = window.speechSynthesis.getVoices()
 
-    if (availableVoices.length > 0) {
-      voices.value = availableVoices
+    const processVoices = (voicesList) => {
+      voices.value = voicesList
       voicesLoaded.value = true
-      resolve(availableVoices)
+
+      console.log(`✓ 成功加载 ${voicesList.length} 个语音引擎`)
+
+      // 显示所有可用的语音引擎
+      console.log('可用的语音引擎列表:')
+      voicesList.forEach((voice, index) => {
+        console.log(`  ${index + 1}. ${voice.name} (${voice.lang}) ${voice.default ? '[默认]' : ''}`)
+      })
+
+      // 检查是否有乌克兰语语音
+      const ukrainianVoice = voicesList.find(v => v.lang.startsWith('uk'))
+      if (ukrainianVoice) {
+        console.log(`✓ 找到乌克兰语语音: ${ukrainianVoice.name}`)
+      } else {
+        console.warn('⚠ 未找到乌克兰语语音，将使用俄语或默认语音作为后备')
+        const russianVoice = voicesList.find(v => v.lang.startsWith('ru'))
+        if (russianVoice) {
+          console.log(`  后备方案: 使用俄语语音 ${russianVoice.name}`)
+        }
+      }
+
+      resolve(voicesList)
+    }
+
+    if (availableVoices.length > 0) {
+      processVoices(availableVoices)
     } else {
       // 如果语音列表为空，等待 voiceschanged 事件
+      console.log('等待语音引擎加载...')
       window.speechSynthesis.addEventListener('voiceschanged', () => {
         availableVoices = window.speechSynthesis.getVoices()
-        voices.value = availableVoices
-        voicesLoaded.value = true
-        resolve(availableVoices)
+        processVoices(availableVoices)
       }, { once: true })
     }
   })
@@ -103,23 +127,45 @@ const loadVoices = () => {
 // 根据语言代码选择最合适的语音引擎
 const selectVoice = (langCode) => {
   if (voices.value.length === 0) {
+    console.warn('没有可用的语音引擎')
     return null
   }
 
   // 1. 首先尝试精确匹配语言代码（如 ja-JP, ru-RU）
   let voice = voices.value.find(v => v.lang === langCode)
-  if (voice) return voice
+  if (voice) {
+    console.log(`找到精确匹配的语音: ${voice.name} (${voice.lang})`)
+    return voice
+  }
 
   // 2. 尝试匹配语言前缀（如 ja, ru）
   const langPrefix = langCode.split('-')[0]
   voice = voices.value.find(v => v.lang.startsWith(langPrefix))
-  if (voice) return voice
+  if (voice) {
+    console.log(`找到语言前缀匹配的语音: ${voice.name} (${voice.lang})`)
+    return voice
+  }
 
   // 3. 尝试找到该语言的任何可用语音
   voice = voices.value.find(v => v.lang.toLowerCase().includes(langPrefix.toLowerCase()))
-  if (voice) return voice
+  if (voice) {
+    console.log(`找到部分匹配的语音: ${voice.name} (${voice.lang})`)
+    return voice
+  }
 
-  // 4. 如果都没找到，返回默认语音
+  // 4. 特殊处理：为乌克兰语提供后备语音
+  // 如果没有找到乌克兰语语音，尝试使用俄语语音（因为它们使用相似的西里尔字母）
+  if (langPrefix === 'uk') {
+    console.log('未找到乌克兰语语音，尝试使用俄语语音作为后备')
+    voice = voices.value.find(v => v.lang.startsWith('ru'))
+    if (voice) {
+      console.log(`使用后备语音: ${voice.name} (${voice.lang})`)
+      return voice
+    }
+  }
+
+  // 5. 如果都没找到，返回默认语音
+  console.warn(`未找到 ${langCode} 的语音引擎，使用默认语音`)
   return voices.value[0] || null
 }
 
@@ -137,8 +183,12 @@ const playPronunciation = async (greeting, index) => {
 
     // 确保语音引擎已加载
     if (!voicesLoaded.value) {
+      console.log('正在加载语音引擎...')
       await loadVoices()
     }
+
+    console.log(`准备播放: ${greeting.language} - ${greeting.hello}`)
+    console.log(`可用的语音引擎数量: ${voices.value.length}`)
 
     // 设置当前播放状态
     playingIndex.value = index
@@ -148,35 +198,53 @@ const playPronunciation = async (greeting, index) => {
 
     // 设置语言
     utterance.lang = greeting.lang
+    console.log(`目标语言代码: ${greeting.lang}`)
 
     // 选择合适的语音引擎
     const selectedVoice = selectVoice(greeting.lang)
     if (selectedVoice) {
       utterance.voice = selectedVoice
-      console.log(`使用语音引擎: ${selectedVoice.name} (${selectedVoice.lang})`)
+      console.log(`✓ 成功选择语音引擎: ${selectedVoice.name} (${selectedVoice.lang})`)
+    } else {
+      console.warn(`⚠ 未找到合适的语音引擎，将使用浏览器默认语音`)
     }
 
     // 设置语速和音量
     utterance.rate = 0.9
     utterance.volume = 1.0
 
+    // 播放开始
+    utterance.onstart = () => {
+      console.log(`开始播放: ${greeting.language}`)
+    }
+
     // 播放结束后清除状态
     utterance.onend = () => {
+      console.log(`播放完成: ${greeting.language}`)
       playingIndex.value = -1
     }
 
     // 播放失败时也清除状态
     utterance.onerror = (event) => {
       console.error('语音播放错误:', event.error)
+      console.error('错误详情:', event)
       playingIndex.value = -1
 
       // 对于某些特定错误，给用户友好提示
       if (event.error === 'synthesis-unavailable') {
         alert(`抱歉，您的浏览器暂不支持 ${greeting.language} 语音播放`)
+      } else if (event.error === 'network') {
+        alert(`网络错误：无法加载 ${greeting.language} 语音`)
+      } else if (event.error === 'not-allowed') {
+        alert('语音播放被浏览器阻止，请检查浏览器权限设置')
+      } else {
+        // 对于其他错误，显示更详细的信息
+        console.error(`播放 ${greeting.language} 时出现错误: ${event.error}`)
       }
     }
 
     // 开始播放
+    console.log('调用 speechSynthesis.speak()')
     window.speechSynthesis.speak(utterance)
   } catch (error) {
     console.error('播放语音时出错:', error)
