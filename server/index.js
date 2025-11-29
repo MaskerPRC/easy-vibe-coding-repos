@@ -5,9 +5,6 @@ import bodyParser from 'body-parser';
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// 内存存储 - 游戏最高分数据
-let gameHighScore = 0;
-
 // 中间件
 app.use(cors());
 app.use(bodyParser.json());
@@ -15,48 +12,11 @@ app.use(express.json());
 
 // 健康检查
 app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
+  res.json({ 
+    status: 'ok', 
     port: PORT,
     timestamp: new Date().toISOString()
   });
-});
-
-// 获取最高分
-app.get('/api/scores', (req, res) => {
-  res.json({
-    highScore: gameHighScore
-  });
-});
-
-// 保存分数
-app.post('/api/scores', (req, res) => {
-  const { score } = req.body;
-
-  if (typeof score !== 'number' || score < 0) {
-    return res.status(400).json({
-      error: '无效的分数',
-      message: '分数必须是非负数'
-    });
-  }
-
-  // 更新最高分
-  if (score > gameHighScore) {
-    gameHighScore = score;
-    res.json({
-      success: true,
-      highScore: gameHighScore,
-      isNewRecord: true,
-      message: '恭喜!新纪录!'
-    });
-  } else {
-    res.json({
-      success: true,
-      highScore: gameHighScore,
-      isNewRecord: false,
-      message: '分数已保存'
-    });
-  }
 });
 
 // 错误处理
