@@ -1,944 +1,983 @@
 <template>
   <div class="app">
-    <!-- 顶部导航 -->
-    <header class="header">
-      <div class="container">
-        <div class="logo">
-          <div class="logo-icon">
-            <div class="logo-dot"></div>
-          </div>
-          <span class="logo-text">探索站</span>
-        </div>
-        <nav class="nav">
-          <a href="#about" class="nav-link">关于我们</a>
-          <a href="#features" class="nav-link">核心功能</a>
-          <a href="#team" class="nav-link">团队成员</a>
-          <a href="#contact" class="nav-link">联系方式</a>
-        </nav>
-      </div>
-    </header>
-
-    <!-- 主横幅区域 -->
-    <section class="hero">
-      <div class="container">
-        <div class="hero-content">
-          <h1 class="hero-title">探索站 - 发现无限可能</h1>
-          <p class="hero-subtitle">一个专注于知识分享、技术探索与创新交流的现代化平台</p>
-          <div class="hero-actions">
-            <button class="btn btn-primary">开始探索</button>
-            <button class="btn btn-outline">了解更多</button>
-          </div>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+      <div class="nav-content">
+        <h1 class="logo">贪吃蛇游戏</h1>
+        <div class="nav-buttons">
+          <button @click="showLeaderboard = !showLeaderboard" class="nav-btn">
+            <span class="btn-icon">🏆</span>
+            <span>排行榜</span>
+          </button>
         </div>
       </div>
-    </section>
+    </nav>
 
-    <!-- 关于我们 -->
-    <section id="about" class="section section-light">
-      <div class="container">
-        <h2 class="section-title">关于本站</h2>
-        <div class="about-content">
-          <div class="about-card">
-            <div class="about-icon">🎯</div>
-            <h3 class="about-card-title">我们的使命</h3>
-            <p class="about-card-text">致力于打造一个开放、包容的知识分享平台，让每个人都能找到属于自己的学习路径，实现个人成长与价值创造。</p>
+    <!-- 主游戏区域 -->
+    <div class="main-container">
+      <div class="game-area">
+        <!-- 游戏信息卡片 -->
+        <div class="info-card">
+          <div class="info-item">
+            <span class="info-label">分数</span>
+            <span class="info-value">{{ score }}</span>
           </div>
-          <div class="about-card">
-            <div class="about-icon">💡</div>
-            <h3 class="about-card-title">我们的愿景</h3>
-            <p class="about-card-text">成为全球领先的知识探索社区，连接世界各地的学习者和创作者，构建一个充满活力的智慧生态系统。</p>
+          <div class="info-item">
+            <span class="info-label">最高分</span>
+            <span class="info-value">{{ highScore }}</span>
           </div>
-          <div class="about-card">
-            <div class="about-icon">🚀</div>
-            <h3 class="about-card-title">我们的价值观</h3>
-            <p class="about-card-text">秉持开放、创新、协作的核心价值观，鼓励探索精神，推动知识共享，助力每个人发挥潜能。</p>
+          <div class="info-item">
+            <span class="info-label">等级</span>
+            <span class="info-value">{{ level }}</span>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- 核心功能 -->
-    <section id="features" class="section">
-      <div class="container">
-        <h2 class="section-title">核心功能</h2>
-        <p class="section-subtitle">为您提供全方位的学习与交流体验</p>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon primary">📚</div>
-            <h3 class="feature-title">知识库</h3>
-            <p class="feature-text">海量优质内容，涵盖技术、设计、商业等多个领域，助您快速获取所需知识。</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon success">🎨</div>
-            <h3 class="feature-title">创作工具</h3>
-            <p class="feature-text">强大的在线编辑器，支持多种格式，让您的创作更加高效便捷。</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon primary">👥</div>
-            <h3 class="feature-title">社区交流</h3>
-            <p class="feature-text">与志同道合的伙伴交流互动，分享经验，共同成长。</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon success">📊</div>
-            <h3 class="feature-title">学习分析</h3>
-            <p class="feature-text">智能追踪学习进度，提供个性化推荐，帮助您更好地规划学习路径。</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon primary">🔍</div>
-            <h3 class="feature-title">智能搜索</h3>
-            <p class="feature-text">先进的搜索算法，快速定位您需要的内容，节省宝贵时间。</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon success">🎓</div>
-            <h3 class="feature-title">在线课程</h3>
-            <p class="feature-text">精心设计的系统化课程，由行业专家授课，助您系统掌握专业技能。</p>
-          </div>
-        </div>
-      </div>
-    </section>
+        <!-- 游戏画布卡片 -->
+        <div class="game-card">
+          <canvas
+            ref="gameCanvas"
+            :width="canvasWidth"
+            :height="canvasHeight"
+            @click="handleCanvasClick"
+          ></canvas>
 
-    <!-- 团队成员 -->
-    <section id="team" class="section section-light">
-      <div class="container">
-        <h2 class="section-title">团队成员</h2>
-        <p class="section-subtitle">我们是一群充满热情的创造者</p>
-        <div class="team-grid">
-          <div class="team-card">
-            <div class="team-avatar">👨‍💻</div>
-            <h3 class="team-name">张明</h3>
-            <p class="team-role">创始人 & CEO</p>
-            <p class="team-bio">10年互联网产品经验，致力于打造极致用户体验</p>
-          </div>
-          <div class="team-card">
-            <div class="team-avatar">👩‍💼</div>
-            <h3 class="team-name">李娜</h3>
-            <p class="team-role">首席技术官</p>
-            <p class="team-bio">全栈工程师，热衷于技术创新与架构设计</p>
-          </div>
-          <div class="team-card">
-            <div class="team-avatar">👨‍🎨</div>
-            <h3 class="team-name">王强</h3>
-            <p class="team-role">设计总监</p>
-            <p class="team-bio">追求完美的视觉设计师，擅长创造令人愉悦的界面</p>
-          </div>
-          <div class="team-card">
-            <div class="team-avatar">👩‍🏫</div>
-            <h3 class="team-name">赵丽</h3>
-            <p class="team-role">内容负责人</p>
-            <p class="team-bio">资深编辑，专注于优质内容的策划与生产</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 统计数据 -->
-    <section class="stats-section">
-      <div class="container">
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-number">10,000+</div>
-            <div class="stat-label">注册用户</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">5,000+</div>
-            <div class="stat-label">优质内容</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">50+</div>
-            <div class="stat-label">精品课程</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">98%</div>
-            <div class="stat-label">用户满意度</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 联系方式 -->
-    <section id="contact" class="section section-light">
-      <div class="container">
-        <h2 class="section-title">联系我们</h2>
-        <p class="section-subtitle">我们期待听到您的声音</p>
-        <div class="contact-content">
-          <div class="contact-info">
-            <div class="contact-item">
-              <div class="contact-icon">📧</div>
-              <div class="contact-details">
-                <h4 class="contact-label">邮箱</h4>
-                <p class="contact-value">contact@exploreweb.com</p>
-              </div>
-            </div>
-            <div class="contact-item">
-              <div class="contact-icon">📱</div>
-              <div class="contact-details">
-                <h4 class="contact-label">电话</h4>
-                <p class="contact-value">+86 138 0000 0000</p>
-              </div>
-            </div>
-            <div class="contact-item">
-              <div class="contact-icon">📍</div>
-              <div class="contact-details">
-                <h4 class="contact-label">地址</h4>
-                <p class="contact-value">中国 · 北京 · 朝阳区</p>
-              </div>
-            </div>
-            <div class="contact-item">
-              <div class="contact-icon">⏰</div>
-              <div class="contact-details">
-                <h4 class="contact-label">工作时间</h4>
-                <p class="contact-value">周一至周五 9:00 - 18:00</p>
-              </div>
+          <!-- 游戏暂停/结束遮罩 -->
+          <div v-if="gameState !== 'playing'" class="game-overlay">
+            <div class="overlay-content">
+              <h2 class="overlay-title">{{ overlayTitle }}</h2>
+              <p class="overlay-text">{{ overlayText }}</p>
+              <button @click="startGame" class="primary-btn">
+                {{ gameState === 'ready' ? '开始游戏' : '重新开始' }}
+              </button>
             </div>
           </div>
-          <div class="contact-form">
-            <form @submit.prevent="handleSubmit">
-              <div class="form-group">
-                <label class="form-label">姓名</label>
-                <input type="text" class="form-input" placeholder="请输入您的姓名" v-model="formData.name">
-              </div>
-              <div class="form-group">
-                <label class="form-label">邮箱</label>
-                <input type="email" class="form-input" placeholder="请输入您的邮箱" v-model="formData.email">
-              </div>
-              <div class="form-group">
-                <label class="form-label">留言</label>
-                <textarea class="form-textarea" rows="4" placeholder="请输入您的留言" v-model="formData.message"></textarea>
-              </div>
-              <button type="submit" class="btn btn-primary btn-block">发送留言</button>
-            </form>
-            <div v-if="submitMessage" class="submit-message" :class="submitStatus">
-              {{ submitMessage }}
+        </div>
+
+        <!-- 游戏控制说明卡片 -->
+        <div class="control-card">
+          <h3 class="control-title">游戏控制</h3>
+          <div class="control-grid">
+            <div class="control-item">
+              <span class="control-key">↑ ↓ ← →</span>
+              <span class="control-desc">方向键移动</span>
+            </div>
+            <div class="control-item">
+              <span class="control-key">空格</span>
+              <span class="control-desc">暂停/继续</span>
+            </div>
+            <div class="control-item">
+              <span class="control-key">移动端</span>
+              <span class="control-desc">触摸滑动</span>
             </div>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- 页脚 -->
-    <footer class="footer">
-      <div class="container">
-        <div class="footer-content">
-          <div class="footer-section">
-            <h4 class="footer-title">探索站</h4>
-            <p class="footer-text">发现无限可能，共创美好未来</p>
+      <!-- 排行榜侧边栏 -->
+      <transition name="slide">
+        <div v-if="showLeaderboard" class="leaderboard-sidebar">
+          <div class="leaderboard-header">
+            <h2 class="leaderboard-title">排行榜</h2>
+            <button @click="showLeaderboard = false" class="close-btn">×</button>
           </div>
-          <div class="footer-section">
-            <h4 class="footer-title">快速链接</h4>
-            <a href="#about" class="footer-link">关于我们</a>
-            <a href="#features" class="footer-link">核心功能</a>
-            <a href="#team" class="footer-link">团队成员</a>
-          </div>
-          <div class="footer-section">
-            <h4 class="footer-title">关注我们</h4>
-            <div class="social-links">
-              <span class="social-icon">📘</span>
-              <span class="social-icon">🐦</span>
-              <span class="social-icon">📷</span>
-              <span class="social-icon">💼</span>
+          <div class="leaderboard-content">
+            <div v-if="leaderboard.length === 0" class="empty-state">
+              暂无记录
+            </div>
+            <div v-else class="leaderboard-list">
+              <div
+                v-for="(entry, index) in leaderboard"
+                :key="index"
+                class="leaderboard-item"
+                :class="{ 'top-rank': index < 3 }"
+              >
+                <span class="rank">{{ index + 1 }}</span>
+                <span class="player-name">{{ entry.name }}</span>
+                <span class="player-score">{{ entry.score }}</span>
+              </div>
             </div>
           </div>
         </div>
-        <div class="footer-bottom">
-          <p class="copyright">© 2025 探索站. 保留所有权利</p>
-        </div>
-      </div>
-    </footer>
+      </transition>
+    </div>
+
+    <!-- 虚拟方向键（移动端） -->
+    <div v-if="isMobile" class="virtual-controls">
+      <button @click="changeDirection('up')" class="virtual-btn btn-up">↑</button>
+      <button @click="changeDirection('left')" class="virtual-btn btn-left">←</button>
+      <button @click="changeDirection('down')" class="virtual-btn btn-down">↓</button>
+      <button @click="changeDirection('right')" class="virtual-btn btn-right">→</button>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import axios from 'axios';
 
-// 表单数据（使用内存存储）
-const formData = ref({
-  name: '',
-  email: '',
-  message: ''
+// 游戏状态
+const gameState = ref('ready'); // ready, playing, paused, gameover
+const score = ref(0);
+const highScore = ref(0);
+const level = ref(1);
+const showLeaderboard = ref(false);
+const leaderboard = ref([]);
+
+// 画布配置
+const gameCanvas = ref(null);
+const canvasWidth = 600;
+const canvasHeight = 600;
+const gridSize = 20;
+const gridCount = canvasWidth / gridSize;
+
+// 游戏数据
+let snake = [];
+let food = null;
+let direction = 'right';
+let nextDirection = 'right';
+let gameLoop = null;
+let touchStartX = 0;
+let touchStartY = 0;
+
+// 移动端检测
+const isMobile = ref(false);
+
+// 覆盖层文本
+const overlayTitle = computed(() => {
+  if (gameState.value === 'ready') return '贪吃蛇';
+  if (gameState.value === 'paused') return '游戏暂停';
+  if (gameState.value === 'gameover') return '游戏结束';
+  return '';
 });
 
-const submitMessage = ref('');
-const submitStatus = ref('');
+const overlayText = computed(() => {
+  if (gameState.value === 'ready') return '使用方向键控制蛇的移动，吃到食物获得分数';
+  if (gameState.value === 'paused') return '按空格键继续游戏';
+  if (gameState.value === 'gameover') return `您的得分：${score.value}`;
+  return '';
+});
 
-// 处理表单提交
-const handleSubmit = () => {
-  if (!formData.value.name || !formData.value.email || !formData.value.message) {
-    submitMessage.value = '请填写所有必填项';
-    submitStatus.value = 'error';
-    setTimeout(() => {
-      submitMessage.value = '';
-    }, 3000);
+// 初始化游戏
+const initGame = () => {
+  snake = [
+    { x: 10, y: 10 },
+    { x: 9, y: 10 },
+    { x: 8, y: 10 }
+  ];
+  direction = 'right';
+  nextDirection = 'right';
+  score.value = 0;
+  level.value = 1;
+  spawnFood();
+};
+
+// 生成食物
+const spawnFood = () => {
+  while (true) {
+    food = {
+      x: Math.floor(Math.random() * gridCount),
+      y: Math.floor(Math.random() * gridCount)
+    };
+
+    // 确保食物不在蛇身上
+    const onSnake = snake.some(segment => segment.x === food.x && segment.y === food.y);
+    if (!onSnake) break;
+  }
+};
+
+// 开始游戏
+const startGame = () => {
+  initGame();
+  gameState.value = 'playing';
+
+  if (gameLoop) clearInterval(gameLoop);
+  gameLoop = setInterval(update, 150 - (level.value - 1) * 10);
+};
+
+// 游戏更新
+const update = () => {
+  if (gameState.value !== 'playing') return;
+
+  direction = nextDirection;
+
+  // 计算新头部位置
+  const head = { ...snake[0] };
+
+  switch (direction) {
+    case 'up': head.y--; break;
+    case 'down': head.y++; break;
+    case 'left': head.x--; break;
+    case 'right': head.x++; break;
+  }
+
+  // 检查碰撞
+  if (checkCollision(head)) {
+    gameOver();
     return;
   }
 
-  // 模拟提交成功（数据存储在内存中）
-  submitMessage.value = '感谢您的留言!我们会尽快回复您。';
-  submitStatus.value = 'success';
+  // 添加新头部
+  snake.unshift(head);
 
-  // 清空表单
-  formData.value = {
-    name: '',
-    email: '',
-    message: ''
+  // 检查是否吃到食物
+  if (head.x === food.x && head.y === food.y) {
+    score.value += 10;
+    level.value = Math.floor(score.value / 50) + 1;
+    spawnFood();
+
+    // 更新游戏速度
+    if (gameLoop) {
+      clearInterval(gameLoop);
+      gameLoop = setInterval(update, 150 - (level.value - 1) * 10);
+    }
+  } else {
+    // 移除尾部
+    snake.pop();
+  }
+
+  draw();
+};
+
+// 检查碰撞
+const checkCollision = (head) => {
+  // 检查墙壁
+  if (head.x < 0 || head.x >= gridCount || head.y < 0 || head.y >= gridCount) {
+    return true;
+  }
+
+  // 检查自身
+  return snake.some(segment => segment.x === head.x && segment.y === head.y);
+};
+
+// 游戏结束
+const gameOver = async () => {
+  gameState.value = 'gameover';
+  if (gameLoop) clearInterval(gameLoop);
+
+  // 更新最高分
+  if (score.value > highScore.value) {
+    highScore.value = score.value;
+  }
+
+  // 提交分数
+  try {
+    await axios.post('/api/leaderboard', {
+      name: '玩家',
+      score: score.value
+    });
+    await loadLeaderboard();
+  } catch (error) {
+    console.error('提交分数失败:', error);
+  }
+};
+
+// 绘制游戏
+const draw = () => {
+  const canvas = gameCanvas.value;
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+
+  // 清空画布
+  ctx.fillStyle = '#2C3E50';
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+  // 绘制网格线（可选）
+  ctx.strokeStyle = '#34495E';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= gridCount; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * gridSize, 0);
+    ctx.lineTo(i * gridSize, canvasHeight);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, i * gridSize);
+    ctx.lineTo(canvasWidth, i * gridSize);
+    ctx.stroke();
+  }
+
+  // 绘制食物
+  if (food) {
+    ctx.fillStyle = '#F27979';
+    ctx.shadowColor = '#F27979';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(
+      food.x * gridSize + gridSize / 2,
+      food.y * gridSize + gridSize / 2,
+      gridSize / 2 - 2,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // 绘制蛇
+  snake.forEach((segment, index) => {
+    if (index === 0) {
+      // 蛇头
+      ctx.fillStyle = '#E8D5B5';
+      ctx.shadowColor = '#E8D5B5';
+      ctx.shadowBlur = 8;
+    } else {
+      // 蛇身
+      ctx.fillStyle = '#6A8EAE';
+      ctx.shadowBlur = 0;
+    }
+
+    ctx.beginPath();
+    ctx.roundRect(
+      segment.x * gridSize + 1,
+      segment.y * gridSize + 1,
+      gridSize - 2,
+      gridSize - 2,
+      4
+    );
+    ctx.fill();
+  });
+
+  ctx.shadowBlur = 0;
+};
+
+// 方向改变
+const changeDirection = (newDirection) => {
+  const opposites = {
+    up: 'down',
+    down: 'up',
+    left: 'right',
+    right: 'left'
   };
 
-  setTimeout(() => {
-    submitMessage.value = '';
-  }, 3000);
+  if (opposites[newDirection] !== direction) {
+    nextDirection = newDirection;
+  }
 };
+
+// 键盘事件
+const handleKeyDown = (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (gameState.value === 'playing') {
+      gameState.value = 'paused';
+    } else if (gameState.value === 'paused') {
+      gameState.value = 'playing';
+    }
+    return;
+  }
+
+  if (gameState.value !== 'playing') return;
+
+  switch (e.key) {
+    case 'ArrowUp':
+      e.preventDefault();
+      changeDirection('up');
+      break;
+    case 'ArrowDown':
+      e.preventDefault();
+      changeDirection('down');
+      break;
+    case 'ArrowLeft':
+      e.preventDefault();
+      changeDirection('left');
+      break;
+    case 'ArrowRight':
+      e.preventDefault();
+      changeDirection('right');
+      break;
+  }
+};
+
+// 触摸事件
+const handleTouchStart = (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+};
+
+const handleTouchEnd = (e) => {
+  if (gameState.value !== 'playing') return;
+
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // 水平滑动
+    if (deltaX > 30) {
+      changeDirection('right');
+    } else if (deltaX < -30) {
+      changeDirection('left');
+    }
+  } else {
+    // 垂直滑动
+    if (deltaY > 30) {
+      changeDirection('down');
+    } else if (deltaY < -30) {
+      changeDirection('up');
+    }
+  }
+};
+
+// 画布点击
+const handleCanvasClick = () => {
+  if (gameState.value === 'ready') {
+    startGame();
+  }
+};
+
+// 加载排行榜
+const loadLeaderboard = async () => {
+  try {
+    const response = await axios.get('/api/leaderboard');
+    leaderboard.value = response.data;
+  } catch (error) {
+    console.error('加载排行榜失败:', error);
+  }
+};
+
+// 检测移动端
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
+
+// 生命周期
+onMounted(() => {
+  initGame();
+  draw();
+  loadLeaderboard();
+  checkMobile();
+
+  window.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('touchstart', handleTouchStart);
+  window.addEventListener('touchend', handleTouchEnd);
+  window.addEventListener('resize', checkMobile);
+});
+
+onUnmounted(() => {
+  if (gameLoop) clearInterval(gameLoop);
+  window.removeEventListener('keydown', handleKeyDown);
+  window.removeEventListener('touchstart', handleTouchStart);
+  window.removeEventListener('touchend', handleTouchEnd);
+  window.removeEventListener('resize', checkMobile);
+});
 </script>
 
 <style scoped>
-/* 全局重置 */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* 主容器 */
 .app {
   min-height: 100vh;
-  background: #F8F8F8;
+  background: #2C3E50;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  color: #333333;
-  line-height: 1.6;
+  color: #ECF0F1;
 }
 
-/* 容器 */
-.container {
+/* 导航栏 */
+.navbar {
+  background: rgba(44, 62, 80, 0.95);
+  border-bottom: 2px solid #6A8EAE;
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.nav-content {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
-}
-
-/* 顶部导航 */
-.header {
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.header .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
 }
 
 .logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-}
-
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.logo-dot {
-  width: 12px;
-  height: 12px;
-  background: #ffffff;
-  border-radius: 50%;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.8;
-  }
-}
-
-.logo-text {
-  font-size: 20px;
-  font-weight: 700;
-  color: #333333;
-}
-
-.nav {
-  display: flex;
-  gap: 32px;
-}
-
-.nav-link {
-  color: #7F8C8D;
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 500;
-  transition: color 0.3s ease;
-  padding: 8px 0;
-  position: relative;
-}
-
-.nav-link:hover {
-  color: #3498DB;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #3498DB;
-  transition: width 0.3s ease;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-/* 主横幅 */
-.hero {
-  background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
-  color: #ffffff;
-  padding: 80px 0;
-  text-align: center;
-}
-
-.hero-content {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.hero-title {
-  font-size: 48px;
-  font-weight: 700;
-  margin-bottom: 24px;
-  letter-spacing: -0.5px;
-}
-
-.hero-subtitle {
-  font-size: 20px;
-  margin-bottom: 40px;
-  opacity: 0.95;
-  line-height: 1.7;
-}
-
-.hero-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-/* 按钮 */
-.btn {
-  padding: 14px 32px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-  outline: none;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.btn-primary {
-  background: #ffffff;
-  color: #3498DB;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.btn-outline {
-  background: transparent;
-  color: #ffffff;
-  border: 2px solid #ffffff;
-}
-
-.btn-outline:hover {
-  background: #ffffff;
-  color: #3498DB;
-}
-
-.btn-block {
-  width: 100%;
-}
-
-/* 区块 */
-.section {
-  padding: 80px 0;
-}
-
-.section-light {
-  background: #ffffff;
-}
-
-.section-title {
-  font-size: 36px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 16px;
-  color: #333333;
-}
-
-.section-subtitle {
-  font-size: 18px;
-  text-align: center;
-  color: #7F8C8D;
-  margin-bottom: 48px;
-}
-
-/* 关于我们 */
-.about-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 32px;
-  margin-top: 48px;
-}
-
-.about-card {
-  background: #F8F8F8;
-  padding: 32px;
-  border-radius: 12px;
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.about-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-}
-
-.about-icon {
-  font-size: 48px;
-  margin-bottom: 24px;
-}
-
-.about-card-title {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #333333;
-}
-
-.about-card-text {
-  font-size: 15px;
-  color: #7F8C8D;
-  line-height: 1.7;
-}
-
-/* 功能特点 */
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  margin-top: 48px;
-}
-
-.feature-card {
-  background: #ffffff;
-  padding: 32px;
-  border-radius: 12px;
-  border: 1px solid #E8E8E8;
-  transition: all 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(52, 152, 219, 0.12);
-  border-color: #3498DB;
-}
-
-.feature-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  margin-bottom: 24px;
-}
-
-.feature-icon.primary {
-  background: rgba(52, 152, 219, 0.1);
-}
-
-.feature-icon.success {
-  background: rgba(46, 204, 113, 0.1);
-}
-
-.feature-title {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #333333;
-}
-
-.feature-text {
-  font-size: 15px;
-  color: #7F8C8D;
-  line-height: 1.7;
-}
-
-/* 团队成员 */
-.team-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 32px;
-  margin-top: 48px;
-}
-
-.team-card {
-  background: #F8F8F8;
-  padding: 32px;
-  border-radius: 12px;
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-.team-card:hover {
-  transform: translateY(-4px);
-}
-
-.team-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3498DB 0%, #2ECC71 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  margin: 0 auto 24px;
-}
-
-.team-name {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #333333;
-}
-
-.team-role {
-  font-size: 15px;
-  color: #3498DB;
-  margin-bottom: 16px;
-  font-weight: 500;
-}
-
-.team-bio {
-  font-size: 14px;
-  color: #7F8C8D;
-  line-height: 1.6;
-}
-
-/* 统计数据 */
-.stats-section {
-  background: linear-gradient(135deg, #3498DB 0%, #2ECC71 100%);
-  padding: 64px 0;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 32px;
-}
-
-.stat-item {
-  text-align: center;
-  color: #ffffff;
-}
-
-.stat-number {
-  font-size: 48px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.stat-label {
-  font-size: 16px;
-  opacity: 0.9;
-}
-
-/* 联系方式 */
-.contact-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  margin-top: 48px;
-}
-
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.contact-item {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-}
-
-.contact-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(52, 152, 219, 0.1);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 24px;
-  flex-shrink: 0;
+  font-weight: 700;
+  color: #E8D5B5;
+  letter-spacing: 2px;
 }
 
-.contact-details {
+.nav-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #6A8EAE;
+  color: #ECF0F1;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: #5A7E9E;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(106, 142, 174, 0.4);
+}
+
+.btn-icon {
+  font-size: 18px;
+}
+
+/* 主容器 */
+.main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  gap: 24px;
+  position: relative;
+}
+
+/* 游戏区域 */
+.game-area {
   flex: 1;
-}
-
-.contact-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 4px;
-}
-
-.contact-value {
-  font-size: 15px;
-  color: #7F8C8D;
-}
-
-/* 表单 */
-.contact-form {
-  background: #F8F8F8;
-  padding: 32px;
-  border-radius: 12px;
-}
-
-.form-group {
-  margin-bottom: 24px;
-}
-
-.form-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 8px;
-}
-
-.form-input,
-.form-textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #E8E8E8;
-  border-radius: 8px;
-  font-size: 15px;
-  font-family: inherit;
-  transition: border-color 0.3s ease;
-  background: #ffffff;
-  color: #333333;
-}
-
-.form-input:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: #3498DB;
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.submit-message {
-  margin-top: 16px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  text-align: center;
-}
-
-.submit-message.success {
-  background: rgba(46, 204, 113, 0.1);
-  color: #2ECC71;
-  border: 1px solid #2ECC71;
-}
-
-.submit-message.error {
-  background: rgba(231, 76, 60, 0.1);
-  color: #E74C3C;
-  border: 1px solid #E74C3C;
-}
-
-/* 页脚 */
-.footer {
-  background: #2C3E50;
-  color: #ffffff;
-  padding: 48px 0 24px;
-}
-
-.footer-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 32px;
-  margin-bottom: 32px;
-}
-
-.footer-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 24px;
 }
 
-.footer-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
+/* 卡片样式 */
+.info-card,
+.game-card,
+.control-card {
+  background: rgba(52, 73, 94, 0.8);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(106, 142, 174, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.footer-text {
+/* 信息卡片 */
+.info-card {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-label {
   font-size: 14px;
-  opacity: 0.8;
+  color: #BDC3C7;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #E8D5B5;
+  text-shadow: 0 2px 8px rgba(232, 213, 181, 0.3);
+}
+
+/* 游戏画布卡片 */
+.game-card {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+canvas {
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.game-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(44, 62, 80, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.overlay-content {
+  text-align: center;
+  padding: 32px;
+}
+
+.overlay-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: #E8D5B5;
+  margin-bottom: 16px;
+  text-shadow: 0 4px 16px rgba(232, 213, 181, 0.5);
+}
+
+.overlay-text {
+  font-size: 18px;
+  color: #BDC3C7;
+  margin-bottom: 32px;
   line-height: 1.6;
 }
 
-.footer-link {
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 14px;
-  opacity: 0.8;
-  transition: opacity 0.3s ease;
-}
-
-.footer-link:hover {
-  opacity: 1;
-}
-
-.social-links {
-  display: flex;
-  gap: 12px;
-}
-
-.social-icon {
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
+.primary-btn {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #6A8EAE, #5A7E9E);
+  color: #ECF0F1;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(106, 142, 174, 0.3);
 }
 
-.social-icon:hover {
-  background: rgba(255, 255, 255, 0.2);
+.primary-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 24px rgba(106, 142, 174, 0.5);
 }
 
-.footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 24px;
+.primary-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* 控制说明卡片 */
+.control-card {
+  padding: 20px;
+}
+
+.control-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #E8D5B5;
+  margin-bottom: 16px;
   text-align: center;
 }
 
-.copyright {
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.control-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(44, 62, 80, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(106, 142, 174, 0.2);
+}
+
+.control-key {
   font-size: 14px;
-  opacity: 0.7;
+  font-weight: 600;
+  color: #A0D2DB;
+  padding: 6px 12px;
+  background: rgba(160, 210, 219, 0.1);
+  border-radius: 6px;
+}
+
+.control-desc {
+  font-size: 13px;
+  color: #BDC3C7;
+}
+
+/* 排行榜侧边栏 */
+.leaderboard-sidebar {
+  width: 320px;
+  background: rgba(52, 73, 94, 0.9);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(106, 142, 174, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;
+}
+
+.leaderboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.leaderboard-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #E8D5B5;
+}
+
+.close-btn {
+  width: 32px;
+  height: 32px;
+  background: rgba(242, 121, 121, 0.2);
+  color: #F27979;
+  border: none;
+  border-radius: 8px;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background: rgba(242, 121, 121, 0.3);
+  transform: rotate(90deg);
+}
+
+.leaderboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #BDC3C7;
+  font-size: 14px;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(44, 62, 80, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(106, 142, 174, 0.2);
+  transition: all 0.3s ease;
+}
+
+.leaderboard-item:hover {
+  background: rgba(44, 62, 80, 0.8);
+  transform: translateX(4px);
+}
+
+.leaderboard-item.top-rank {
+  border-color: #E8D5B5;
+  background: rgba(232, 213, 181, 0.1);
+}
+
+.rank {
+  font-size: 18px;
+  font-weight: 700;
+  color: #E8D5B5;
+  min-width: 30px;
+}
+
+.top-rank .rank {
+  color: #F27979;
+}
+
+.player-name {
+  flex: 1;
+  font-size: 14px;
+  color: #ECF0F1;
+}
+
+.player-score {
+  font-size: 16px;
+  font-weight: 600;
+  color: #6A8EAE;
+}
+
+/* 虚拟方向键 */
+.virtual-controls {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  display: grid;
+  grid-template-areas:
+    ". up ."
+    "left . right"
+    ". down .";
+  gap: 8px;
+  z-index: 50;
+}
+
+.virtual-btn {
+  width: 56px;
+  height: 56px;
+  background: rgba(106, 142, 174, 0.9);
+  color: #ECF0F1;
+  border: 2px solid rgba(232, 213, 181, 0.3);
+  border-radius: 12px;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.virtual-btn:active {
+  transform: scale(0.9);
+  background: rgba(90, 126, 158, 0.9);
+}
+
+.btn-up { grid-area: up; }
+.btn-down { grid-area: down; }
+.btn-left { grid-area: left; }
+.btn-right { grid-area: right; }
+
+/* 动画 */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
 }
 
 /* 响应式设计 */
+@media (max-width: 1024px) {
+  .leaderboard-sidebar {
+    position: fixed;
+    right: 0;
+    top: 80px;
+    bottom: 0;
+    width: 300px;
+    max-height: none;
+    border-radius: 16px 0 0 16px;
+    z-index: 90;
+  }
+}
+
 @media (max-width: 768px) {
-  .header .container {
-    flex-direction: column;
-    gap: 16px;
+  .main-container {
+    padding: 16px;
   }
 
-  .nav {
-    gap: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
+  .logo {
+    font-size: 18px;
   }
 
-  .hero-title {
+  .nav-btn span:not(.btn-icon) {
+    display: none;
+  }
+
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .info-card {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .info-value {
+    font-size: 24px;
+  }
+
+  .overlay-title {
     font-size: 32px;
   }
 
-  .hero-subtitle {
-    font-size: 16px;
+  .overlay-text {
+    font-size: 14px;
   }
 
-  .section-title {
-    font-size: 28px;
-  }
-
-  .contact-content {
-    grid-template-columns: 1fr;
-    gap: 32px;
-  }
-
-  .features-grid,
-  .team-grid {
+  .control-grid {
     grid-template-columns: 1fr;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .leaderboard-sidebar {
+    width: 280px;
   }
 
-  .footer-content {
-    grid-template-columns: 1fr;
+  .virtual-controls {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .virtual-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
   }
 }
 
 @media (max-width: 480px) {
-  .hero {
-    padding: 48px 0;
+  .nav-content {
+    padding: 0 16px;
   }
 
-  .hero-title {
-    font-size: 24px;
+  .info-label {
+    font-size: 12px;
   }
 
-  .hero-subtitle {
-    font-size: 14px;
+  .info-value {
+    font-size: 20px;
   }
 
-  .section {
-    padding: 48px 0;
+  .overlay-title {
+    font-size: 28px;
   }
 
-  .section-title {
-    font-size: 24px;
+  .control-card {
+    padding: 16px;
   }
 
-  .btn {
-    padding: 12px 24px;
-    font-size: 14px;
+  .control-title {
+    font-size: 16px;
   }
+}
 
-  .stat-number {
-    font-size: 36px;
-  }
+/* 滚动条样式 */
+.leaderboard-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
 
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
+.leaderboard-sidebar::-webkit-scrollbar-track {
+  background: rgba(44, 62, 80, 0.5);
+  border-radius: 3px;
+}
+
+.leaderboard-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(106, 142, 174, 0.6);
+  border-radius: 3px;
+}
+
+.leaderboard-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(106, 142, 174, 0.8);
 }
 </style>
