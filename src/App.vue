@@ -1,467 +1,276 @@
 <template>
-  <div class="app">
-    <!-- 导航栏 -->
-    <nav class="navbar">
-      <div class="nav-content">
-        <h1 class="logo">贪吃蛇游戏</h1>
-        <div class="nav-buttons">
-          <button @click="showLeaderboard = !showLeaderboard" class="nav-btn">
-            <span class="btn-icon">🏆</span>
-            <span>排行榜</span>
-          </button>
+  <div class="nio-et5t">
+    <!-- 顶部导航 -->
+    <nav class="nav-bar" :class="{ 'nav-scrolled': scrolled }">
+      <div class="nav-container">
+        <div class="nav-logo">NIO</div>
+        <div class="nav-links">
+          <a href="#exterior" @click.prevent="scrollToSection('exterior')">外观</a>
+          <a href="#interior" @click.prevent="scrollToSection('interior')">内饰</a>
+          <a href="#features" @click.prevent="scrollToSection('features')">产品亮点</a>
+          <a href="#specs" @click.prevent="scrollToSection('specs')">技术参数</a>
         </div>
       </div>
     </nav>
 
-    <!-- 主游戏区域 -->
-    <div class="main-container">
-      <div class="game-area">
-        <!-- 游戏信息卡片 -->
-        <div class="info-card">
-          <div class="info-item">
-            <span class="info-label">分数</span>
-            <span class="info-value">{{ score }}</span>
+    <!-- 英雄区域 -->
+    <section class="hero-section" id="hero">
+      <div class="hero-content">
+        <h1 class="hero-title">蔚来 ET5T</h1>
+        <p class="hero-subtitle">智能电动轿跑SUV</p>
+        <p class="hero-desc">性能与美学的完美结合，开启未来出行新纪元</p>
+        <button class="cta-button" @click="scrollToSection('exterior')">探索更多</button>
+      </div>
+      <div class="hero-overlay"></div>
+    </section>
+
+    <!-- 外观展示 -->
+    <section class="section exterior-section" id="exterior">
+      <div class="section-header">
+        <h2 class="section-title">外观设计</h2>
+        <p class="section-subtitle">流线型车身，诠释科技美学</p>
+      </div>
+      <div class="gallery">
+        <div
+          v-for="(view, index) in exteriorViews"
+          :key="index"
+          class="gallery-item"
+          :class="{ 'active': currentExterior === index }"
+          @click="currentExterior = index"
+        >
+          <div class="gallery-image" :style="{ background: view.color }">
+            <div class="car-silhouette">
+              <div class="car-body">
+                <div class="car-window"></div>
+                <div class="car-wheel wheel-front"></div>
+                <div class="car-wheel wheel-rear"></div>
+              </div>
+            </div>
           </div>
-          <div class="info-item">
-            <span class="info-label">最高分</span>
-            <span class="info-value">{{ highScore }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">等级</span>
-            <span class="info-value">{{ level }}</span>
-          </div>
+          <h3 class="gallery-title">{{ view.title }}</h3>
+          <p class="gallery-desc">{{ view.desc }}</p>
         </div>
+      </div>
+    </section>
 
-        <!-- 游戏画布卡片 -->
-        <div class="game-card">
-          <canvas
-            ref="gameCanvas"
-            :width="canvasWidth"
-            :height="canvasHeight"
-            @click="handleCanvasClick"
-          ></canvas>
-
-          <!-- 游戏暂停/结束遮罩 -->
-          <div v-if="gameState !== 'playing'" class="game-overlay">
-            <div class="overlay-content">
-              <h2 class="overlay-title">{{ overlayTitle }}</h2>
-              <p class="overlay-text">{{ overlayText }}</p>
-              <button @click="startGame" class="primary-btn">
-                {{ gameState === 'ready' ? '开始游戏' : '重新开始' }}
-              </button>
-            </div>
+    <!-- 内饰展示 -->
+    <section class="section interior-section" id="interior">
+      <div class="section-header">
+        <h2 class="section-title">内饰空间</h2>
+        <p class="section-subtitle">豪华科技座舱，尽享驾乘乐趣</p>
+      </div>
+      <div class="interior-grid">
+        <div
+          v-for="(interior, index) in interiorFeatures"
+          :key="index"
+          class="interior-card"
+        >
+          <div class="interior-icon" :style="{ background: interior.color }">
+            <div class="icon-shape"></div>
           </div>
+          <h3 class="interior-title">{{ interior.title }}</h3>
+          <p class="interior-desc">{{ interior.desc }}</p>
         </div>
+      </div>
+    </section>
 
-        <!-- 游戏控制说明卡片 -->
-        <div class="control-card">
-          <h3 class="control-title">游戏控制</h3>
-          <div class="control-grid">
-            <div class="control-item">
-              <span class="control-key">↑ ↓ ← →</span>
-              <span class="control-desc">方向键移动</span>
-            </div>
-            <div class="control-item">
-              <span class="control-key">空格</span>
-              <span class="control-desc">暂停/继续</span>
-            </div>
-            <div class="control-item">
-              <span class="control-key">移动端</span>
-              <span class="control-desc">触摸滑动</span>
+    <!-- 产品亮点 -->
+    <section class="section features-section" id="features">
+      <div class="section-header">
+        <h2 class="section-title">产品亮点</h2>
+        <p class="section-subtitle">创新科技，引领未来</p>
+      </div>
+      <div class="features-container">
+        <div
+          v-for="(feature, index) in productFeatures"
+          :key="index"
+          class="feature-card"
+          :class="{ 'feature-highlight': feature.highlight }"
+        >
+          <div class="feature-number">{{ String(index + 1).padStart(2, '0') }}</div>
+          <h3 class="feature-title">{{ feature.title }}</h3>
+          <p class="feature-desc">{{ feature.desc }}</p>
+          <div class="feature-stats" v-if="feature.stats">
+            <div
+              v-for="(stat, statIndex) in feature.stats"
+              :key="statIndex"
+              class="stat-item"
+            >
+              <div class="stat-value">{{ stat.value }}</div>
+              <div class="stat-label">{{ stat.label }}</div>
             </div>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- 排行榜侧边栏 -->
-      <transition name="slide">
-        <div v-if="showLeaderboard" class="leaderboard-sidebar">
-          <div class="leaderboard-header">
-            <h2 class="leaderboard-title">排行榜</h2>
-            <button @click="showLeaderboard = false" class="close-btn">×</button>
+    <!-- 技术参数 -->
+    <section class="section specs-section" id="specs">
+      <div class="section-header">
+        <h2 class="section-title">技术参数</h2>
+        <p class="section-subtitle">卓越性能，精准掌控</p>
+      </div>
+      <div class="specs-grid">
+        <div
+          v-for="(spec, index) in specifications"
+          :key="index"
+          class="spec-card"
+        >
+          <div class="spec-icon">
+            <div class="spec-circle"></div>
           </div>
-          <div class="leaderboard-content">
-            <div v-if="leaderboard.length === 0" class="empty-state">
-              暂无记录
-            </div>
-            <div v-else class="leaderboard-list">
-              <div
-                v-for="(entry, index) in leaderboard"
-                :key="index"
-                class="leaderboard-item"
-                :class="{ 'top-rank': index < 3 }"
-              >
-                <span class="rank">{{ index + 1 }}</span>
-                <span class="player-name">{{ entry.name }}</span>
-                <span class="player-score">{{ entry.score }}</span>
-              </div>
-            </div>
-          </div>
+          <div class="spec-value">{{ spec.value }}</div>
+          <div class="spec-label">{{ spec.label }}</div>
         </div>
-      </transition>
-    </div>
+      </div>
+    </section>
 
-    <!-- 虚拟方向键（移动端） -->
-    <div v-if="isMobile" class="virtual-controls">
-      <button @click="changeDirection('up')" class="virtual-btn btn-up">↑</button>
-      <button @click="changeDirection('left')" class="virtual-btn btn-left">←</button>
-      <button @click="changeDirection('down')" class="virtual-btn btn-down">↓</button>
-      <button @click="changeDirection('right')" class="virtual-btn btn-right">→</button>
-    </div>
+    <!-- 底部 -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-brand">NIO ET5T</div>
+        <div class="footer-text">智能电动轿跑SUV · 开启未来出行</div>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
-import axios from 'axios';
+import { ref, onMounted, onUnmounted } from 'vue';
 
-// 游戏状态
-const gameState = ref('ready'); // ready, playing, paused, gameover
-const score = ref(0);
-const highScore = ref(0);
-const level = ref(1);
-const showLeaderboard = ref(false);
-const leaderboard = ref([]);
+// 滚动状态
+const scrolled = ref(false);
+const currentExterior = ref(0);
 
-// 画布配置
-const gameCanvas = ref(null);
-const canvasWidth = 600;
-const canvasHeight = 600;
-const gridSize = 20;
-const gridCount = canvasWidth / gridSize;
+// 外观视图数据
+const exteriorViews = [
+  {
+    title: '前脸设计',
+    desc: '标志性分体式大灯，科技感与辨识度兼具',
+    color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  },
+  {
+    title: '车身侧面',
+    desc: '流畅的轿跑SUV线条，兼顾美学与空气动力学',
+    color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+  },
+  {
+    title: '尾部造型',
+    desc: '贯穿式尾灯设计，夜晚识别度极高',
+    color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+  },
+  {
+    title: '车顶线条',
+    desc: '溜背式设计，运动感十足',
+    color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+  }
+];
 
-// 游戏数据
-let snake = [];
-let food = null;
-let direction = 'right';
-let nextDirection = 'right';
-let gameLoop = null;
-let touchStartX = 0;
-let touchStartY = 0;
+// 内饰功能数据
+const interiorFeatures = [
+  {
+    title: '智能座舱',
+    desc: '12.8英寸中控屏，NOMI Mate智能助手，打造沉浸式交互体验',
+    color: '#4593E6'
+  },
+  {
+    title: '豪华座椅',
+    desc: '一体式运动座椅，Nappa真皮包裹，支持多向电动调节和加热通风',
+    color: '#667eea'
+  },
+  {
+    title: '全景天幕',
+    desc: '超大全景天幕，采光面积达2.1㎡，带来极致开阔视野',
+    color: '#f5576c'
+  },
+  {
+    title: '高级音响',
+    desc: '23扬声器沉浸式音响系统，7.1.4声道环绕立体声',
+    color: '#00f2fe'
+  }
+];
 
-// 移动端检测
-const isMobile = ref(false);
+// 产品亮点数据
+const productFeatures = [
+  {
+    title: '超长续航',
+    desc: '搭载150kWh固态电池包，CLTC综合续航里程超过1000公里，彻底消除里程焦虑',
+    highlight: true,
+    stats: [
+      { value: '1000+', label: '续航里程(km)' },
+      { value: '150', label: '电池容量(kWh)' }
+    ]
+  },
+  {
+    title: '极速性能',
+    desc: '双电机智能四驱系统，总功率480kW，零百加速仅需3.9秒',
+    highlight: false,
+    stats: [
+      { value: '3.9s', label: '0-100km/h加速' },
+      { value: '480kW', label: '最大功率' }
+    ]
+  },
+  {
+    title: '智能驾驶',
+    desc: 'NIO Pilot+智能驾驶辅助系统，33个高性能感知硬件，实现高速/城区领航辅助',
+    highlight: false
+  },
+  {
+    title: '换电便捷',
+    desc: '支持换电服务，3分钟快速换电，全国超过1500座换电站随时待命',
+    highlight: false,
+    stats: [
+      { value: '3min', label: '换电时间' },
+      { value: '1500+', label: '换电站数量' }
+    ]
+  },
+  {
+    title: '智能空间',
+    desc: '灵活可变的后备箱空间，容积可达700L，满足各种出行需求',
+    highlight: false
+  },
+  {
+    title: '安全防护',
+    desc: '五星安全标准，配备多重主被动安全系统，全方位守护每一次出行',
+    highlight: false
+  }
+];
 
-// 覆盖层文本
-const overlayTitle = computed(() => {
-  if (gameState.value === 'ready') return '贪吃蛇';
-  if (gameState.value === 'paused') return '游戏暂停';
-  if (gameState.value === 'gameover') return '游戏结束';
-  return '';
-});
+// 技术参数数据
+const specifications = [
+  { value: '4790mm', label: '车身长度' },
+  { value: '1960mm', label: '车身宽度' },
+  { value: '1499mm', label: '车身高度' },
+  { value: '2888mm', label: '轴距' },
+  { value: '480kW', label: '最大功率' },
+  { value: '850N·m', label: '最大扭矩' },
+  { value: '1000km', label: 'CLTC续航' },
+  { value: '200km/h', label: '最高车速' }
+];
 
-const overlayText = computed(() => {
-  if (gameState.value === 'ready') return '使用方向键控制蛇的移动，吃到食物获得分数';
-  if (gameState.value === 'paused') return '按空格键继续游戏';
-  if (gameState.value === 'gameover') return `您的得分：${score.value}`;
-  return '';
-});
-
-// 初始化游戏
-const initGame = () => {
-  snake = [
-    { x: 10, y: 10 },
-    { x: 9, y: 10 },
-    { x: 8, y: 10 }
-  ];
-  direction = 'right';
-  nextDirection = 'right';
-  score.value = 0;
-  level.value = 1;
-  spawnFood();
+// 滚动处理
+const handleScroll = () => {
+  scrolled.value = window.scrollY > 50;
 };
 
-// 生成食物
-const spawnFood = () => {
-  while (true) {
-    food = {
-      x: Math.floor(Math.random() * gridCount),
-      y: Math.floor(Math.random() * gridCount)
-    };
-
-    // 确保食物不在蛇身上
-    const onSnake = snake.some(segment => segment.x === food.x && segment.y === food.y);
-    if (!onSnake) break;
-  }
-};
-
-// 开始游戏
-const startGame = () => {
-  initGame();
-  gameState.value = 'playing';
-
-  if (gameLoop) clearInterval(gameLoop);
-  gameLoop = setInterval(update, 150 - (level.value - 1) * 10);
-};
-
-// 游戏更新
-const update = () => {
-  if (gameState.value !== 'playing') return;
-
-  direction = nextDirection;
-
-  // 计算新头部位置
-  const head = { ...snake[0] };
-
-  switch (direction) {
-    case 'up': head.y--; break;
-    case 'down': head.y++; break;
-    case 'left': head.x--; break;
-    case 'right': head.x++; break;
-  }
-
-  // 检查碰撞
-  if (checkCollision(head)) {
-    gameOver();
-    return;
-  }
-
-  // 添加新头部
-  snake.unshift(head);
-
-  // 检查是否吃到食物
-  if (head.x === food.x && head.y === food.y) {
-    score.value += 10;
-    level.value = Math.floor(score.value / 50) + 1;
-    spawnFood();
-
-    // 更新游戏速度
-    if (gameLoop) {
-      clearInterval(gameLoop);
-      gameLoop = setInterval(update, 150 - (level.value - 1) * 10);
-    }
-  } else {
-    // 移除尾部
-    snake.pop();
-  }
-
-  draw();
-};
-
-// 检查碰撞
-const checkCollision = (head) => {
-  // 检查墙壁
-  if (head.x < 0 || head.x >= gridCount || head.y < 0 || head.y >= gridCount) {
-    return true;
-  }
-
-  // 检查自身
-  return snake.some(segment => segment.x === head.x && segment.y === head.y);
-};
-
-// 游戏结束
-const gameOver = async () => {
-  gameState.value = 'gameover';
-  if (gameLoop) clearInterval(gameLoop);
-
-  // 更新最高分
-  if (score.value > highScore.value) {
-    highScore.value = score.value;
-  }
-
-  // 提交分数
-  try {
-    await axios.post('/api/leaderboard', {
-      name: '玩家',
-      score: score.value
+// 平滑滚动到指定区域
+const scrollToSection = (sectionId) => {
+  const element = document.getElementById(sectionId);
+  if (element) {
+    const offsetTop = element.offsetTop - 80;
+    window.scrollTo({
+      top: offsetTop,
+      behavior: 'smooth'
     });
-    await loadLeaderboard();
-  } catch (error) {
-    console.error('提交分数失败:', error);
   }
 };
 
-// 绘制游戏
-const draw = () => {
-  const canvas = gameCanvas.value;
-  if (!canvas) return;
-
-  const ctx = canvas.getContext('2d');
-
-  // 清空画布
-  ctx.fillStyle = '#2C3E50';
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-  // 绘制网格线（可选）
-  ctx.strokeStyle = '#34495E';
-  ctx.lineWidth = 0.5;
-  for (let i = 0; i <= gridCount; i++) {
-    ctx.beginPath();
-    ctx.moveTo(i * gridSize, 0);
-    ctx.lineTo(i * gridSize, canvasHeight);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(0, i * gridSize);
-    ctx.lineTo(canvasWidth, i * gridSize);
-    ctx.stroke();
-  }
-
-  // 绘制食物
-  if (food) {
-    ctx.fillStyle = '#F27979';
-    ctx.shadowColor = '#F27979';
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.arc(
-      food.x * gridSize + gridSize / 2,
-      food.y * gridSize + gridSize / 2,
-      gridSize / 2 - 2,
-      0,
-      Math.PI * 2
-    );
-    ctx.fill();
-    ctx.shadowBlur = 0;
-  }
-
-  // 绘制蛇
-  snake.forEach((segment, index) => {
-    if (index === 0) {
-      // 蛇头
-      ctx.fillStyle = '#E8D5B5';
-      ctx.shadowColor = '#E8D5B5';
-      ctx.shadowBlur = 8;
-    } else {
-      // 蛇身
-      ctx.fillStyle = '#6A8EAE';
-      ctx.shadowBlur = 0;
-    }
-
-    ctx.beginPath();
-    ctx.roundRect(
-      segment.x * gridSize + 1,
-      segment.y * gridSize + 1,
-      gridSize - 2,
-      gridSize - 2,
-      4
-    );
-    ctx.fill();
-  });
-
-  ctx.shadowBlur = 0;
-};
-
-// 方向改变
-const changeDirection = (newDirection) => {
-  const opposites = {
-    up: 'down',
-    down: 'up',
-    left: 'right',
-    right: 'left'
-  };
-
-  if (opposites[newDirection] !== direction) {
-    nextDirection = newDirection;
-  }
-};
-
-// 键盘事件
-const handleKeyDown = (e) => {
-  if (e.code === 'Space') {
-    e.preventDefault();
-    if (gameState.value === 'playing') {
-      gameState.value = 'paused';
-    } else if (gameState.value === 'paused') {
-      gameState.value = 'playing';
-    }
-    return;
-  }
-
-  if (gameState.value !== 'playing') return;
-
-  switch (e.key) {
-    case 'ArrowUp':
-      e.preventDefault();
-      changeDirection('up');
-      break;
-    case 'ArrowDown':
-      e.preventDefault();
-      changeDirection('down');
-      break;
-    case 'ArrowLeft':
-      e.preventDefault();
-      changeDirection('left');
-      break;
-    case 'ArrowRight':
-      e.preventDefault();
-      changeDirection('right');
-      break;
-  }
-};
-
-// 触摸事件
-const handleTouchStart = (e) => {
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
-};
-
-const handleTouchEnd = (e) => {
-  if (gameState.value !== 'playing') return;
-
-  const touchEndX = e.changedTouches[0].clientX;
-  const touchEndY = e.changedTouches[0].clientY;
-
-  const deltaX = touchEndX - touchStartX;
-  const deltaY = touchEndY - touchStartY;
-
-  if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    // 水平滑动
-    if (deltaX > 30) {
-      changeDirection('right');
-    } else if (deltaX < -30) {
-      changeDirection('left');
-    }
-  } else {
-    // 垂直滑动
-    if (deltaY > 30) {
-      changeDirection('down');
-    } else if (deltaY < -30) {
-      changeDirection('up');
-    }
-  }
-};
-
-// 画布点击
-const handleCanvasClick = () => {
-  if (gameState.value === 'ready') {
-    startGame();
-  }
-};
-
-// 加载排行榜
-const loadLeaderboard = async () => {
-  try {
-    const response = await axios.get('/api/leaderboard');
-    leaderboard.value = response.data;
-  } catch (error) {
-    console.error('加载排行榜失败:', error);
-  }
-};
-
-// 检测移动端
-const checkMobile = () => {
-  isMobile.value = window.innerWidth <= 768;
-};
-
-// 生命周期
 onMounted(() => {
-  initGame();
-  draw();
-  loadLeaderboard();
-  checkMobile();
-
-  window.addEventListener('keydown', handleKeyDown);
-  window.addEventListener('touchstart', handleTouchStart);
-  window.addEventListener('touchend', handleTouchEnd);
-  window.addEventListener('resize', checkMobile);
+  window.addEventListener('scroll', handleScroll);
 });
 
 onUnmounted(() => {
-  if (gameLoop) clearInterval(gameLoop);
-  window.removeEventListener('keydown', handleKeyDown);
-  window.removeEventListener('touchstart', handleTouchStart);
-  window.removeEventListener('touchend', handleTouchEnd);
-  window.removeEventListener('resize', checkMobile);
+  window.removeEventListener('scroll', handleScroll);
 });
 </script>
 
@@ -472,512 +281,603 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-.app {
-  min-height: 100vh;
-  background: #2C3E50;
+.nio-et5t {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  color: #ECF0F1;
+  color: #1e1e1e;
+  background: #ffffff;
+  overflow-x: hidden;
 }
 
 /* 导航栏 */
-.navbar {
-  background: rgba(44, 62, 80, 0.95);
-  border-bottom: 2px solid #6A8EAE;
-  padding: 16px 0;
-  position: sticky;
+.nav-bar {
+  position: fixed;
   top: 0;
-  z-index: 100;
-  backdrop-filter: blur(10px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  background: transparent;
 }
 
-.nav-content {
-  max-width: 1200px;
+.nav-bar.nav-scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.nav-container {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 20px 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.logo {
-  font-size: 24px;
+.nav-logo {
+  font-size: 28px;
   font-weight: 700;
-  color: #E8D5B5;
+  color: #4593E6;
   letter-spacing: 2px;
 }
 
-.nav-buttons {
+.nav-links {
   display: flex;
-  gap: 16px;
+  gap: 40px;
 }
 
-.nav-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background: #6A8EAE;
-  color: #ECF0F1;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.nav-btn:hover {
-  background: #5A7E9E;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(106, 142, 174, 0.4);
-}
-
-.btn-icon {
-  font-size: 18px;
-}
-
-/* 主容器 */
-.main-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 24px;
-  display: flex;
-  gap: 24px;
-  position: relative;
-}
-
-/* 游戏区域 */
-.game-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* 卡片样式 */
-.info-card,
-.game-card,
-.control-card {
-  background: rgba(52, 73, 94, 0.8);
-  border-radius: 16px;
-  padding: 24px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(106, 142, 174, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* 信息卡片 */
-.info-card {
-  display: flex;
-  justify-content: space-around;
-  gap: 16px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.info-label {
-  font-size: 14px;
-  color: #BDC3C7;
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
   font-weight: 500;
-}
-
-.info-value {
-  font-size: 32px;
-  font-weight: 700;
-  color: #E8D5B5;
-  text-shadow: 0 2px 8px rgba(232, 213, 181, 0.3);
-}
-
-/* 游戏画布卡片 */
-.game-card {
+  transition: color 0.3s ease;
   position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #4593E6;
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: #4593E6;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* 英雄区域 */
+.hero-section {
+  position: relative;
+  height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 16px;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-align: center;
+  overflow: hidden;
 }
 
-canvas {
-  border-radius: 8px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-}
-
-.game-overlay {
+.hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(44, 62, 80, 0.95);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-.overlay-content {
+.hero-content {
+  position: relative;
+  z-index: 1;
+  animation: fadeInUp 1s ease;
+}
+
+.hero-title {
+  font-size: 80px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  letter-spacing: 4px;
+}
+
+.hero-subtitle {
+  font-size: 28px;
+  font-weight: 300;
+  margin-bottom: 15px;
+  opacity: 0.95;
+}
+
+.hero-desc {
+  font-size: 18px;
+  font-weight: 300;
+  margin-bottom: 40px;
+  opacity: 0.9;
+}
+
+.cta-button {
+  padding: 16px 48px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #4593E6;
+  background: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* 通用区域样式 */
+.section {
+  padding: 120px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-header {
   text-align: center;
-  padding: 32px;
+  margin-bottom: 80px;
 }
 
-.overlay-title {
+.section-title {
   font-size: 48px;
   font-weight: 700;
-  color: #E8D5B5;
-  margin-bottom: 16px;
-  text-shadow: 0 4px 16px rgba(232, 213, 181, 0.5);
+  color: #1e1e1e;
+  margin-bottom: 20px;
 }
 
-.overlay-text {
-  font-size: 18px;
-  color: #BDC3C7;
-  margin-bottom: 32px;
+.section-subtitle {
+  font-size: 20px;
+  color: #666;
+  font-weight: 300;
+}
+
+/* 外观展示 */
+.exterior-section {
+  background: #f5f5f5;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.gallery-item {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.gallery-item:hover,
+.gallery-item.active {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-image {
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.car-silhouette {
+  width: 200px;
+  height: 120px;
+  position: relative;
+}
+
+.car-body {
+  width: 100%;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 30px 30px 15px 15px;
+  position: absolute;
+  bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.car-window {
+  width: 80px;
+  height: 35px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 15px 15px 0 0;
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.car-wheel {
+  width: 35px;
+  height: 35px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  position: absolute;
+  bottom: -5px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.wheel-front {
+  left: 20px;
+}
+
+.wheel-rear {
+  right: 20px;
+}
+
+.gallery-title {
+  padding: 20px 20px 10px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1e1e1e;
+}
+
+.gallery-desc {
+  padding: 0 20px 20px;
+  font-size: 14px;
+  color: #666;
   line-height: 1.6;
 }
 
-.primary-btn {
-  padding: 14px 32px;
-  background: linear-gradient(135deg, #6A8EAE, #5A7E9E);
-  color: #ECF0F1;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(106, 142, 174, 0.3);
-}
-
-.primary-btn:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 24px rgba(106, 142, 174, 0.5);
-}
-
-.primary-btn:active {
-  transform: translateY(0) scale(0.98);
-}
-
-/* 控制说明卡片 */
-.control-card {
-  padding: 20px;
-}
-
-.control-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #E8D5B5;
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.control-grid {
+/* 内饰展示 */
+.interior-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
 }
 
-.control-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background: rgba(44, 62, 80, 0.6);
-  border-radius: 8px;
-  border: 1px solid rgba(106, 142, 174, 0.2);
-}
-
-.control-key {
-  font-size: 14px;
-  font-weight: 600;
-  color: #A0D2DB;
-  padding: 6px 12px;
-  background: rgba(160, 210, 219, 0.1);
-  border-radius: 6px;
-}
-
-.control-desc {
-  font-size: 13px;
-  color: #BDC3C7;
-}
-
-/* 排行榜侧边栏 */
-.leaderboard-sidebar {
-  width: 320px;
-  background: rgba(52, 73, 94, 0.9);
-  border-radius: 16px;
-  padding: 24px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(106, 142, 174, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  max-height: calc(100vh - 150px);
-  overflow-y: auto;
-}
-
-.leaderboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.leaderboard-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #E8D5B5;
-}
-
-.close-btn {
-  width: 32px;
-  height: 32px;
-  background: rgba(242, 121, 121, 0.2);
-  color: #F27979;
-  border: none;
-  border-radius: 8px;
-  font-size: 24px;
-  cursor: pointer;
+.interior-card {
+  text-align: center;
+  padding: 40px 30px;
+  background: white;
+  border-radius: 20px;
   transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.interior-card:hover {
+  border-color: #4593E6;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(69, 147, 230, 0.15);
+}
+
+.interior-icon {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 30px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.close-btn:hover {
-  background: rgba(242, 121, 121, 0.3);
-  transform: rotate(90deg);
+.icon-shape {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  animation: rotate 3s linear infinite;
 }
 
-.leaderboard-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.empty-state {
-  text-align: center;
+.interior-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1e1e1e;
+  margin-bottom: 15px;
+}
+
+.interior-desc {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.8;
+}
+
+/* 产品亮点 */
+.features-section {
+  background: #fafafa;
+}
+
+.features-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.feature-card {
+  background: white;
   padding: 40px;
-  color: #BDC3C7;
-  font-size: 14px;
-}
-
-.leaderboard-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.leaderboard-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: rgba(44, 62, 80, 0.6);
-  border-radius: 8px;
-  border: 1px solid rgba(106, 142, 174, 0.2);
+  border-radius: 20px;
+  border-left: 4px solid #e0e0e0;
   transition: all 0.3s ease;
 }
 
-.leaderboard-item:hover {
-  background: rgba(44, 62, 80, 0.8);
-  transform: translateX(4px);
+.feature-card:hover {
+  border-left-color: #4593E6;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transform: translateX(5px);
 }
 
-.leaderboard-item.top-rank {
-  border-color: #E8D5B5;
-  background: rgba(232, 213, 181, 0.1);
+.feature-card.feature-highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-left: none;
 }
 
-.rank {
-  font-size: 18px;
+.feature-number {
+  font-size: 36px;
   font-weight: 700;
-  color: #E8D5B5;
-  min-width: 30px;
+  color: #4593E6;
+  margin-bottom: 20px;
+  opacity: 0.3;
 }
 
-.top-rank .rank {
-  color: #F27979;
+.feature-highlight .feature-number {
+  color: white;
+  opacity: 0.5;
 }
 
-.player-name {
-  flex: 1;
-  font-size: 14px;
-  color: #ECF0F1;
-}
-
-.player-score {
-  font-size: 16px;
+.feature-title {
+  font-size: 26px;
   font-weight: 600;
-  color: #6A8EAE;
+  margin-bottom: 15px;
 }
 
-/* 虚拟方向键 */
-.virtual-controls {
-  position: fixed;
-  bottom: 32px;
-  right: 32px;
+.feature-highlight .feature-title {
+  color: white;
+}
+
+.feature-desc {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.feature-highlight .feature-desc {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.feature-stats {
+  display: flex;
+  gap: 30px;
+  margin-top: 25px;
+}
+
+.stat-item {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #4593E6;
+  margin-bottom: 5px;
+}
+
+.feature-highlight .stat-value {
+  color: white;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #999;
+}
+
+.feature-highlight .stat-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 技术参数 */
+.specs-grid {
   display: grid;
-  grid-template-areas:
-    ". up ."
-    "left . right"
-    ". down .";
-  gap: 8px;
-  z-index: 50;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
 }
 
-.virtual-btn {
-  width: 56px;
-  height: 56px;
-  background: rgba(106, 142, 174, 0.9);
-  color: #ECF0F1;
-  border: 2px solid rgba(232, 213, 181, 0.3);
-  border-radius: 12px;
-  font-size: 24px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+.spec-card {
+  text-align: center;
+  padding: 50px 30px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
-.virtual-btn:active {
-  transform: scale(0.9);
-  background: rgba(90, 126, 158, 0.9);
+.spec-card:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
 }
 
-.btn-up { grid-area: up; }
-.btn-down { grid-area: down; }
-.btn-left { grid-area: left; }
-.btn-right { grid-area: right; }
+.spec-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 30px;
+  position: relative;
+}
+
+.spec-circle {
+  width: 100%;
+  height: 100%;
+  border: 3px solid #4593E6;
+  border-radius: 50%;
+  position: relative;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.spec-circle::after {
+  content: '';
+  width: 40px;
+  height: 40px;
+  background: #4593E6;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.spec-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1e1e1e;
+  margin-bottom: 10px;
+}
+
+.spec-label {
+  font-size: 16px;
+  color: #666;
+}
+
+/* 底部 */
+.footer {
+  background: #1e1e1e;
+  color: white;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.footer-brand {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  letter-spacing: 3px;
+}
+
+.footer-text {
+  font-size: 16px;
+  opacity: 0.7;
+}
 
 /* 动画 */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.3s ease;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  transform: translateX(100%);
-  opacity: 0;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 响应式设计 */
-@media (max-width: 1024px) {
-  .leaderboard-sidebar {
-    position: fixed;
-    right: 0;
-    top: 80px;
-    bottom: 0;
-    width: 300px;
-    max-height: none;
-    border-radius: 16px 0 0 16px;
-    z-index: 90;
-  }
-}
-
 @media (max-width: 768px) {
-  .main-container {
-    padding: 16px;
+  .nav-container {
+    padding: 15px 20px;
   }
 
-  .logo {
-    font-size: 18px;
-  }
-
-  .nav-btn span:not(.btn-icon) {
-    display: none;
-  }
-
-  canvas {
-    max-width: 100%;
-    height: auto;
-  }
-
-  .info-card {
-    flex-direction: row;
-    justify-content: space-around;
-  }
-
-  .info-value {
-    font-size: 24px;
-  }
-
-  .overlay-title {
-    font-size: 32px;
-  }
-
-  .overlay-text {
+  .nav-links {
+    gap: 20px;
     font-size: 14px;
   }
 
-  .control-grid {
+  .hero-title {
+    font-size: 48px;
+  }
+
+  .hero-subtitle {
+    font-size: 20px;
+  }
+
+  .hero-desc {
+    font-size: 16px;
+  }
+
+  .section {
+    padding: 80px 20px;
+  }
+
+  .section-title {
+    font-size: 36px;
+  }
+
+  .section-subtitle {
+    font-size: 16px;
+  }
+
+  .gallery {
     grid-template-columns: 1fr;
   }
 
-  .leaderboard-sidebar {
-    width: 280px;
+  .interior-grid {
+    grid-template-columns: 1fr;
   }
 
-  .virtual-controls {
-    bottom: 16px;
-    right: 16px;
+  .features-container {
+    grid-template-columns: 1fr;
   }
 
-  .virtual-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
+  .specs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .feature-stats {
+    flex-direction: column;
+    gap: 15px;
   }
 }
 
 @media (max-width: 480px) {
-  .nav-content {
-    padding: 0 16px;
+  .nav-logo {
+    font-size: 24px;
   }
 
-  .info-label {
+  .nav-links a {
     font-size: 12px;
   }
 
-  .info-value {
-    font-size: 20px;
+  .hero-title {
+    font-size: 36px;
   }
 
-  .overlay-title {
+  .section-title {
     font-size: 28px;
   }
 
-  .control-card {
-    padding: 16px;
+  .specs-grid {
+    grid-template-columns: 1fr;
   }
-
-  .control-title {
-    font-size: 16px;
-  }
-}
-
-/* 滚动条样式 */
-.leaderboard-sidebar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.leaderboard-sidebar::-webkit-scrollbar-track {
-  background: rgba(44, 62, 80, 0.5);
-  border-radius: 3px;
-}
-
-.leaderboard-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(106, 142, 174, 0.6);
-  border-radius: 3px;
-}
-
-.leaderboard-sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(106, 142, 174, 0.8);
 }
 </style>
